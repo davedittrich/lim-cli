@@ -1,0 +1,35 @@
+# -*- coding: utf-8 -*-
+
+import argparse
+import logging
+import textwrap
+
+from cliff.command import Command
+from lim import __version__
+
+
+class About(Command):
+    """About the 'lim' CLI"""
+
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(About, self).get_parser(prog_name)
+        parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        parser.epilog = textwrap.dedent("""
+
+            .. code-block:: console
+
+                $ lim about
+                lim version {}
+
+            ..
+            """.format(__version__))
+
+        return parser
+
+    def take_action(self, parsed_args):
+        print("lim version {}".format(__version__))
+
+
+# EOF
