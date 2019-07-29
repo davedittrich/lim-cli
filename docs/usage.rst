@@ -46,11 +46,11 @@ About
 .. autoprogram-cliff:: lim
    :command: about
 
-CTU13
------
+CTU
+---
 
 .. autoprogram-cliff:: lim
-   :command: ctu13 *
+   :command: ctu *
 
 LANL
 ----
