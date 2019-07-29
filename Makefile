@@ -108,6 +108,7 @@ twine-check: egg
 #HELP clean - remove build artifacts
 .PHONY: clean
 clean:
+	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
 	find . -name '*.pyc' -delete
 
