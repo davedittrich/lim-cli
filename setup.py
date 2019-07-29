@@ -92,8 +92,8 @@ setup(
         ],
         'lim': [
             'about = lim.about:About',
-            'ctu13 get netflow = lim.ctu13:CTU13Get',
-            'ctu13 list netflow = lim.ctu13:CTU13List',
+            'ctu get netflow = lim.ctu13:CTUGet',
+            'ctu list netflow = lim.ctu13:CTUList',
             'lanl get netflow = lim.lanl:LanlGet',
             'lanl get wls = lim.lanl:LanlGet',
         ],

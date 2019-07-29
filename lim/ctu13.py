@@ -2,10 +2,14 @@
 
 from __future__ import print_function
 
+import aiohttp
+import asyncio
+import async_timeout
 import ipaddress
 import json
 import logging
 import os
+import signal
 import six
 import time
 import requests
@@ -22,6 +26,18 @@ from .main import BUFFER_SIZE
 from .main import DEFAULT_PROTOCOLS
 from .utils import safe_to_open
 from .utils import LineReader
+
+# TODO(dittrich): Make this a command line argument?
+__ASYNC_TIMEOUT__ = 10
+__SEMAPHORE_LIMIT__ = 10
+__DATASETS_URLS__ = {
+    'ctu13': 'https://www.stratosphereips.org/datasets-ctu13',
+    'mixed': 'https://www.stratosphereips.org/datasets-mixed',
+    'normal': 'https://www.stratosphereips.org/datasets-normal',
+    'malware': 'https://www.stratosphereips.org/datasets-malware'
+}
+__GROUPS__ = [g for g, _ in __DATASETS_URLS__.items()]
+__DATASETS_URL__ = __DATASETS_URLS__['ctu13']
 
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
@@ -61,11 +77,11 @@ def IPv4ToID(x):
     return id
 
 
-def download_ctu13_netflow(url=None,
-                           datadir='',
-                           maxlines=None,
-                           protocols=['any'],
-                           force=False):
+def download_ctu_netflow(url=None,
+                         datadir='',
+                         maxlines=None,
+                         protocols=['any'],
+                         force=False):
     """
     Get CTU Netflow data BZ2 file, decompressing into
     CSV data file. This function also filters input by
@@ -129,12 +145,12 @@ def download_ctu13_netflow(url=None,
         logger.info('[+] wrote file {}'.format(outfilename))
 
 
-class CTU13_Dataset(object):
+class CTU_Dataset(object):
     """
-    Class for CTU13 dataset metadata.
+    Class for CTU dataset metadata.
 
     This class gets metadata about available labeled and unlabeled
-    bi-directional NetFlow data files from the CTU-13 dataset. It does
+    bi-directional NetFlow data files from the CTU dataset. It does
     this by scraping the CTU web site for metadata and identifying
     the path to the file (which varies, depending on whether it
     is the unlabeled version, or the post-processed labeled
@@ -146,55 +162,152 @@ class CTU13_Dataset(object):
     flag is given, the site will be scraped.
     """
 
-    __DATASETS_URL__ = 'https://mcfp.felk.cvut.cz/publicDatasets/'
+    #__DATASETS_URL__ = 'https://mcfp.felk.cvut.cz/publicDatasets/'
+    # __DATASETS_URL__ = 'https://www.stratosphereips.org/datasets-malware'
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
-    __TEST_FULL_SCENARIO_URL__ = ('https://mcfp.felk.cvut.cz/publicDatasets/'
-                                  'CTU-Malware-Capture-Botnet-42/')
-    __TEST_FULL_NETFLOW_URL__ = ('https://mcfp.felk.cvut.cz/publicDatasets/'
-                                 'CTU-Malware-Capture-Botnet-42/'
-                                 'detailed-bidirectional-flow-labels/'
-                                 'capture20110810.binetflow')
-    __CACHE_FILE__ = "ctu13-cache.json"
-    __TIMEOUT__ = 60 * 60 * 24 * 7  # secs * mins * hours * days
+    __CACHE_FILE__ = "ctu-cache.json"
+    __CACHE_TIMEOUT__ = 60 * 60 * 24 * 7  # secs * mins * hours * days
     __CORE_SCENARIOS__ = [str(s) for s in range(42, 59)]
     __COLUMNS__ = [
         'SCENARIO',
+        'GROUP',
         'SCENARIO_URL',
         'PROBABLE_NAME',
-        'DATAFILE',
-        'LABELED',
+        'ZIP',
         'MD5',
         'SHA1',
-        'SHA256'
+        'SHA256',
+        'LABELED',
+        'BINETFLOW',
+        'PCAP'
     ]
 
     def __init__(self,
-                 url=__DATASETS_URL__,
+                 groups=['ctu13'],
                  columns=__COLUMNS__,
-                 timeout=__TIMEOUT__,
+                 cache_timeout=__CACHE_TIMEOUT__,
+                 semaphore_limit=__SEMAPHORE_LIMIT__,
                  ignore_cache=False,
                  cache_file=__CACHE_FILE__,
                  debug=False):
         """Initialize object."""
 
-        super(CTU13_Dataset, self).__init__()
-        self.url = url
-        self.scenarios = OrderedDict()
-        self.netflow_urls = dict()
-        self.attributes = dict()
+        for g in groups:
+            if g not in __GROUPS__:
+                valid = ",".join([i for i in __GROUPS__])
+                raise RuntimeError(
+                    'Dataset group "{}" '.format(g) +
+                    'not found in [{}]'.format(valid)
+                    )
+        if 'all' in groups:
+            self.groups = __GROUPS__
+        else:
+            self.groups = groups
         self.columns = columns
-        self.timeout = timeout
+        self.cache_timeout = cache_timeout
+        self.semaphore_limit = semaphore_limit
+        self.sem = asyncio.Semaphore(self.semaphore_limit)
         self.ignore_cache = ignore_cache
         self.cache_file = cache_file
         self.debug = debug
+
+        # Attributes
+        self.scenarios = OrderedDict()
+        self.session = None
+        self.info_dict = dict()
+        self.loop = None
+        self.netflow_urls = dict()
+        self.attributes = dict()
+
+    def load_ctu_metadata(self):
         if not self.cache_expired() and not self.ignore_cache:
             self.read_cache()
         else:
-            for scenario in self.get_scenarios():
-                self.get_scenario_netflow_metadata(scenario)
+            self.loop = asyncio.get_event_loop()
+            self.loop.add_signal_handler(signal.SIGINT, self.loop.stop)
+            for group in self.groups:
+                scenarios = self.get_scenarios(
+                    group,
+                    url=__DATASETS_URLS__[group])
+                self.loop.run_until_complete(self.fetch_main(group, scenarios))
+            self.loop.close()
             self.write_cache()
 
-    def cache_expired(self, timeout=__TIMEOUT__):
+    async def record_scenario_metadata(self, group, url=None):
+        if url is None:
+            raise RuntimeError('url must not be None')
+        url_parts = url.split('/')
+        name = url_parts[url_parts.index('publicDatasets')+1]
+        if name not in self.scenarios:
+            self.scenarios[name] = dict()
+        _scenario = self.scenarios[name]
+        _scenario['GROUP'] = group
+        _scenario['URL'] = url
+        page = await self.fetch_scenario(url)
+        # Underscore on _page means ignore later (logic coupling)
+        _scenario['_PAGE'] = page
+        _scenario['_SUCCESS'] = page not in ["", None] \
+            and "Not Found" not in page
+        # Process links
+        soup = BeautifulSoup(page, 'html.parser')
+        # Scrape page for metadata
+        for line in soup.text.splitlines():
+            if self.__NETFLOW_DATA_DIR__ in line:
+                # TODO(dittrich): Parse subpage to get labeled binetflow
+                subpage = await self.fetch(
+                    url + self.__NETFLOW_DATA_DIR__)
+                subsoup = BeautifulSoup(subpage, 'html.parser')
+                for item in subsoup.findAll('a'):
+                    if item['href'].endswith('.binetflow'):
+                        _scenario['BINETFLOW'] = \
+                            self.__NETFLOW_DATA_DIR__ + item['href']
+                        break
+            if ":" in line and line != ":":
+                try:
+                    (_k, _v) = line.split(':')
+                    k = _k.upper().replace(' ', '_')
+                    v = _v.strip()
+                    if k in self.columns:
+                        _scenario[k] = v
+                except (ValueError, TypeError) as err: # noqa
+                    pass
+                except Exception as err:  # noqa
+                    pass
+        for item in soup.findAll('a'):
+            try:
+                href = item['href']
+            except KeyError:
+                href = ''
+            if href.startswith('?'):
+                continue
+            href_ext = os.path.splitext(href)[-1][1:].upper()
+            if href_ext == '':
+                continue
+            if href_ext in self.columns:
+                _scenario[href_ext] = href
+        pass
+
+    async def fetch(self, url):
+        with async_timeout.timeout(__ASYNC_TIMEOUT__):
+            print('[+] fetch({})'.format(url))
+            async with self.session.get(url) as response:
+                return await response.text()
+
+    async def fetch_scenario(self, url):
+        async with self.sem:
+            print('[+] fetch_scenario({})'.format(url))
+            raw_html = await self.fetch(url)
+        return raw_html
+
+    async def fetch_main(self, group, scenarios):
+        async with aiohttp.ClientSession(
+                loop=self.loop,
+                connector=aiohttp.TCPConnector(verify_ssl=False)) as self.session:  # noqa
+            await asyncio.wait([
+                self.record_scenario_metadata(group, s) for s in scenarios
+            ])
+
+    def cache_expired(self, cache_timeout=__CACHE_TIMEOUT__):
         """
         Returns True if cache_file is expired or does not exist.
         Returns False if file exists and is not expired.
@@ -208,7 +321,7 @@ class CTU13_Dataset(object):
                 logger.debug('[!] found empty cache')
                 self.delete_cache()
             age = now - stat_results.st_mtime
-            if age <= timeout:
+            if age <= cache_timeout:
                 logger.debug('[!] cache {} '.format(self.cache_file) +
                              'has not yet expired')
                 cache_expired = False
@@ -227,10 +340,7 @@ class CTU13_Dataset(object):
         if not self.cache_expired():
             with open(self.cache_file, 'r') as infile:
                 _cache = json.load(infile)
-            self.url = _cache['url']
-            self.attributes = _cache['attributes']
             self.scenarios = _cache['scenarios']
-            self.netflow_urls = _cache['netflow_urls']
             self.columns = _cache['columns']
             logger.debug('[!] loaded metadata from cache: ' +
                          '{}'.format(self.cache_file))
@@ -241,10 +351,7 @@ class CTU13_Dataset(object):
         """Save metadata to local cache as JSON"""
 
         _cache = dict()
-        _cache['url'] = self.url
-        _cache['attributes'] = self.attributes
         _cache['scenarios'] = self.scenarios
-        _cache['netflow_urls'] = self.netflow_urls
         _cache['columns'] = self.columns
         with open(self.cache_file, 'w') as outfile:
             json.dump(_cache, outfile)
@@ -259,8 +366,8 @@ class CTU13_Dataset(object):
         logger.debug('[!] deleted cache file {}'.format(self.cache_file))
         return True
 
-    def get_scenarios(self, url=__DATASETS_URL__):
-        """Scrape CTU-13 web site for metadata about binetflow
+    def get_scenarios(self, group, url=__DATASETS_URL__):
+        """Scrape CTU web site for metadata about binetflow
         files that are available."""
 
         # See "verify=False" comment in download_netflow() function.
@@ -268,153 +375,63 @@ class CTU13_Dataset(object):
         # requests.packages.urllib3.disable_warnings(
         #     category=InsecureRequestWarning)
 
-        logger.info('[+] identifying scenarios from {}'.format(url))
+        logger.info('[+] identifying scenarios for group {} from {}'.format(group, url))
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             requests.packages.urllib3.disable_warnings(
                 category=InsecureRequestWarning)
             response = requests.get(url, verify=False)  # nosec
         soup = BeautifulSoup(response.text, 'html.parser')
+        scenarios = []
         for item in soup.findAll('a'):
-            # href = item['href']
-            # if href.endswith('.binetflow') \
-            #    or href.endswith('.netflow.csv'):
-            #     scenarios[url] = href
-            #     break
             try:
                 href = item['href']
             except KeyError:
                 href = ''
-            lower_str = str(href).lower()
-            try:
-                find_str = 'ctu-malware-capture-botnet-'
-                loc = lower_str.index(find_str)
-                name = href[loc+len(find_str):].strip('/')
-                if self.debug and name not in self.__CORE_SCENARIOS__:
-                    continue
-                self.scenarios[name] = url + href
-            except ValueError:
-                pass
-        for k, v in self.scenarios.items():
-            if k not in self.attributes:
-                # Populate attribute dictionary for this scenario
-                self.attributes[k] = dict()
-                self.attributes[k]['SCENARIO'] = k.strip()
-                self.attributes[k]['SCENARIO_URL'] = v.strip()
-                for c in self.columns:
-                    # ... including as-yet-undefined attributes
-                    if c not in self.attributes[k]:
-                        self.attributes[k][c] = ''
-        return self.scenarios.keys()
-
-    def get_scenario_netflow_metadata(self, scenario=None):
-        """
-        Get metadata for CTU-13 scenario dataset
-
-        This function attempts to find a README.md file documenting
-        the contents of the directory, extracting from it the metadata
-        attributes desired for our purposes.
-        """
-
-        if scenario is None:
-            raise RuntimeError('no scenario given')
-
-        # See "verify=False" comment in download_netflow() function.
-        # See also: https://stackoverflow.com/questions/15445981/how-do-i-disable-the-security-certificate-check-in-python-requests  # noqa
-        # requests.packages.urllib3.disable_warnings(
-        #     category=InsecureRequestWarning)
-
-        try:
-            scenario_url = self.scenarios[scenario]
-        except KeyError:
-            raise RuntimeError('scenario {} was not found'.format(scenario))
-
-        # Prefer the fully-labeled file, but fall back if not available.
-        readme_url = scenario_url + 'README.md'
-        netflow_sources = [
-            "{}{}".format(scenario_url, self.__NETFLOW_DATA_DIR__),
-            scenario_url
-        ]
-        for source in netflow_sources:
-            with warnings.catch_warnings():
-                warnings.simplefilter("ignore")
-                requests.packages.urllib3.disable_warnings(
-                    category=InsecureRequestWarning)
-                response = requests.get(source, verify=False)  # nosec
-            # if response.status_code in [404] or (scenario in self.netflow_urls):  # noqa
-            if response.status_code in [404]:  # noqa
+            if href.startswith('?'):
                 continue
+            if '/publicDatasets/' in href and href.endswith('/'):
+                logger.debug('[+] found scenario {}'.format(href))
+                scenarios.append(href)
+        return scenarios
 
-            # File was found. Parse it, line by line, looking for
-            # path to NetFlow .csv file in top level directory.
-            soup = BeautifulSoup(response.text, 'html.parser')
-            # Example full URL:
-            # https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-42/detailed-bidirectional-flow-labels/capture20110810.binetflow  # noqa
-            for item in soup.findAll('a'):
-                href = item['href']
-                netflow_url = str(source + href)
-                if href.startswith('?') or \
-                   href.startswith('http://') or \
-                   href.startswith('https://') or \
-                   href.startswith('/publicDatasets/'):
-                    logger.debug('[!] ignoring href {}'.format(href))
-                    continue
-                if href.endswith('.binetflow') or \
-                   href.endswith('.netflow.csv'):
-                    if scenario in self.netflow_urls:
-                        logger.info('[-] passing alternative netflow ' +
-                                    '{} '.format(netflow_url))
-                    else:
-                        logger.info('[+] found netflow file ' +
-                                    '{}'.format(netflow_url))
-                        self.netflow_urls[scenario] = netflow_url
-                        self.attributes[scenario]['DATAFILE'] = href
-                        self.attributes[scenario]['LABELED'] =\
-                            self.__NETFLOW_DATA_DIR__ in netflow_url
-
-        # Now get remainder of metadata from README.md
-        response = requests.get(readme_url, verify=False)  # nosec
-        if response.status_code not in [404]:
-            for line in response.content.decode('utf-8').split('\n'):
-                if line.startswith('- '):
-                    try:
-                        field, value = line[2:].split(': ')
-                        field = field.upper().replace(' ', '_')
-                        if field in self.columns:
-                            self.attributes[scenario][field] = value.strip()
-                    except ValueError as err:  # noqa
-                        pass
-
-    def get_netflow_url(self, scenario=None):
-        """Return the URL for the NetFlow file for scenario."""
-        if scenario not in self.netflow_urls:
-            raise RuntimeError(('no NetFlow file for scenario '
-                                '{}'.format(scenario)))
-        return self.netflow_urls[scenario]
-
-    def get_metadata(self, name_includes=None, has_hash=None):
+    def get_metadata(self, groups=None, name_includes=None, has_hash=None):
         """
         Return a list of lists of data suitable for use by
         cliff, following the order of elements in self.columns.
         """
         data = list()
-        for k, v in self.attributes.items():
-            scenario = self.attributes[k]
-            if scenario['DATAFILE'] != '':
-                if name_includes is not None:
-                    if name_includes.lower() not in scenario['PROBABLE_NAME'].lower():  # noqa
-                        continue
-                if has_hash is not None:
-                    if not (has_hash == scenario['MD5'] or
-                            has_hash == scenario['SHA1'] or
-                            has_hash == scenario['SHA256']):
-                        continue
-                data.append([scenario[c] for c in self.columns])
+        for (scenario, attributes) in self.scenarios.items():
+            if '_SUCCESS' in attributes and not attributes['_SUCCESS']:
+                continue
+            if 'GROUP' in attributes and attributes['GROUP'] not in groups:
+                continue
+            if name_includes is not None:
+                # Can't look for something that doesn't exist.
+                if 'PROBABLE_NAME' not in attributes:
+                    continue
+                probable_name = attributes['PROBABLE_NAME'].lower()
+                find = probable_name.find(name_includes.lower())
+                if find == -1:
+                    continue
+            row = dict()
+            row['SCENARIO'] = scenario
+            row['SCENARIO_URL'] = attributes['URL']
+            if has_hash is not None:
+                if not (has_hash == attributes['MD5'] or
+                        has_hash == attributes['SHA1'] or
+                        has_hash == attributes['SHA256']):
+                    continue
+            # Get remaining attributes
+            for c in self.columns:
+                if c not in row:
+                    row[c] = attributes.get(c)
+            data.append([row.get(c) for c in self.columns])
         return data
 
 
-class CTU13Get(Command):
-    """Get CTU-13 dataset."""
+class CTUGet(Command):
+    """Get CTU dataset."""
 
     log = logging.getLogger(__name__)
 
@@ -425,7 +442,7 @@ class CTU13Get(Command):
             """)
 
     def get_parser(self, prog_name):
-        parser = super(CTU13Get, self).get_parser(prog_name)
+        parser = super(CTUGet, self).get_parser(prog_name)
         parser.add_argument(
             '--force',
             action='store_true',
@@ -462,23 +479,24 @@ class CTU13Get(Command):
 
     def take_action(self, parsed_args):
         self.log.debug('[!] getting CTU data')
-        if 'ctu13_dataset' not in dir(self):
-            self.ctu13_dataset = CTU13_Dataset(
+        if 'ctu_metadata' not in dir(self):
+            self.ctu_metadata = CTU_Dataset(
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
+        self.ctu_metadata.load_ctu_metadata()
 
         if not os.path.exists(self.app_args.data_dir):
             os.mkdir(self.app_args.data_dir, 0o750)
         datatype = self.cmd_name.split()[-1]
         if len(parsed_args.scenario) == 0:
             raise RuntimeError(('must specify a scenario: '
-                                'try "lim ctu13 list netflow"'))
-        self.log.debug('[!] downloading ctu-13 {} data'.format(datatype))
+                                'try "lim ctu list netflow"'))
+        self.log.debug('[!] downloading ctu {} data'.format(datatype))
 
         for scenario in parsed_args.scenario:
             if datatype == 'netflow':
-                download_ctu13_netflow(
-                    url=self.ctu13_dataset.get_netflow_url(scenario),
+                download_ctu_netflow(
+                    url=self.ctu_metadata.get_netflow_url(scenario),
                     datadir=self.app_args.data_dir,
                     protocols=parsed_args.protocols,
                     maxlines=parsed_args.maxlines,
@@ -488,8 +506,8 @@ class CTU13Get(Command):
                                    'not implemented')
 
 
-class CTU13List(Lister):
-    """List CTU-13 Botnet data metadata."""
+class CTUList(Lister):
+    """List CTU dataset metadata."""
 
     log = logging.getLogger(__name__)
 
@@ -498,13 +516,22 @@ class CTU13List(Lister):
             """)
 
     def get_parser(self, prog_name):
-        parser = super(CTU13List, self).get_parser(prog_name)
+        parser = super(CTUList, self).get_parser(prog_name)
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
             help="Ignore any cached results (default: False)."
+        )
+        parser.add_argument(
+            '--group',
+            action='append',
+            dest='groups',
+            type=str,
+            choices=__GROUPS__ + ['all'],
+            default=['ctu13'],
+            help="Group to process or 'all' (default: 'ctu13')."
         )
         find = parser.add_mutually_exclusive_group(required=False)
         find.add_argument(
@@ -531,13 +558,19 @@ class CTU13List(Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('[!] listing CTU data')
-        if 'ctu13_dataset' not in dir(self):
-            self.ctu13_dataset = CTU13_Dataset(
+        if 'all' in parsed_args.groups:
+            parsed_args.groups = __GROUPS__
+        if 'ctu_metadata' not in dir(self):
+            self.ctu_metadata = CTU_Dataset(
                 ignore_cache=parsed_args.ignore_cache,
+                groups=parsed_args.groups,
                 debug=self.app_args.debug)
-        columns = self.ctu13_dataset.columns
-        data = self.ctu13_dataset.get_metadata(
+        self.ctu_metadata.load_ctu_metadata()
+
+        columns = self.ctu_metadata.columns
+        data = self.ctu_metadata.get_metadata(
             name_includes=parsed_args.name_includes,
+            groups=parsed_args.groups,
             has_hash=parsed_args.hash)
         return columns, data
 
