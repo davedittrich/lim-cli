@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import aiohttp
+import argparse
 import asyncio
 import async_timeout
 import ipaddress
@@ -38,6 +39,35 @@ __DATASETS_URLS__ = {
 }
 __GROUPS__ = [g for g, _ in __DATASETS_URLS__.items()]
 __DATASETS_URL__ = __DATASETS_URLS__['ctu13']
+
+__DISCLAIMER__ = textwrap.dedent("""\
+   When using this data, make sure to respect the Disclaimer at the bottom of
+   the scenario ``Readme.*`` files:
+
+   .. code-block:: console
+
+      These files were generated in the Stratosphere Lab as part of the Malware
+      Capture Facility Project in the CVUT University, Prague, Czech Republic.
+      The goal is to store long-lived real botnet traffic and to generate labeled
+      netflows files.
+
+      Any question feel free to contact us:
+      Sebastian Garcia: sebastian.garcia@agents.fel.cvut.cz
+
+      You are free to use these files as long as you reference this project and
+      the authors as follows:
+
+      Garcia, Sebastian. Malware Capture Facility Project. Retrieved
+      from https://stratosphereips.org
+
+   ..
+
+   To cite the [CTU13] dataset please cite the paper "An empirical comparison of
+   botnet detection methods" Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro
+   Zunino. Computers and Security Journal, Elsevier. 2014. Vol 45, pp 100-123.
+   http://dx.doi.org/10.1016/j.cose.2014.05.011
+
+""")
 
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
@@ -435,14 +465,9 @@ class CTUGet(Command):
 
     log = logging.getLogger(__name__)
 
-    def get_epilog(self):
-        return textwrap.dedent("""\
-            For testing purposes, use --maxlines to limit the number of
-            lines to read from each file.
-            """)
-
     def get_parser(self, prog_name):
         parser = super(CTUGet, self).get_parser(prog_name)
+        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--force',
             action='store_true',
@@ -475,6 +500,8 @@ class CTUGet(Command):
             help="Ignore any cached results (default: False)."
         )
         parser.add_argument('scenario', nargs='*', default=[])
+        parser.epilog = textwrap.dedent("""\
+           \n""") + __DISCLAIMER__
         return parser
 
     def take_action(self, parsed_args):
@@ -511,12 +538,9 @@ class CTUList(Lister):
 
     log = logging.getLogger(__name__)
 
-    def get_epilog(self):
-        return textwrap.dedent("""\
-            """)
-
     def get_parser(self, prog_name):
         parser = super(CTUList, self).get_parser(prog_name)
+        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
@@ -531,7 +555,7 @@ class CTUList(Lister):
             type=str,
             choices=__GROUPS__ + ['all'],
             default=['ctu13'],
-            help="Group to process or 'all' (default: 'ctu13')."
+            help="Dataset group to incldue or 'all' (default: 'ctu13')."
         )
         find = parser.add_mutually_exclusive_group(required=False)
         find.add_argument(
@@ -547,9 +571,25 @@ class CTUList(Lister):
             dest='name_includes',
             metavar='<string>',
             default=None,
-            help=('Only list "PROBABLE_NAME" including this '
-                  'string (default: None).')
+            help=('Only list scenarioes including this string'
+                  'in the "PROBABLE_NAME" (default: None).')
         )
+        parser.epilog = textwrap.dedent("""\
+           The ``--group`` option can be repeated multiple times to include multiple
+           subgroups, or you can use ``--group all`` to include all groups.
+
+           The ``--hash`` option makes an exact match on any one of the stored hash
+           values.  This is the hash of the executable binary referenced in the
+           ``ZIP`` column.
+
+           The ``--name-includes`` option is rather simplistic, matching any occurance
+           of the substring (case insensitive) in the ``PROBABLE_NAME`` field.  For more
+           accurate matching, you can use something like the ``-f csv`` option and then
+           match on regular expressions using one of the ``grep`` variants.  Or add
+           regular expression handling and submit a pull request! ;)
+
+           \n""") + __DISCLAIMER__
+
         return parser
 
     # FYI, https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-269-1/README.html  # noqa
