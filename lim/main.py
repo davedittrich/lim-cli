@@ -63,7 +63,15 @@ class LiminalApp(App):
 
         # Global options
         parser.add_argument(
-            '-e', '--environment',
+            '-e', '--elapsed',
+            action='store_true',
+            dest='elapsed',
+            default=False,
+            help="Include elapsed time (and ASCII bell) " +
+                 "on exit (default: False)"
+        )
+        parser.add_argument(
+            '-E', '--environment',
             metavar='<environment>',
             dest='environment',
             default=default_environment(),
@@ -79,20 +87,22 @@ class LiminalApp(App):
 
     def prepare_to_run_command(self, cmd):
         self.LOG.debug('prepare_to_run_command %s', cmd.__class__.__name__)
-        self.timer.start()
+        if self.options.elapsed:
+            self.timer.start()
 
     def clean_up(self, cmd, result, err):
         self.LOG.debug('[!] clean_up %s', cmd.__class__.__name__)
-        self.timer.stop()
-        elapsed = self.timer.elapsed()
-        if result != 0:
-            self.LOG.debug('[!] elapsed time: %s', elapsed)
-        elif self.options.verbose_level > 0 \
-                and cmd.__class__.__name__ != "CompleteCommand":
-            self.stdout.write('[+] Elapsed time {}\n'.format(elapsed))
-            if sys.stdout.isatty():
-                sys.stdout.write('\a')
-                sys.stdout.flush()
+        if self.options.elapsed:
+            self.timer.stop()
+            elapsed = self.timer.elapsed()
+            if result != 0:
+                self.LOG.debug('[!] elapsed time: %s', elapsed)
+            elif self.options.verbose_level > 0 \
+                    and cmd.__class__.__name__ != "CompleteCommand":
+                self.stdout.write('[+] Elapsed time {}\n'.format(elapsed))
+                if sys.stdout.isatty():
+                    sys.stdout.write('\a')
+                    sys.stdout.flush()
 
     def set_environment(self, environment=default_environment()):
         """Set variable for current environment"""
