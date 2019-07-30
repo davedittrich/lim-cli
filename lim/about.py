@@ -6,7 +6,7 @@ import textwrap
 
 from cliff.command import Command
 from lim import __version__
-from lim.ctu import __DISCLAIMER__
+from lim.ctu import CTU_Dataset
 
 
 class About(Command):
@@ -26,14 +26,14 @@ class About(Command):
                 {DISCLAIMER}
 
             ..
-            """.format(VERSION=__version__, DISCLAIMER=__DISCLAIMER__)
+            """.format(VERSION=__version__, DISCLAIMER=CTU_Dataset.get_disclaimer())
         )
 
         return parser
 
     def take_action(self, parsed_args):
         print("lim version {VERSION}\n\n{DISCLAIMER}".format(
-            VERSION=__version__, DISCLAIMER=__DISCLAIMER__))
+            VERSION=__version__, DISCLAIMER=CTU_Dataset.get_disclaimer()))
 
 
 # EOF
