@@ -67,7 +67,7 @@ __DISCLAIMER__ = textwrap.dedent("""\
    Zunino. Computers and Security Journal, Elsevier. 2014. Vol 45, pp 100-123.
    http://dx.doi.org/10.1016/j.cose.2014.05.011
 
-""")
+""")  # noqa
 
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
@@ -192,7 +192,7 @@ class CTU_Dataset(object):
     flag is given, the site will be scraped.
     """
 
-    #__DATASETS_URL__ = 'https://mcfp.felk.cvut.cz/publicDatasets/'
+    # __DATASETS_URL__ = 'https://mcfp.felk.cvut.cz/publicDatasets/'
     # __DATASETS_URL__ = 'https://www.stratosphereips.org/datasets-malware'
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
     __CACHE_FILE__ = "ctu-cache.json"
@@ -405,7 +405,8 @@ class CTU_Dataset(object):
         # requests.packages.urllib3.disable_warnings(
         #     category=InsecureRequestWarning)
 
-        logger.info('[+] identifying scenarios for group {} from {}'.format(group, url))
+        logger.info('[+] identifying scenarios for ' +
+                    'group {} from {}'.format(group, url))
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             requests.packages.urllib3.disable_warnings(
@@ -588,7 +589,7 @@ class CTUList(Lister):
            match on regular expressions using one of the ``grep`` variants.  Or add
            regular expression handling and submit a pull request! ;)
 
-           \n""") + __DISCLAIMER__
+           \n""") + __DISCLAIMER__  # noqa
 
         return parser
 
