@@ -18,7 +18,8 @@ TEST_CACHE = 'ctu-cache.json'
 
 class Test_CTU_Dataset(unittest.TestCase):
     def setUp(self):
-        pass
+        self.ctu_dataset = CTU_Dataset(cache_file=TEST_CACHE)
+        self.ctu_dataset.load_ctu_metadata()
 
     def tearDown(self):
         pass
@@ -52,19 +53,46 @@ class Test_CTU_Dataset(unittest.TestCase):
         assert "http://dx.doi.org/10.1016/j.cose.2014.05.011" in disclaimer
 
     def test_get_scenarios(self):
-        ctu_dataset = CTU_Dataset(cache_file=TEST_CACHE)
-        ctu_dataset.load_ctu_metadata()
-        scenarios = ctu_dataset.get_scenarios()
+        scenarios = self.ctu_dataset.get_scenarios()
         assert type(scenarios) is type(dict())
         assert 'CTU-Mixed-Capture-1' in scenarios
 
     def test_get_scenario_names(self):
-        ctu_dataset = CTU_Dataset(cache_file=TEST_CACHE)
-        ctu_dataset.load_ctu_metadata()
-        scenario_names = ctu_dataset.get_scenario_names()
+        scenario_names = self.ctu_dataset.get_scenario_names()
         assert type(scenario_names) is type(list())
         assert len(scenario_names) > 0
         assert scenario_names[0] == 'CTU-Mixed-Capture-1'
+
+    def test_is_valid_scenario_MATCH(self):
+        assert self.ctu_dataset.is_valid_scenario(
+            'CTU-Mixed-Capture-1') is True
+
+    def test_is_valid_scenario_FAIL(self):
+        assert self.ctu_dataset.is_valid_scenario(
+            'CTU-Moxed-Cipture-1') is False
+
+    def test_get_scenario_attribute_url_SUCCESS(self):
+        assert self.ctu_dataset.get_scenario_attribute(
+            'CTU-Mixed-Capture-1', 'URL') ==\
+            'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/'
+
+    def test_get_scenario_attribute_url_FAIL(self):
+        try:
+            _ = self.ctu_dataset.get_scenario_attribute(
+                'CTU-Mixed-Capture-1', 'ORL')
+        except RuntimeError as err:
+            assert 'Not implemented' in str(err)
+        else:
+            raise
+
+    def test_get_scenario_attribute_pcap(self):
+        assert self.ctu_dataset.get_scenario_attribute(
+            'CTU-Mixed-Capture-1', 'PCAP') == \
+            'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap'
+
+    def test_get_scenario_page(self):
+        assert 'DOCTYPE HTML PUBLIC' in \
+            self.ctu_dataset.get_scenario_page('CTU-Mixed-Capture-1')
 
 if __name__ == '__main__':
     import sys

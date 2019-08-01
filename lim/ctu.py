@@ -259,6 +259,48 @@ class CTU_Dataset(object):
         """Returns CTU dataset scenario names"""
         return [s for s in self.scenarios.keys()]
 
+    def is_valid_scenario(self, name):
+        """Returns boolean indicating existence of scenario"""
+        return name in self.scenarios
+
+    def get_scenario(self, name):
+        """Returns CTU dataset scenario"""
+        return self.scenarios.get(name)
+
+    def get_scenario_page(self, name):
+        """Returns CTU dataset scenario HTML page"""
+        try:
+            return self.scenarios[name].get('_PAGE')
+        except Exception as err:
+            return None
+
+    def get_scenario_attribute(self, name, attribute):
+        """
+        Returns CTU scenario dataset attribute.
+
+        Discrete attributes are returned as they are.
+
+        Compound attributes (i.e., files) are composed of the
+        base URL plus the attribute's name (which may include path
+        information).
+        """
+        if name not in self.scenarios:
+            return None
+        if attribute in ['GROUP', 'URL']:
+            try:
+                result = self.scenarios[name].get(attribute)
+            except Exception as err:
+                result = None
+        elif attribute in ['BINETFLOW', 'PCAP']:
+            try:
+                url = self.scenarios[name]['URL']
+                result = url + self.scenarios[name].get(attribute)
+            except Exception as err:
+                result = None
+        else:
+            raise RuntimeError('Not implemented')
+        return result
+
     # https://pawelmhm.github.io/asyncio/python/aiohttp/2016/04/22/asyncio-aiohttp.html
 
     def load_ctu_metadata(self):
@@ -543,7 +585,8 @@ class CTUGet(Command):
             default=False,
             help="Ignore any cached results (default: False)."
         )
-        parser.add_argument('scenario', nargs='*', default=[])
+        parser.add_argument('scenario', nargs='1', default=[])
+        parser.add_argument('data', nargs='*', default=[])
         parser.epilog = textwrap.dedent("""\
            \n""") + CTU_Dataset.get_disclaimer()
         return parser
@@ -557,9 +600,13 @@ class CTUGet(Command):
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
 
+        if not self.ctu_metadata.is_valid_scenario(parsed_args.scenario):
+            raise RuntimeError('Scenario "{}" does not exist')
         if not os.path.exists(self.app_args.data_dir):
             os.mkdir(self.app_args.data_dir, 0o750)
-        datatype = self.cmd_name.split()[-1]
+        for data in parsed_args.data:
+            self.log.debug('[!] downloading {} data '.format(data) +
+                           'for scenario {}'.format(parsed_args.scenario))
         if len(parsed_args.scenario) == 0:
             raise RuntimeError(('must specify a scenario: '
                                 'try "lim ctu list netflow"'))
