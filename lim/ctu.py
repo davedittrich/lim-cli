@@ -29,46 +29,6 @@ from .utils import safe_to_open
 from .utils import LineReader
 
 # TODO(dittrich): Make this a command line argument?
-__ASYNC_TIMEOUT__ = 10
-__SEMAPHORE_LIMIT__ = 10
-__DATASETS_URLS__ = {
-    'ctu13': 'https://www.stratosphereips.org/datasets-ctu13',
-    'mixed': 'https://www.stratosphereips.org/datasets-mixed',
-    'normal': 'https://www.stratosphereips.org/datasets-normal',
-    'malware': 'https://www.stratosphereips.org/datasets-malware'
-}
-__GROUPS__ = [g for g, _ in __DATASETS_URLS__.items()]
-__DATASETS_URL__ = __DATASETS_URLS__['ctu13']
-
-__DISCLAIMER__ = textwrap.dedent("""\
-   When using this data, make sure to respect the Disclaimer at the bottom of
-   the scenario ``Readme.*`` files:
-
-   .. code-block:: console
-
-      These files were generated in the Stratosphere Lab as part of the Malware
-      Capture Facility Project in the CVUT University, Prague, Czech Republic.
-      The goal is to store long-lived real botnet traffic and to generate labeled
-      netflows files.
-
-      Any question feel free to contact us:
-      Sebastian Garcia: sebastian.garcia@agents.fel.cvut.cz
-
-      You are free to use these files as long as you reference this project and
-      the authors as follows:
-
-      Garcia, Sebastian. Malware Capture Facility Project. Retrieved
-      from https://stratosphereips.org
-
-   ..
-
-   To cite the [CTU13] dataset please cite the paper "An empirical comparison of
-   botnet detection methods" Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro
-   Zunino. Computers and Security Journal, Elsevier. 2014. Vol 45, pp 100-123.
-   http://dx.doi.org/10.1016/j.cose.2014.05.011
-
-""")  # noqa
-
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
 
@@ -179,25 +139,29 @@ class CTU_Dataset(object):
     """
     Class for CTU dataset metadata.
 
-    This class gets metadata about available labeled and unlabeled
-    bi-directional NetFlow data files from the CTU dataset. It does
+    This class gets metadata about available CTU datasets.  It does
     this by scraping the CTU web site for metadata and identifying
     the path to the file (which varies, depending on whether it
     is the unlabeled version, or the post-processed labeled
-    version.
-
-    Since it takes a long time to scrape the web site, a cache of
-    collected metadata is used. If the timeout period for the cache
-    has expired, the file does not exist, or the --ignore-cache
-    flag is given, the site will be scraped.
+    version. Scraped data is cached for a period of time. You can
+    force re-loading by using the --ignore-cache flag.
     """
 
-    # __DATASETS_URL__ = 'https://mcfp.felk.cvut.cz/publicDatasets/'
-    # __DATASETS_URL__ = 'https://www.stratosphereips.org/datasets-malware'
+    # https://mcfp.felk.cvut.cz/publicDatasets/
+    # https://www.stratosphereips.org/datasets-malware
+
+    __ASYNC_TIMEOUT__ = 10
+    __SEMAPHORE_LIMIT__ = 10
+    __CTU_DATASET_GROUPS__ = {
+        'mixed': 'https://www.stratosphereips.org/datasets-mixed',
+        'normal': 'https://www.stratosphereips.org/datasets-normal',
+        'malware': 'https://www.stratosphereips.org/datasets-malware'
+    }
+    __DEFAULT_GROUP__ = 'malware'
+    __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
     __CACHE_FILE__ = "ctu-cache.json"
     __CACHE_TIMEOUT__ = 60 * 60 * 24 * 7  # secs * mins * hours * days
-    __CORE_SCENARIOS__ = [str(s) for s in range(42, 59)]
     __COLUMNS__ = [
         'SCENARIO',
         'GROUP',
@@ -211,59 +175,103 @@ class CTU_Dataset(object):
         'BINETFLOW',
         'PCAP'
     ]
+    __DISCLAIMER__ = textwrap.dedent("""\
+       When using this data, make sure to respect the Disclaimer at the bottom of
+       the scenario ``Readme.*`` files:
+
+       .. code-block:: console
+
+          These files were generated in the Stratosphere Lab as part of the Malware
+          Capture Facility Project in the CVUT University, Prague, Czech Republic.
+          The goal is to store long-lived real botnet traffic and to generate labeled
+          netflows files.
+
+          Any question feel free to contact us:
+          Sebastian Garcia: sebastian.garcia@agents.fel.cvut.cz
+
+          You are free to use these files as long as you reference this project and
+          the authors as follows:
+
+          Garcia, Sebastian. Malware Capture Facility Project. Retrieved
+          from https://stratosphereips.org
+
+       ..
+
+       To cite the [CTU13] dataset please cite the paper "An empirical comparison of
+       botnet detection methods" Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro
+       Zunino. Computers and Security Journal, Elsevier. 2014. Vol 45, pp 100-123.
+       http://dx.doi.org/10.1016/j.cose.2014.05.011
+
+    """)  # noqa
 
     def __init__(self,
-                 groups=['ctu13'],
-                 columns=__COLUMNS__,
                  cache_timeout=__CACHE_TIMEOUT__,
+                 async_timeout=__ASYNC_TIMEOUT__,
                  semaphore_limit=__SEMAPHORE_LIMIT__,
+                 cache_file=None,
                  ignore_cache=False,
-                 cache_file=__CACHE_FILE__,
                  debug=False):
         """Initialize object."""
 
-        for g in groups:
-            if g not in __GROUPS__:
-                valid = ",".join([i for i in __GROUPS__])
-                raise RuntimeError(
-                    'Dataset group "{}" '.format(g) +
-                    'not found in [{}]'.format(valid)
-                    )
-        if 'all' in groups:
-            self.groups = __GROUPS__
-        else:
-            self.groups = groups
-        self.columns = columns
         self.cache_timeout = cache_timeout
         self.semaphore_limit = semaphore_limit
-        self.sem = asyncio.Semaphore(self.semaphore_limit)
+        self.async_timeout = async_timeout
+        self.cache_file = cache_file if cache_file is not None else self.__CACHE_FILE__
         self.ignore_cache = ignore_cache
-        self.cache_file = cache_file
         self.debug = debug
 
         # Attributes
         self.scenarios = OrderedDict()
-        self.session = None
-        self.info_dict = dict()
-        self.loop = None
-        self.netflow_urls = dict()
-        self.attributes = dict()
+        self.columns = self.get_columns()
+        self.groups = self.get_groups()
+        pass
+
+    @classmethod
+    def get_groups(cls):
+        """Return list of valid group names"""
+        return [g for g in cls.__CTU_DATASET_GROUPS__.keys()]
+
+    @classmethod
+    def get_url_for_group(cls, group):
+        """Return URL for group"""
+        return cls.__CTU_DATASET_GROUPS__.get(group)
+
+    @classmethod
+    def get_default_group(cls):
+        """Returns default group name"""
+        return cls.__DEFAULT_GROUP__
+
+    @classmethod
+    def get_columns(cls):
+        """Returns list of columns"""
+        return cls.__COLUMNS__
+
+    @classmethod
+    def get_disclaimer(cls):
+        """Returns CTU disclaimer"""
+        return cls.__DISCLAIMER__
+
+    def get_scenarios(self):
+        """Returns CTU dataset scenarios"""
+        return self.scenarios
+
+    def get_scenario_names(self):
+        """Returns CTU dataset scenario names"""
+        return [s for s in self.scenarios.keys()]
+
+    # https://pawelmhm.github.io/asyncio/python/aiohttp/2016/04/22/asyncio-aiohttp.html
 
     def load_ctu_metadata(self):
         if not self.cache_expired() and not self.ignore_cache:
             self.read_cache()
         else:
-            self.loop = asyncio.get_event_loop()
-            self.loop.add_signal_handler(signal.SIGINT, self.loop.stop)
-            for group in self.groups:
-                scenarios = self.get_scenarios(
-                    group,
-                    url=__DATASETS_URLS__[group])
-                self.loop.run_until_complete(self.fetch_main(group, scenarios))
-            self.loop.close()
+            loop = asyncio.get_event_loop()
+            loop.add_signal_handler(signal.SIGINT, loop.stop)
+            future = asyncio.ensure_future(self.run_fetch())
+            loop.run_until_complete(future)
             self.write_cache()
 
-    async def record_scenario_metadata(self, group, url=None):
+    async def record_scenario_metadata(self, semaphore, group, url, session):
         if url is None:
             raise RuntimeError('url must not be None')
         url_parts = url.split('/')
@@ -273,69 +281,94 @@ class CTU_Dataset(object):
         _scenario = self.scenarios[name]
         _scenario['GROUP'] = group
         _scenario['URL'] = url
-        page = await self.fetch_scenario(url)
+        page = await self.fetch_page(semaphore, url, session)
         # Underscore on _page means ignore later (logic coupling)
         _scenario['_PAGE'] = page
         _scenario['_SUCCESS'] = page not in ["", None] \
             and "Not Found" not in page
-        # Process links
-        soup = BeautifulSoup(page, 'html.parser')
-        # Scrape page for metadata
-        for line in soup.text.splitlines():
-            if self.__NETFLOW_DATA_DIR__ in line:
-                # TODO(dittrich): Parse subpage to get labeled binetflow
-                subpage = await self.fetch(
-                    url + self.__NETFLOW_DATA_DIR__)
-                subsoup = BeautifulSoup(subpage, 'html.parser')
-                for item in subsoup.findAll('a'):
-                    if item['href'].endswith('.binetflow'):
-                        _scenario['BINETFLOW'] = \
-                            self.__NETFLOW_DATA_DIR__ + item['href']
-                        break
-            if ":" in line and line != ":":
+        if _scenario['_SUCCESS']:
+            # Process links
+            soup = BeautifulSoup(page, 'html.parser')
+            # Scrape page for metadata
+            for line in soup.text.splitlines():
+                if self.__NETFLOW_DATA_DIR__ in line:
+                    # TODO(dittrich): Parse subpage to get labeled binetflow
+                    subpage = await self.fetch(
+                        url + self.__NETFLOW_DATA_DIR__,
+                        session)
+                    subsoup = BeautifulSoup(subpage, 'html.parser')
+                    for item in subsoup.findAll('a'):
+                        if item['href'].endswith('.binetflow'):
+                            _scenario['BINETFLOW'] = \
+                                self.__NETFLOW_DATA_DIR__ + item['href']
+                            break
+                if ":" in line and line != ":":
+                    try:
+                        (_k, _v) = line.split(':')
+                        k = _k.upper().replace(' ', '_')
+                        v = _v.strip()
+                        if k in self.columns:
+                            _scenario[k] = v
+                    except (ValueError, TypeError) as err: # noqa
+                        pass
+                    except Exception as err:  # noqa
+                        pass
+            for item in soup.findAll('a'):
                 try:
-                    (_k, _v) = line.split(':')
-                    k = _k.upper().replace(' ', '_')
-                    v = _v.strip()
-                    if k in self.columns:
-                        _scenario[k] = v
-                except (ValueError, TypeError) as err: # noqa
-                    pass
-                except Exception as err:  # noqa
-                    pass
-        for item in soup.findAll('a'):
-            try:
-                href = item['href']
-            except KeyError:
-                href = ''
-            if href.startswith('?'):
-                continue
-            href_ext = os.path.splitext(href)[-1][1:].upper()
-            if href_ext == '':
-                continue
-            if href_ext in self.columns:
-                _scenario[href_ext] = href
+                    href = item['href']
+                except KeyError:
+                    href = ''
+                if href.startswith('?'):
+                    continue
+                href_ext = os.path.splitext(href)[-1][1:].upper()
+                if href_ext == '':
+                    continue
+                if href_ext in self.columns:
+                    _scenario[href_ext] = href
         pass
 
-    async def fetch(self, url):
-        with async_timeout.timeout(__ASYNC_TIMEOUT__):
-            print('[+] fetch({})'.format(url))
-            async with self.session.get(url) as response:
-                return await response.text()
-
-    async def fetch_scenario(self, url):
-        async with self.sem:
-            print('[+] fetch_scenario({})'.format(url))
-            raw_html = await self.fetch(url)
-        return raw_html
-
-    async def fetch_main(self, group, scenarios):
+    async def run_fetch(self):
+        tasks = []
+        semaphore = asyncio.Semaphore(self.semaphore_limit)
         async with aiohttp.ClientSession(
-                loop=self.loop,
-                connector=aiohttp.TCPConnector(verify_ssl=False)) as self.session:  # noqa
-            await asyncio.wait([
-                self.record_scenario_metadata(group, s) for s in scenarios
-            ])
+            connector=aiohttp.TCPConnector(verify_ssl=False)) as session:  # noqa
+            for group in CTU_Dataset.get_groups():
+                scenarios = self.get_scenarios_for_group(group)
+                for url in scenarios:
+                    task = asyncio.ensure_future(
+                        self.record_scenario_metadata(
+                            semaphore, group, url, session))
+                    tasks.append(task)
+            responses = asyncio.gather(*tasks)
+            await responses
+
+    async def fetch_page(self, semaphore, url, session):
+        """Fetch a page"""
+        logger.debug('[+] fetch_page({})'.format(url))
+        page = await self.bound_fetch(semaphore, url, session)
+        return page.decode("utf-8")
+
+    async def bound_fetch(self, semaphore, url, session):
+        """Fetch a page asynchronously with semaphore limiting"""
+        async with semaphore:
+            return await self.fetch(url, session)
+
+    async def fetch(self, url, session):
+        """GET a URL asynchronously"""
+        with async_timeout.timeout(self.async_timeout):
+            logger.debug('[+] fetch({})'.format(url))
+            async with session.get(url) as response:
+                return await response.read()
+
+    async def immediate_fetch(self, url):
+        """GET a page synchronously"""
+        logger.debug('[+] immediate_fetch({})'.format(url))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            requests.packages.urllib3.disable_warnings(
+                category=InsecureRequestWarning)
+            response = requests.get(url, verify=False)  # nosec
+        return response
 
     def cache_expired(self, cache_timeout=__CACHE_TIMEOUT__):
         """
@@ -396,7 +429,7 @@ class CTU_Dataset(object):
         logger.debug('[!] deleted cache file {}'.format(self.cache_file))
         return True
 
-    def get_scenarios(self, group, url=__DATASETS_URL__):
+    def get_scenarios_for_group(self, group=None):
         """Scrape CTU web site for metadata about binetflow
         files that are available."""
 
@@ -405,6 +438,9 @@ class CTU_Dataset(object):
         # requests.packages.urllib3.disable_warnings(
         #     category=InsecureRequestWarning)
 
+        if group is None:
+            raise RuntimeError('No group name provided')
+        url = CTU_Dataset.get_url_for_group(group)
         logger.info('[+] identifying scenarios for ' +
                     'group {} from {}'.format(group, url))
         with warnings.catch_warnings():
@@ -494,6 +530,13 @@ class CTUGet(Command):
             help="Maximum number of lines to get (default: None)"
         )
         parser.add_argument(
+            '--cache-file',
+            action='store',
+            dest='cache_file',
+            default=None,
+            help="Cache file path (default: None)."
+        )
+        parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
@@ -502,13 +545,14 @@ class CTUGet(Command):
         )
         parser.add_argument('scenario', nargs='*', default=[])
         parser.epilog = textwrap.dedent("""\
-           \n""") + __DISCLAIMER__
+           \n""") + CTU_Dataset.get_disclaimer()
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('[!] getting CTU data')
         if 'ctu_metadata' not in dir(self):
             self.ctu_metadata = CTU_Dataset(
+                cache_file=parsed_args.cache_file,
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
@@ -543,6 +587,13 @@ class CTUList(Lister):
         parser = super(CTUList, self).get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
+            '--cache-file',
+            action='store',
+            dest='cache_file',
+            default=None,
+            help="Cache file path (default: None)."
+        )
+        parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
@@ -554,9 +605,10 @@ class CTUList(Lister):
             action='append',
             dest='groups',
             type=str,
-            choices=__GROUPS__ + ['all'],
-            default=['ctu13'],
-            help="Dataset group to incldue or 'all' (default: 'ctu13')."
+            choices=CTU_Dataset.get_groups() + ['all'],
+            default=[CTU_Dataset.get_default_group()],
+            help="Dataset group to incldue or 'all' " +
+                 "(default: '{}').".format(CTU_Dataset.get_default_group())
         )
         find = parser.add_mutually_exclusive_group(required=False)
         find.add_argument(
@@ -589,7 +641,7 @@ class CTUList(Lister):
            match on regular expressions using one of the ``grep`` variants.  Or add
            regular expression handling and submit a pull request! ;)
 
-           \n""") + __DISCLAIMER__  # noqa
+           \n""") + CTU_Dataset.get_disclaimer()  # noqa
 
         return parser
 
@@ -600,11 +652,11 @@ class CTUList(Lister):
     def take_action(self, parsed_args):
         self.log.debug('[!] listing CTU data')
         if 'all' in parsed_args.groups:
-            parsed_args.groups = __GROUPS__
+            parsed_args.groups = CTU_Dataset.get_groups()
         if 'ctu_metadata' not in dir(self):
             self.ctu_metadata = CTU_Dataset(
+                cache_file=parsed_args.cache_file,
                 ignore_cache=parsed_args.ignore_cache,
-                groups=parsed_args.groups,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
 
