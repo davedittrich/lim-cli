@@ -23,17 +23,14 @@ class About(Command):
                 $ lim about
                 lim version {VERSION}
 
-                {DISCLAIMER}
-
             ..
-            """.format(VERSION=__version__, DISCLAIMER=CTU_Dataset.get_disclaimer())
+            """.format(VERSION=__version__)
         )
 
         return parser
 
     def take_action(self, parsed_args):
-        print("lim version {VERSION}\n\n{DISCLAIMER}".format(
-            VERSION=__version__, DISCLAIMER=CTU_Dataset.get_disclaimer()))
+        print("lim version {VERSION}\n".format(VERSION=__version__))
 
 
 # EOF
