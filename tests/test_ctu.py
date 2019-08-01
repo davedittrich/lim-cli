@@ -8,13 +8,14 @@ test_ctu
 Tests for `lim.ctu` module.
 """
 
+import os
 import unittest
 
 from lim.ctu import CTU_Dataset
 
 TEST_VALID_GROUP = 'malware'
 TEST_INVALID_GROUP = 'erawlam'
-TEST_CACHE = 'ctu-cache.json'
+TEST_CACHE = 'tests/test-ctu-cache.json'
 
 class Test_CTU_Dataset(unittest.TestCase):
     def setUp(self):
@@ -23,6 +24,9 @@ class Test_CTU_Dataset(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def test_cache_exists(self):
+        assert os.path.exists(TEST_CACHE)
 
     def test_get_default_group(self):
         assert CTU_Dataset.get_default_group() != ''
