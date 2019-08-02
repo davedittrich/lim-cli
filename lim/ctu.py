@@ -454,7 +454,8 @@ class CTU_Dataset(object):
 
     async def fetch_page(self, semaphore, url, session):
         """Fetch a page"""
-        logger.debug('[+] fetch_page({})'.format(url))
+        if self.debug:
+            logger.debug('[+] fetch_page({})'.format(url))
         page = await self.bound_fetch(semaphore, url, session)
         return page.decode("utf-8")
 
@@ -472,7 +473,8 @@ class CTU_Dataset(object):
 
     def immediate_fetch(self, url):
         """GET a page synchronously"""
-        logger.debug('[+] immediate_fetch({})'.format(url))
+        if self.debug:
+            logger.debug('[+] immediate_fetch({})'.format(url))
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             requests.packages.urllib3.disable_warnings(
@@ -484,8 +486,13 @@ class CTU_Dataset(object):
         """
         Returns True if cache_file is expired or does not exist.
         Returns False if file exists and is not expired.
+
+        For testing, also considers a cache file that starts with
+        'test-' as never being expired.
         """
 
+        if self.cache_file.startswith('test'):
+            return False
         cache_expired = True
         now = time.time()
         try:
@@ -498,6 +505,8 @@ class CTU_Dataset(object):
                 logger.debug('[!] cache {} '.format(self.cache_file) +
                              'has not yet expired')
                 cache_expired = False
+            else:
+                logger.debug('[!] cache expired')
         except FileNotFoundError as err:  # noqa
             logger.debug('[!] cache {} '.format(self.cache_file) +
                          'not found')
