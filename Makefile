@@ -40,7 +40,7 @@ test-tox:
 	tox
 
 .PHONY: test-bats
-test-bats:
+test-bats: bats-libraries
 	@if [ "$(TRAVIS)" != "true" ]; then \
 		if ! type bats 2>/dev/null >/dev/null; then \
 			echo "[-] Skipping bats tests"; \
@@ -51,7 +51,7 @@ test-bats:
 	 fi
 
 .PHONY: test-bats-runtime
-test-bats-runtime:
+test-bats-runtime: bats-libraries
 	bats --tap tests/runtime.bats
 
 #HELP test-load - use 'lim runpy' to load the nepotism dataset
@@ -117,6 +117,7 @@ clean:
 spotless: clean
 	rm -rf .eggs .tox
 	(cd docs && make clean)
+	rm -rf tests/libs/{bats,bats-support,bats-assert}
 
 #HELP install - install in required Python virtual environment (default $(REQUIRED_VENV))
 .PHONY: install
@@ -177,5 +178,24 @@ docs:
 .PHONY: examples
 examples:
 	lim --help
+
+# Git submodules and subtrees are both a huge PITA. This is way simpler.
+
+.PHONY: bats-libraries
+bats-libraries: bats bats-support bats-assert
+
+bats:
+	@[ -d tests/libs/bats ] || \
+		(mkdir -p tests/libs/bats; git clone http://github.com/sstephenson/bats tests/libs/bats)
+
+
+bats-support:
+	@[ -d tests/libs/bats-support ] || \
+		(mkdir -p tests/libs/bats-support; git clone https://github.com/ztombol/bats-support tests/libs/bats-support)
+
+bats-assert:
+	@[ -d tests/libs/bats-assert ] || \
+		(mkdir -p tests/libs/bats-assert; git clone https://github.com/ztombol/bats-assert tests/libs/bats-assert)
+
 
 #EOF
