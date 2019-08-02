@@ -52,12 +52,5 @@ CTU
 .. autoprogram-cliff:: lim
    :command: ctu *
 
-LANL
-----
-
-.. autoprogram-cliff:: lim
-   :command: lanl *
-
-
 
 .. EOF
