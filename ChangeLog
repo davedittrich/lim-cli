@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Only log debug messages when debug is True
 * Resolve pep8 findings
 * Fix Makefile
 * Git ignore Sphinx build directory
