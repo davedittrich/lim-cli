@@ -163,8 +163,7 @@ docs-tests:
 #HELP docs-help - generate "lim help" output for documentation
 .PHONY: docs-help
 docs-help:
-	(export XGTQ_SERVER=93.184.216.34; \
-	 export XGTQ_DATA_DIR="/path/to/data"; \
+	(unset LIM_DATA_DIR; \
 	 python -m lim.main help |\
 		sed 's/lim.main/lim/g' |\
 		sed 's/main.py/lim/g') > docs/lim-help.txt
