@@ -448,6 +448,8 @@ class CTU_Dataset(object):
                                 semaphore, group, url, session))
                         tasks.append(task)
                 responses = asyncio.gather(*tasks)
+                logger.info('[+] queued {} pages '.format(len(tasks)) +
+                            'for processing')
                 await responses
         except KeyboardInterrupt:
             session.close()
@@ -579,6 +581,7 @@ class CTU_Dataset(object):
             if '/publicDatasets/' in href and href.endswith('/'):
                 logger.debug('[+] found scenario {}'.format(href))
                 scenarios.append(href)
+        logger.info('[+] group "{}" has {} scenarios'.format(group, len(scenarios)))
         return scenarios
 
     def get_metadata(self, groups=None, name_includes=None, has_hash=None):
@@ -804,10 +807,14 @@ class CTUList(Lister):
         self.ctu_metadata.load_ctu_metadata()
 
         columns = self.ctu_metadata.columns
-        data = self.ctu_metadata.get_metadata(
+        results = self.ctu_metadata.get_metadata(
             name_includes=parsed_args.name_includes,
             groups=parsed_args.groups,
             has_hash=parsed_args.hash)
+        if self.app_args.limit > 0:
+            data = results[0:min(self.app_args.limit, len(results))]
+        else:
+            data = results
         return columns, data
 
 

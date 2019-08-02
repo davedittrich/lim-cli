@@ -99,6 +99,16 @@ class LiminalApp(App):
             "(Env: LIM_ENVIRONMENT; default: {})".format(
                 default_environment())
         )
+        parser.add_argument(
+            '-n', '--limit',
+            action='store',
+            type=int,
+            metavar='<results_limit>',
+            dest='limit',
+            default=0,
+            help="Limit result to no more than this many items " +
+                 "(0 means no limit; default: 0)"
+        )
         return parser
 
     def initialize_app(self, argv):
