@@ -2,16 +2,16 @@
 
 import pbr.version
 
-version_info = pbr.version.VersionInfo('xgtq')
+version_info = pbr.version.VersionInfo('lim')
 try:
     __version__ = version_info.version_string()
 except AttributeError:
-    __version__ = '0.16.0'
+    __version__ = '19.7.0'
 
 try:
     __release__ = version_info.release_string()
 except AttributeError:
-    __release__ = '0.16.0'
+    __release__ = '19.7.0'
 
 __author__ = 'Dave Dittrich'
 __email__ = 'dave.dittrich@gmail.com'

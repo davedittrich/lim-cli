@@ -10,13 +10,13 @@ of a command is:
 
    $ lim [<global-options>] <object-1> <action> [<object-2>] [<command-arguments>]
 
-..
 
-* The primary objects are things like ``query``, ``jobs``, etc.
+  * The primary objects are things like ``query``, ``jobs``, etc.
 
-* The secondary objects are things like ``vars``, ``tql``, etc.
+  * The secondary objects are things like ``vars``, ``tql``, etc.
 
-* The actions are things like ``list``, ``show``, ``cancel``, etc.
+  * The actions are things like ``list``, ``show``, ``cancel``, etc.
+
 
 .. _OpenStackClient: https://docs.openstack.org/python-openstackclient/latest/
 .. _Command Structure: https://docs.openstack.org/python-openstackclient/latest/cli/commands.html
@@ -46,18 +46,11 @@ About
 .. autoprogram-cliff:: lim
    :command: about
 
-CTU13
------
+CTU
+---
 
 .. autoprogram-cliff:: lim
-   :command: ctu13 *
-
-LANL
-----
-
-.. autoprogram-cliff:: lim
-   :command: lanl *
-
+   :command: ctu *
 
 
 .. EOF

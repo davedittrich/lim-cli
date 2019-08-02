@@ -12,13 +12,20 @@ import logging
 import os
 import sys
 
+from lim import __version__
+from lim import __release__
+from lim.utils import Timer
+
 # External dependencies.
 
 from cliff.app import App
 from cliff.commandmanager import CommandManager
-from lim import __release__
-from lim import __version__
-from lim.utils import Timer
+
+if sys.version_info < (3, 6, 0):
+    print("The {} program ".format(os.path.basename(sys.argv[0])) +
+          "prequires Python 3.6.0 or newer\n" +
+          "Found Python {}".format(sys.version), file=sys.stderr)
+    sys.exit(1)
 
 BUFFER_SIZE = 128 * 1024
 DAY = os.environ.get('DAY', 5)
@@ -30,9 +37,13 @@ MAX_ITEMS = 10
 # TODO(dittrich): Make this configurable, since it can fail on Mac OS X
 SYSLOG = False
 
-
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
+
+
+def default_data_dir():
+    """Return the directory path root for data storage"""
+    return os.getenv('LIM_DATA_DIR', None)
 
 
 def default_environment(default=None):
@@ -63,13 +74,40 @@ class LiminalApp(App):
 
         # Global options
         parser.add_argument(
-            '-e', '--environment',
+            '-D', '--data-dir',
+            metavar='<data-directory>',
+            dest='data_dir',
+            default=os.getenv('LIM_DATA_DIR', None),
+            help="Root directory for holding data files " +
+            "(Env: LIM_DATA_DIR; default: {})".format(
+                os.getenv('LIM_DATA_DIR', None))
+        )
+        parser.add_argument(
+            '-e', '--elapsed',
+            action='store_true',
+            dest='elapsed',
+            default=False,
+            help="Include elapsed time (and ASCII bell) " +
+                 "on exit (default: False)"
+        )
+        parser.add_argument(
+            '-E', '--environment',
             metavar='<environment>',
             dest='environment',
             default=default_environment(),
             help="Deployment environment selector " +
             "(Env: LIM_ENVIRONMENT; default: {})".format(
                 default_environment())
+        )
+        parser.add_argument(
+            '-n', '--limit',
+            action='store',
+            type=int,
+            metavar='<results_limit>',
+            dest='limit',
+            default=0,
+            help="Limit result to no more than this many items " +
+                 "(0 means no limit; default: 0)"
         )
         return parser
 
@@ -79,19 +117,22 @@ class LiminalApp(App):
 
     def prepare_to_run_command(self, cmd):
         self.LOG.debug('prepare_to_run_command %s', cmd.__class__.__name__)
+        if self.options.elapsed:
+            self.timer.start()
 
     def clean_up(self, cmd, result, err):
         self.LOG.debug('[!] clean_up %s', cmd.__class__.__name__)
-        self.timer.stop()
-        elapsed = self.timer.elapsed()
-        if result != 0:
-            self.LOG.debug('[!] elapsed time: %s', elapsed)
-        elif self.options.verbose_level > 0 \
-                and cmd.__class__.__name__ != "CompleteCommand":
-            self.stdout.write('[+] Elapsed time {}\n'.format(elapsed))
-            if sys.stdout.isatty():
-                sys.stdout.write('\a')
-                sys.stdout.flush()
+        if self.options.elapsed:
+            self.timer.stop()
+            elapsed = self.timer.elapsed()
+            if result != 0:
+                self.LOG.debug('[!] elapsed time: %s', elapsed)
+            elif self.options.verbose_level > 0 \
+                    and cmd.__class__.__name__ != "CompleteCommand":
+                self.stdout.write('[+] Elapsed time {}\n'.format(elapsed))
+                if sys.stdout.isatty():
+                    sys.stdout.write('\a')
+                    sys.stdout.flush()
 
     def set_environment(self, environment=default_environment()):
         """Set variable for current environment"""

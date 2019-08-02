@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import argparse
 import json
 import logging
 import os
@@ -132,14 +133,9 @@ class LanlGet(Command):
 
     log = logging.getLogger(__name__)
 
-    def get_epilog(self):
-        return textwrap.dedent("""\
-            For testing purposes, use ``--maxlines`` to limit the number of
-            lines to read from each file.
-            """)
-
     def get_parser(self, prog_name):
         parser = super(LanlGet, self).get_parser(prog_name)
+        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--force',
             action='store_true',
@@ -160,6 +156,11 @@ class LanlGet(Command):
             default=DAY,
             help="Day(s) for which to get data" +
                  "(Env: DAY; default: {})".format(DAY))
+        parser.epilog = textwrap.dedent("""\
+            For testing purposes, use ``--maxlines`` to limit the number of
+            lines to read from each file.
+            """)
+
         return parser
 
     def take_action(self, parsed_args):

@@ -1,1 +1,6 @@
-.. include:: ../HISTORY.rst
+.. :changelog:
+
+History
+-------
+
+.. include:: ../Changelog

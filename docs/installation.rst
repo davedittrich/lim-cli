@@ -142,35 +142,33 @@ Clone the ``lim`` code repository into your Git base directory.
     $ cd ~/git/lim
     $ tree -L 1
     .
-    ├ AUTHORS.rst
-    ├ bandit.yaml
-    ├ bootfreq.yml
-    ├ CONTRIBUTING.rst
-    ├ docs
-    ├ HISTORY.rst
-    ├ Makefile
-    ├ MANIFEST.in
-    ├ post-install.sh
-    ├ README.rst
-    ├ requirements.txt
-    ├ setup.cfg
-    ├ setup.py
-    ├ test-requirements.txt
-    ├ tests
-    ├ tox.ini
-    ├ trovares-requirements.txt
-    ├ VERSION
-    ├ lim
-    ├ zrpattern_orig.yml
-    └ zrpattern.yml
+    ├── AUTHORS
+    ├── AUTHORS.rst
+    ├── CONTRIBUTING.rst
+    ├── ChangeLog
+    ├── HISTORY.rst
+    ├── LICENSE-2.0.txt
+    ├── MANIFEST.in
+    ├── Makefile
+    ├── README.rst
+    ├── VERSION
+    ├── bandit.yaml
+    ├── docs
+    ├── lim
+    ├── requirements.txt
+    ├── setup.cfg
+    ├── setup.py
+    ├── test-requirements.txt
+    ├── tests
+    └── tox.ini
 
-    4 directories, 18 files
+    3 directories, 16 files
 
 ..
 
 .. note::
 
-   There are two directories with similar names, but very different purposes.
+   There is a subdirectory with the same name as the top level directory.
    The directory ``lim`` is the source directory for the Cliff ``lim`` CLI
    application.  Unless otherwise specified, the current working directory for
    example commands will be the top level of the cloned directory,
@@ -179,8 +177,7 @@ Clone the ``lim`` code repository into your Git base directory.
 ..
 
 After cloning the source repository, there are several steps required
-to install pre-requisite software packages and to set up Terraform
-and AWS access information.
+to install ``lim`` and its pre-requisite software packages.
 
 
 Install pre-requisite software
@@ -209,9 +206,6 @@ Required Python packages can be installed using the ``requirements.txt`` file.
     16.1.0 wcwidth-0.1.7 xkcdpass-1.17.0 yamlreader-3.0.4
 
 ..
-
-Other programs, like ``terraform``, may need to be installed manually.
-
 
 Configure a ``python_secrets`` environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -243,6 +237,60 @@ in the Git source repository.
     default environment set to "lim"
 
 ..
+
+.. note::
+
+   There is a irritating side-effect of using Cliff, which loads commands dynamically
+   using the Python ``setup.py`` packaging mechanism. You can't just use the
+   normal Python ``setup.py develop`` mechanism to run code directly from the
+   current working directory. You need to install the full package into the
+   current Python environment with ``make install-active`` and then the ``lim``
+   app will load the current versions of commands properly.
+
+   There may be another way to do this, but it isn't obvious and hasn't been
+   identified yet. This mechanism, though a little tedious, does work.
+
+..
+
+To update the user documentation as you code--you do document your code well,
+right? right?--you can either build the Sphinx documentation as part of the
+``make test`` tasks (one of which is testing Sphinx generation), or you
+can do it manually with ``make docs``.
+
+.. code-block:: console
+
+    $ make docs
+    (cd docs && make clean html)
+    rm -rf _build/*
+    sphinx-build -b html -d _build/doctrees   . _build/html
+    Running Sphinx v2.1.2
+    making output directory... done
+    building [mo]: targets for 0 po files that are out of date
+    building [html]: targets for 8 source files that are out of date
+    updating environment: 8 added, 0 changed, 0 removed
+    reading sources... [100%] usage
+    looking for now-outdated files... none found
+    pickling environment... done
+    checking consistency... done
+    preparing documents... done
+    writing output... [100%] usage
+    generating indices... genindex
+    writing additional pages... search
+    copying static files... done
+    copying extra files... done
+    dumping search index in English (code: en) ... done
+    dumping object inventory... done
+    build succeeded, 5 warnings.
+
+    The HTML pages are in _build/html.
+
+    Build finished. The HTML pages are in _build/html.
+
+..
+
+If you are on a Mac, you can then open the document in your default browser with
+``open -a docs/_build/html/index.html``.
+
 
 Tests
 -----

@@ -1,4 +1,41 @@
 CHANGES
 =======
 
+* Relabel CTU section
+* Fix docs-tests to generate text for docs
+* Improve cache handling
+* Improve getting scenario attributes
+* Handle bats in a simpler way than Git submodules
+* Document CTU subcommands with examples
+* Add ability to limit output
+* Only log debug messages when debug is True
+* Resolve pep8 findings
+* Fix Makefile
+* Git ignore Sphinx build directory
+* Make help txt file on install
+* Temporarily remove LANL commands
+* Update Changelog
+* Forgot to commit added command 'ctu overview'
+* Finish 'ctu get' logic
+* Improve unit tests
+* Fix module id and version numbers
+* Only apply CTU disclaimer to 'ctu' commands
+* Fix use of test cache file
+* Add more methods and unit tests
+* Improve OO nature of CTU\_Dataset class & scraping
+* Add initial unit tests for CTU\_Dataset class
+* Update documentation
+* Resolve pep8 findings
+* Simplify and generalize ctu commands
+* Fix help text and include CTU disclaimer
+* Make elapsed time an option (default off)
+* Fix command name in docs
+* Fix timer
+* Rename lim/ctu13.py to lim/ctu.py
+* Finish asyncio web scraper for CTU datasets
+* Clean up cache file
+
+19.7.0
+------
+
 * Initial commit
