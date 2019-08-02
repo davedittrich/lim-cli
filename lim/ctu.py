@@ -283,7 +283,7 @@ class CTU_Dataset(object):
     @classmethod
     def filename_from_url(cls, url=None):
         if url is None:
-            raise RuntimeError('no url specified')
+            return None
         filename = url.split('/').pop()
         if filename in ['', None]:
             raise RuntimeError(
@@ -328,19 +328,21 @@ class CTU_Dataset(object):
         if name not in self.scenarios:
             return None
         attribute = attribute.upper()
+        attributes = self.get_attributes()
         if attribute in ['GROUP', 'URL']:
             try:
                 result = self.scenarios[name].get(attribute)
             except Exception as err:  # noqa
                 result = None
-        elif attribute in ['BINETFLOW', 'PCAP', 'ZIP']:
+        elif attribute in attributes:
             try:
                 url = self.scenarios[name]['URL']
                 result = url + self.scenarios[name].get(attribute)
             except Exception as err:  # noqa
                 result = None
         else:
-            raise RuntimeError('Not implemented')
+            raise RuntimeError('getting attribute "{}"'.format(attribute) +
+                               'is not supported')
         return result
 
     def fetch_scenario_content_byurl(self,
@@ -359,12 +361,16 @@ class CTU_Dataset(object):
                                            attribute=None,
                                            filename=None):
         url = self.get_scenario_attribute(name, attribute)
-        # 'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap'
-        if filename is None:
-            filename = self.filename_from_url(url)
-            # '2015-07-28_mixed.pcap'
-        full_path = os.path.join(data_dir, filename)
-        self.fetch_scenario_content_byurl(url, filename=full_path)
+        if url in ['', None]:
+            logger.info('[-] scenario "{}" does not have '.format(name) +
+                        '"{}" data: skipping'.format(attribute))
+        else:
+            # 'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap'
+            if filename is None:
+                filename = self.filename_from_url(url)
+                # '2015-07-28_mixed.pcap'
+            full_path = os.path.join(data_dir, filename)
+            self.fetch_scenario_content_byurl(url, filename=full_path)
 
     # https://pawelmhm.github.io/asyncio/python/aiohttp/2016/04/22/asyncio-aiohttp.html
 
@@ -581,7 +587,8 @@ class CTU_Dataset(object):
             if '/publicDatasets/' in href and href.endswith('/'):
                 logger.debug('[+] found scenario {}'.format(href))
                 scenarios.append(href)
-        logger.info('[+] group "{}" has {} scenarios'.format(group, len(scenarios)))
+        logger.info('[+] group "{}" '.format(group) +
+                    'has {} scenarios'.format(len(scenarios)))
         return scenarios
 
     def get_metadata(self, groups=None, name_includes=None, has_hash=None):
@@ -632,7 +639,7 @@ class CTUOverview(Command):
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('[!] showing overview of CTU datasets')
+        self.log.debug('[+] showing overview of CTU datasets')
         print("For an overview of the CTU Datasets, open the following " +
               "URL in a browser:\n" +
               "{overview}\n\n{disclaimer}".format(
@@ -693,14 +700,14 @@ class CTUGet(Command):
         parser.add_argument(
             'data',
             nargs='+',
-            choices=CTU_Dataset.get_attributes_lower() + ['all'],
+            choices=CTU_Dataset.get_attributes() + ['ALL'],
             default=None)
         parser.epilog = textwrap.dedent("""\
            \n""") + CTU_Dataset.get_disclaimer()
         return parser
 
     def take_action(self, parsed_args):
-        self.log.debug('[!] getting CTU data')
+        self.log.debug('[+] getting CTU data')
         if 'ctu_metadata' not in dir(self):
             self.ctu_metadata = CTU_Dataset(
                 cache_file=parsed_args.cache_file,
@@ -717,8 +724,12 @@ class CTUGet(Command):
             data_dir = self.app_args.data_dir
         else:
             data_dir = name
-        for data in parsed_args.data:
-            self.log.debug('[!] downloading {} data '.format(data) +
+        if 'ALL' in parsed_args.data:
+            requested = self.ctu_metadata.get_attributes()
+        else:
+            requested = parsed_args.data
+        for data in requested:
+            self.log.debug('[+] downloading {} data '.format(data) +
                            'for scenario {}'.format(name))
             self.ctu_metadata.fetch_scenario_content_byattribute(
                 data_dir=data_dir, name=name, attribute=data)
@@ -796,7 +807,7 @@ class CTUList(Lister):
     # TODO(dittrich): Figure out how to handle these
 
     def take_action(self, parsed_args):
-        self.log.debug('[!] listing CTU data')
+        self.log.debug('[+] listing CTU data')
         if 'all' in parsed_args.groups:
             parsed_args.groups = CTU_Dataset.get_groups()
         if 'ctu_metadata' not in dir(self):

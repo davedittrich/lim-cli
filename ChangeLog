@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+* Improve getting scenario attributes
+* Handle bats in a simpler way than Git submodules
+* Document CTU subcommands with examples
+* Add ability to limit output
 * Only log debug messages when debug is True
 * Resolve pep8 findings
 * Fix Makefile

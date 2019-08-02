@@ -91,7 +91,7 @@ class Test_CTU_Dataset(unittest.TestCase):
         try:
             _ = self.ctu_dataset.get_scenario_attribute('CTU-Mixed-Capture-1', 'ORL')
         except RuntimeError as err:
-            self.assertIn('Not implemented', str(err))
+            self.assertIn('is not supported', str(err))
         else:
             raise
 
