@@ -26,77 +26,90 @@ class Test_CTU_Dataset(unittest.TestCase):
         pass
 
     def test_cache_exists(self):
-        assert os.path.exists(TEST_CACHE)
+        self.assertTrue(os.path.exists(TEST_CACHE))
 
     def test_get_default_group(self):
-        assert CTU_Dataset.get_default_group() != ''
+        self.assertNotEqual(CTU_Dataset.get_default_group(), '')
 
     def test_get_groups(self):
-        assert type(CTU_Dataset.get_groups()) is type(list())
-        assert len(CTU_Dataset.get_groups()) > 0
+        self.assertIs(type(CTU_Dataset.get_groups()), type(list()))
+        self.assertTrue(len(CTU_Dataset.get_groups()) > 0)
 
     def test_get_group_VALID(self):
-        assert TEST_VALID_GROUP in CTU_Dataset.get_groups()
+        self.assertIn(TEST_VALID_GROUP, CTU_Dataset.get_groups())
 
     def test_get_group_INVALID(self):
-        assert TEST_INVALID_GROUP not in CTU_Dataset.get_groups()
+        self.assertNotIn(TEST_INVALID_GROUP, CTU_Dataset.get_groups())
 
     def test_get_url_for_group_valid(self):
-        assert CTU_Dataset.get_url_for_group(TEST_VALID_GROUP).find('://') != -1
+        self.assertTrue(CTU_Dataset.get_url_for_group(TEST_VALID_GROUP).find('://') != -1)
 
     def test_get_url_for_group_invalid(self):
-        assert CTU_Dataset.get_url_for_group(TEST_INVALID_GROUP) is None
+        self.assertIs(CTU_Dataset.get_url_for_group(TEST_INVALID_GROUP), None)
 
     def test_get_columns(self):
         columns = CTU_Dataset.get_columns()
-        assert type(columns) is type(list())
-        assert len(columns) > 0
+        self.assertIs(type(columns), type(list()))
+        self.assertTrue(len(columns) > 0)
 
     def test_get_disclaimer(self):
         disclaimer = CTU_Dataset.get_disclaimer()
-        assert "http://dx.doi.org/10.1016/j.cose.2014.05.011" in disclaimer
+        self.assertTrue("http://dx.doi.org/10.1016/j.cose.2014.05.011" in disclaimer)
 
     def test_get_scenarios(self):
         scenarios = self.ctu_dataset.get_scenarios()
-        assert type(scenarios) is type(dict())
-        assert 'CTU-Mixed-Capture-1' in scenarios
+        self.assertIs(type(scenarios), type(dict()))
+        self.assertIn('CTU-Mixed-Capture-1', scenarios)
 
     def test_get_scenario_names(self):
         scenario_names = self.ctu_dataset.get_scenario_names()
-        assert type(scenario_names) is type(list())
-        assert len(scenario_names) > 0
-        assert scenario_names[0] == 'CTU-Mixed-Capture-1'
+        self.assertIs(type(scenario_names), type(list()))
+        self.assertTrue(len(scenario_names) > 0)
+        self.assertEqual(scenario_names[0], 'CTU-Mixed-Capture-1',
+            msg='scenario_names[0]={}'.format(scenario_names[0]))
 
     def test_is_valid_scenario_MATCH(self):
-        assert self.ctu_dataset.is_valid_scenario(
-            'CTU-Mixed-Capture-1') is True
+        self.assertTrue(self.ctu_dataset.is_valid_scenario('CTU-Mixed-Capture-1'))
 
     def test_is_valid_scenario_FAIL(self):
-        assert self.ctu_dataset.is_valid_scenario(
-            'CTU-Moxed-Cipture-1') is False
+        self.assertFalse(self.ctu_dataset.is_valid_scenario('CTU-Moxed-Cipture-1'))
 
     def test_get_scenario_attribute_url_SUCCESS(self):
-        assert self.ctu_dataset.get_scenario_attribute(
-            'CTU-Mixed-Capture-1', 'URL') ==\
-            'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/'
+        self.assertEqual(
+            self.ctu_dataset.get_scenario_attribute('CTU-Mixed-Capture-1', 'URL'),
+            'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/')
+
+    def test_get_attributes(self):
+        items = [a for a in CTU_Dataset.__ATTRIBUTES__]
+        self.assertListEqual(items, self.ctu_dataset.get_attributes())
+
+    def test_get_attributes_lower(self):
+        items = [a.lower() for a in CTU_Dataset.__ATTRIBUTES__]
+        self.assertListEqual(items, self.ctu_dataset.get_attributes_lower())
 
     def test_get_scenario_attribute_url_FAIL(self):
         try:
-            _ = self.ctu_dataset.get_scenario_attribute(
-                'CTU-Mixed-Capture-1', 'ORL')
+            _ = self.ctu_dataset.get_scenario_attribute('CTU-Mixed-Capture-1', 'ORL')
         except RuntimeError as err:
-            assert 'Not implemented' in str(err)
+            self.assertIn('Not implemented', str(err))
         else:
             raise
 
     def test_get_scenario_attribute_pcap(self):
-        assert self.ctu_dataset.get_scenario_attribute(
-            'CTU-Mixed-Capture-1', 'PCAP') == \
-            'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap'
+        url = self.ctu_dataset.get_scenario_attribute('CTU-Mixed-Capture-1', 'PCAP')
+        self.assertEqual(url,
+            'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap',
+            msg='url={}'.format(url))
 
     def test_get_scenario_page(self):
-        assert 'DOCTYPE HTML PUBLIC' in \
-            self.ctu_dataset.get_scenario_page('CTU-Mixed-Capture-1')
+        self.assertIn('DOCTYPE HTML PUBLIC',
+                      self.ctu_dataset.get_scenario_page('CTU-Mixed-Capture-1'))
+
+    def test_filename_from_url(self):
+        filename = self.ctu_dataset.filename_from_url(
+                'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap')
+        self.assertEqual(filename, '2015-07-28_mixed.pcap',
+                         msg='filename={}'.format(filename))
 
 if __name__ == '__main__':
     import sys
