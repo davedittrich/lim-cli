@@ -94,6 +94,7 @@ setup(
             'about = lim.about:About',
             'ctu get = lim.ctu:CTUGet',
             'ctu list = lim.ctu:CTUList',
+            'ctu overview = lim.ctu:CTUOverview',
             'lanl get netflow = lim.lanl:LanlGet',
             'lanl get wls = lim.lanl:LanlGet',
         ],
