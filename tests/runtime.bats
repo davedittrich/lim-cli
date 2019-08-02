@@ -4,9 +4,11 @@ load test_helper
 # in tests.
 
 setup() {
+    true
 }
 
 teardown() {
+    true
 }
 
 @test "'lim about' contains 'version'" {

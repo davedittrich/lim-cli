@@ -33,7 +33,7 @@ help:
 
 #HELP test - run 'tox' for testing
 .PHONY: test
-test: test-tox test-bats
+test: test-tox test-bats docs-tests
 
 .PHONY: test-tox
 test-tox:
