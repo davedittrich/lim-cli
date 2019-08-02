@@ -147,11 +147,14 @@ class CTU_Dataset(object):
     force re-loading by using the --ignore-cache flag.
     """
 
-    # https://mcfp.felk.cvut.cz/publicDatasets/
-    # https://www.stratosphereips.org/datasets-malware
-
+    __CTU_DATASETS_OVERVIEW_URL__ = 'https://www.stratosphereips.org/datasets-overview'
     __ASYNC_TIMEOUT__ = 10
     __SEMAPHORE_LIMIT__ = 10
+    # The "CTU13" datasets are just 13 special datasets out of the
+    # 'malware' group here. They will have bidirectional labelled
+    # network flows ('BINETFLOW') in a subdirectory specified by
+    # __NETFLOW_DATA_DIR__.
+    # https://mcfp.felk.cvut.cz/publicDatasets/
     __CTU_DATASET_GROUPS__ = {
         'mixed': 'https://www.stratosphereips.org/datasets-mixed',
         'normal': 'https://www.stratosphereips.org/datasets-normal',
@@ -162,6 +165,15 @@ class CTU_Dataset(object):
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
     __CACHE_FILE__ = "ctu-cache.json"
     __CACHE_TIMEOUT__ = 60 * 60 * 24 * 7  # secs * mins * hours * days
+    # These are fields associated with files that can be downloaded.
+    __ATTRIBUTES__ = [
+        'ZIP',
+        'LABELED',
+        'BINETFLOW',
+        'PCAP',
+    ]
+    # These are all columns, in the order we want them to occur in output
+    # (including __ARTIFACT__ fields just defined.)
     __COLUMNS__ = [
         'SCENARIO',
         'GROUP',
@@ -227,9 +239,24 @@ class CTU_Dataset(object):
         pass
 
     @classmethod
+    def get_ctu_datasets_overview_url(cls):
+        """Return URL for CTU Datasets Overview web page"""
+        return cls.__CTU_DATASETS_OVERVIEW_URL__
+
+    @classmethod
     def get_groups(cls):
         """Return list of valid group names"""
         return [g for g in cls.__CTU_DATASET_GROUPS__.keys()]
+
+    @classmethod
+    def get_attributes(cls):
+        """Return list of dataset attributes"""
+        return [a for a in cls.__ATTRIBUTES__]
+
+    @classmethod
+    def get_attributes_lower(cls):
+        """Return list of lowercase dataset attributes"""
+        return [a.lower() for a in cls.__ATTRIBUTES__]
 
     @classmethod
     def get_url_for_group(cls, group):
@@ -251,6 +278,16 @@ class CTU_Dataset(object):
         """Returns CTU disclaimer"""
         return cls.__DISCLAIMER__
 
+    @classmethod
+    def filename_from_url(cls, url=None):
+        if url is None:
+            raise RuntimeError('no url specified')
+        filename = url.split('/').pop()
+        if filename in ['', None]:
+            raise RuntimeError(
+                'cannot determine filename from url {}'.format(url))
+        return filename
+
     def get_scenarios(self):
         """Returns CTU dataset scenarios"""
         return self.scenarios
@@ -261,6 +298,8 @@ class CTU_Dataset(object):
 
     def is_valid_scenario(self, name):
         """Returns boolean indicating existence of scenario"""
+        if type(name) is not str:
+            raise RuntimeError('"{}" must be type(str)'.format(name))
         return name in self.scenarios
 
     def get_scenario(self, name):
@@ -286,12 +325,13 @@ class CTU_Dataset(object):
         """
         if name not in self.scenarios:
             return None
+        attribute = attribute.upper()
         if attribute in ['GROUP', 'URL']:
             try:
                 result = self.scenarios[name].get(attribute)
             except Exception as err:
                 result = None
-        elif attribute in ['BINETFLOW', 'PCAP']:
+        elif attribute in ['BINETFLOW', 'PCAP', 'ZIP']:
             try:
                 url = self.scenarios[name]['URL']
                 result = url + self.scenarios[name].get(attribute)
@@ -300,6 +340,29 @@ class CTU_Dataset(object):
         else:
             raise RuntimeError('Not implemented')
         return result
+
+    def fetch_scenario_content_byurl(self,
+                                     url,
+                                     filename=None):
+        data_dir = os.path.split(filename)[0]
+        if not os.path.exists(data_dir):
+            os.mkdir(data_dir, 0o750)
+        with open(filename, 'wb') as f:
+            response = self.immediate_fetch(url)
+            f.write(response.content)
+
+    def fetch_scenario_content_byattribute(self,
+                                           data_dir=None,
+                                           name=None,
+                                           attribute=None,
+                                           filename=None):
+        url = self.get_scenario_attribute(name, attribute)
+        # 'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap'
+        if filename is None:
+            filename = self.filename_from_url(url)
+            # '2015-07-28_mixed.pcap'
+        full_path = os.path.join(data_dir, filename)
+        self.fetch_scenario_content_byurl(url, filename=full_path)
 
     # https://pawelmhm.github.io/asyncio/python/aiohttp/2016/04/22/asyncio-aiohttp.html
 
@@ -372,17 +435,21 @@ class CTU_Dataset(object):
     async def run_fetch(self):
         tasks = []
         semaphore = asyncio.Semaphore(self.semaphore_limit)
-        async with aiohttp.ClientSession(
-            connector=aiohttp.TCPConnector(verify_ssl=False)) as session:  # noqa
-            for group in CTU_Dataset.get_groups():
-                scenarios = self.get_scenarios_for_group(group)
-                for url in scenarios:
-                    task = asyncio.ensure_future(
-                        self.record_scenario_metadata(
-                            semaphore, group, url, session))
-                    tasks.append(task)
-            responses = asyncio.gather(*tasks)
-            await responses
+        try:
+            async with aiohttp.ClientSession(
+                connector=aiohttp.TCPConnector(verify_ssl=False)) as session:  # noqa
+                for group in CTU_Dataset.get_groups():
+                    scenarios = self.get_scenarios_for_group(group)
+                    for url in scenarios:
+                        task = asyncio.ensure_future(
+                            self.record_scenario_metadata(
+                                semaphore, group, url, session))
+                        tasks.append(task)
+                responses = asyncio.gather(*tasks)
+                await responses
+        except KeyboardInterrupt:
+            session.close()
+
 
     async def fetch_page(self, semaphore, url, session):
         """Fetch a page"""
@@ -402,7 +469,7 @@ class CTU_Dataset(object):
             async with session.get(url) as response:
                 return await response.read()
 
-    async def immediate_fetch(self, url):
+    def immediate_fetch(self, url):
         """GET a page synchronously"""
         logger.debug('[+] immediate_fetch({})'.format(url))
         with warnings.catch_warnings():
@@ -539,8 +606,28 @@ class CTU_Dataset(object):
         return data
 
 
+class CTUOverview(Command):
+    """Get CTU dataset overview."""
+
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super(CTUOverview, self).get_parser(prog_name)
+        parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        parser.epilog = textwrap.dedent("""\
+           \n""") + CTU_Dataset.get_disclaimer()
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('[!] showing overview of CTU datasets')
+        print("For an overview of the CTU Datasets, open the following URL in a browser:\n")
+        print("{overview}\n\n{disclaimer}".format(
+                overview=CTU_Dataset.get_ctu_datasets_overview_url(),
+                disclaimer=CTU_Dataset.get_disclaimer()))
+
+
 class CTUGet(Command):
-    """Get CTU dataset."""
+    """Get CTU dataset components."""
 
     log = logging.getLogger(__name__)
 
@@ -585,8 +672,15 @@ class CTUGet(Command):
             default=False,
             help="Ignore any cached results (default: False)."
         )
-        parser.add_argument('scenario', nargs='1', default=[])
-        parser.add_argument('data', nargs='*', default=[])
+        parser.add_argument(
+            'name',
+            nargs=1,
+            default=None)
+        parser.add_argument(
+            'data',
+            nargs='+',
+            choices=CTU_Dataset.get_attributes_lower() + ['all'],
+            default=None)
         parser.epilog = textwrap.dedent("""\
            \n""") + CTU_Dataset.get_disclaimer()
         return parser
@@ -598,31 +692,22 @@ class CTUGet(Command):
                 cache_file=parsed_args.cache_file,
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
+            # TODO(dittrich): Work this back into init() method.
         self.ctu_metadata.load_ctu_metadata()
 
-        if not self.ctu_metadata.is_valid_scenario(parsed_args.scenario):
-            raise RuntimeError('Scenario "{}" does not exist')
-        if not os.path.exists(self.app_args.data_dir):
-            os.mkdir(self.app_args.data_dir, 0o750)
+        name = parsed_args.name[0]
+        if not self.ctu_metadata.is_valid_scenario(name):
+            raise RuntimeError('Scenario "{}" '.format(name) +
+                               'does not exist')
+        if self.app_args.data_dir is not None:
+            data_dir = self.app_args.data_dir
+        else:
+            data_dir = name
         for data in parsed_args.data:
             self.log.debug('[!] downloading {} data '.format(data) +
-                           'for scenario {}'.format(parsed_args.scenario))
-        if len(parsed_args.scenario) == 0:
-            raise RuntimeError(('must specify a scenario: '
-                                'try "lim ctu list netflow"'))
-        self.log.debug('[!] downloading ctu {} data'.format(datatype))
-
-        for scenario in parsed_args.scenario:
-            if datatype == 'netflow':
-                download_ctu_netflow(
-                    url=self.ctu_metadata.get_netflow_url(scenario),
-                    datadir=self.app_args.data_dir,
-                    protocols=parsed_args.protocols,
-                    maxlines=parsed_args.maxlines,
-                    force=parsed_args.force)
-            else:
-                raise RuntimeError('getting "{}" '.format(datatype) +
-                                   'not implemented')
+                           'for scenario {}'.format(name))
+            self.ctu_metadata.fetch_scenario_content_byattribute(
+                data_dir=data_dir, name=name, attribute=data)
 
 
 class CTUList(Lister):
