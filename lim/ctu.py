@@ -235,6 +235,7 @@ class CTU_Dataset(object):
         self.debug = debug
 
         # Attributes
+        self.cache_expired = None
         self.scenarios = OrderedDict()
         self.columns = self.get_columns()
         self.groups = self.get_groups()
@@ -375,7 +376,7 @@ class CTU_Dataset(object):
     # https://pawelmhm.github.io/asyncio/python/aiohttp/2016/04/22/asyncio-aiohttp.html
 
     def load_ctu_metadata(self):
-        if not self.cache_expired() and not self.ignore_cache:
+        if not self.cache_has_expired() and not self.ignore_cache:
             self.read_cache()
         else:
             loop = asyncio.get_event_loop()
@@ -490,7 +491,7 @@ class CTU_Dataset(object):
             response = requests.get(url, verify=False)  # nosec
         return response
 
-    def cache_expired(self, cache_timeout=__CACHE_TIMEOUT__):
+    def cache_has_expired(self, cache_timeout=__CACHE_TIMEOUT__):
         """
         Returns True if cache_file is expired or does not exist.
         Returns False if file exists and is not expired.
@@ -500,7 +501,9 @@ class CTU_Dataset(object):
         """
 
         if self.cache_file.startswith('test'):
-            return False
+            self.cache_expired = False
+        if self.cache_expired is not None:
+            return self.cache_expired
         cache_expired = True
         now = time.time()
         try:
@@ -510,15 +513,17 @@ class CTU_Dataset(object):
                 self.delete_cache()
             age = now - stat_results.st_mtime
             if age <= cache_timeout:
-                logger.debug('[!] cache {} '.format(self.cache_file) +
+                logger.debug('[+] cache {} '.format(self.cache_file) +
                              'has not yet expired')
                 cache_expired = False
             else:
-                logger.debug('[!] cache expired')
+                logger.debug('[+] cache {} '.format(self.cache_file) +
+                             'has expired')
         except FileNotFoundError as err:  # noqa
-            logger.debug('[!] cache {} '.format(self.cache_file) +
+            logger.debug('[+] cache {} '.format(self.cache_file) +
                          'not found')
-        return cache_expired
+        self.cache_expired = cache_expired
+        return self.cache_expired
 
     def read_cache(self):
         """
@@ -527,12 +532,12 @@ class CTU_Dataset(object):
         """
 
         _cache = dict()
-        if not self.cache_expired():
+        if not self.cache_has_expired():
             with open(self.cache_file, 'r') as infile:
                 _cache = json.load(infile)
             self.scenarios = _cache['scenarios']
             self.columns = _cache['columns']
-            logger.debug('[!] loaded metadata from cache: ' +
+            logger.debug('[+] loaded metadata from cache: ' +
                          '{}'.format(self.cache_file))
             return True
         return False
@@ -545,7 +550,7 @@ class CTU_Dataset(object):
         _cache['columns'] = self.columns
         with open(self.cache_file, 'w') as outfile:
             json.dump(_cache, outfile)
-        logger.debug('[!] wrote new cache file ' +
+        logger.debug('[+] wrote new cache file ' +
                      '{}'.format(self.cache_file))
         return True
 
@@ -553,7 +558,7 @@ class CTU_Dataset(object):
         """Delete cache file"""
 
         os.remove(self.cache_file)
-        logger.debug('[!] deleted cache file {}'.format(self.cache_file))
+        logger.debug('[+] deleted cache file {}'.format(self.cache_file))
         return True
 
     def get_scenarios_for_group(self, group=None):
