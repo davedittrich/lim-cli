@@ -8,7 +8,6 @@
 from __future__ import print_function
 
 # Standard library modules.
-import argparse
 import logging
 import os
 import sys
@@ -45,6 +44,7 @@ logger = logging.getLogger(__name__)
 def default_data_dir():
     """Return the directory path root for data storage"""
     return os.getenv('LIM_DATA_DIR', None)
+
 
 def default_environment(default=None):
     """Return environment identifier"""

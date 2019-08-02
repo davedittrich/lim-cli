@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+* Resolve pep8 findings
+* Fix Makefile
+* Git ignore Sphinx build directory
+* Make help txt file on install
+* Temporarily remove LANL commands
+* Update Changelog
 * Forgot to commit added command 'ctu overview'
 * Finish 'ctu get' logic
 * Improve unit tests

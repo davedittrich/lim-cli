@@ -6,7 +6,6 @@ import textwrap
 
 from cliff.command import Command
 from lim import __version__
-from lim.ctu import CTU_Dataset
 
 
 class About(Command):

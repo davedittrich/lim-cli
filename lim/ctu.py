@@ -147,7 +147,8 @@ class CTU_Dataset(object):
     force re-loading by using the --ignore-cache flag.
     """
 
-    __CTU_DATASETS_OVERVIEW_URL__ = 'https://www.stratosphereips.org/datasets-overview'
+    __CTU_DATASETS_OVERVIEW_URL__ = \
+        'https://www.stratosphereips.org/datasets-overview'
     __ASYNC_TIMEOUT__ = 10
     __SEMAPHORE_LIMIT__ = 10
     # The "CTU13" datasets are just 13 special datasets out of the
@@ -228,7 +229,8 @@ class CTU_Dataset(object):
         self.cache_timeout = cache_timeout
         self.semaphore_limit = semaphore_limit
         self.async_timeout = async_timeout
-        self.cache_file = cache_file if cache_file is not None else self.__CACHE_FILE__
+        self.cache_file = \
+            cache_file if cache_file is not None else self.__CACHE_FILE__
         self.ignore_cache = ignore_cache
         self.debug = debug
 
@@ -310,7 +312,7 @@ class CTU_Dataset(object):
         """Returns CTU dataset scenario HTML page"""
         try:
             return self.scenarios[name].get('_PAGE')
-        except Exception as err:
+        except Exception as err:  # noqa
             return None
 
     def get_scenario_attribute(self, name, attribute):
@@ -329,13 +331,13 @@ class CTU_Dataset(object):
         if attribute in ['GROUP', 'URL']:
             try:
                 result = self.scenarios[name].get(attribute)
-            except Exception as err:
+            except Exception as err:  # noqa
                 result = None
         elif attribute in ['BINETFLOW', 'PCAP', 'ZIP']:
             try:
                 url = self.scenarios[name]['URL']
                 result = url + self.scenarios[name].get(attribute)
-            except Exception as err:
+            except Exception as err:  # noqa
                 result = None
         else:
             raise RuntimeError('Not implemented')
@@ -449,7 +451,6 @@ class CTU_Dataset(object):
                 await responses
         except KeyboardInterrupt:
             session.close()
-
 
     async def fetch_page(self, semaphore, url, session):
         """Fetch a page"""
@@ -620,8 +621,9 @@ class CTUOverview(Command):
 
     def take_action(self, parsed_args):
         self.log.debug('[!] showing overview of CTU datasets')
-        print("For an overview of the CTU Datasets, open the following URL in a browser:\n")
-        print("{overview}\n\n{disclaimer}".format(
+        print("For an overview of the CTU Datasets, open the following " +
+              "URL in a browser:\n" +
+              "{overview}\n\n{disclaimer}".format(
                 overview=CTU_Dataset.get_ctu_datasets_overview_url(),
                 disclaimer=CTU_Dataset.get_disclaimer()))
 
