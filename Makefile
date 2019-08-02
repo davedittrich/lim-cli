@@ -133,12 +133,14 @@ install:
 		$(VENV_DIR)/bin/pip uninstall -y $(PROJECT); \
 		$(VENV_DIR)/bin/python setup.py install; \
 	fi
+	$(MAKE) docs-help
 
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
 .PHONY: install
 i install-active: wheel
 	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
+	$(MAKE) docs-help
 
 .PHONY: install-instance
 install-instance: wheel
