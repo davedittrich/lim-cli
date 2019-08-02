@@ -1,6 +1,8 @@
 CHANGES
 =======
 
+* Relabel CTU section
+* Fix docs-tests to generate text for docs
 * Improve cache handling
 * Improve getting scenario attributes
 * Handle bats in a simpler way than Git submodules

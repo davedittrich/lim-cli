@@ -1,6 +1,6 @@
-=============================
-Working with the CTU Datasets
-=============================
+================
+The CTU Datasets
+================
 
 One of the largest unredacted sandbox and network traffic capture datasets
 available for research and experimentation is the "CTU Datasets" from the
@@ -8,8 +8,8 @@ Czech Technical University in Prague.
 
 The ``lim ctu`` subcommand group assists in processing these datasets.
 
-Dataset Overview
-----------------
+Datasets Overview
+-----------------
 
 Read the output of ``lim ctu overview`` to get a URL for the main web
 page. Please respect their request from their *Disclaimer* when using
@@ -49,8 +49,8 @@ and publishing this data.
 
 ..
 
-Listing Datasets
-----------------
+Listing Scenario Data
+---------------------
 
 The first time you run a command that processes the CTU Dataset metadata, ``lim``
 will scrape their web pages to extract metadata and cache it for a period of time
@@ -107,8 +107,8 @@ use:
 
 ..
 
-Getting Data
-------------
+Getting Scenario Data
+---------------------
 
 The ``lim ctu get`` command is used to retrieve specific data from scenarios.
 For example, you may want to get the PCAP or Netflow file from a specific
