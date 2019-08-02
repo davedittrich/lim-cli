@@ -1,4 +1,27 @@
 CHANGES
 =======
 
+* Forgot to commit added command 'ctu overview'
+* Finish 'ctu get' logic
+* Improve unit tests
+* Fix module id and version numbers
+* Only apply CTU disclaimer to 'ctu' commands
+* Fix use of test cache file
+* Add more methods and unit tests
+* Improve OO nature of CTU\_Dataset class & scraping
+* Add initial unit tests for CTU\_Dataset class
+* Update documentation
+* Resolve pep8 findings
+* Simplify and generalize ctu commands
+* Fix help text and include CTU disclaimer
+* Make elapsed time an option (default off)
+* Fix command name in docs
+* Fix timer
+* Rename lim/ctu13.py to lim/ctu.py
+* Finish asyncio web scraper for CTU datasets
+* Clean up cache file
+
+19.7.0
+------
+
 * Initial commit
