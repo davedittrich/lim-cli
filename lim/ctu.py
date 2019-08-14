@@ -596,7 +596,11 @@ class CTU_Dataset(object):
                     'has {} scenarios'.format(len(scenarios)))
         return scenarios
 
-    def get_metadata(self, groups=None, name_includes=None, has_hash=None):
+    def get_metadata(self,
+                     groups=None,
+                     name_includes=None,
+                     description_includes=None,
+                     has_hash=None):
         """
         Return a list of lists of data suitable for use by
         cliff, following the order of elements in self.columns.
@@ -607,22 +611,30 @@ class CTU_Dataset(object):
                 continue
             if 'GROUP' in attributes and attributes['GROUP'] not in groups:
                 continue
+            match = True
             if name_includes is not None:
                 # Can't look for something that doesn't exist.
                 if 'PROBABLE_NAME' not in attributes:
                     continue
                 probable_name = attributes['PROBABLE_NAME'].lower()
                 find = probable_name.find(name_includes.lower())
-                if find == -1:
+                match = match and (find != -1)
+            elif description_includes is not None:
+                # Can't look for something that doesn't exist.
+                if '_PAGE' not in attributes:
                     continue
+                page = attributes['_PAGE'].lower()
+                find = page.find(description_includes.lower())
+                match = match and (find != -1)
+            if has_hash is not None:
+                match = match and (has_hash == attributes['MD5'] or
+                                   has_hash == attributes['SHA1'] or
+                                   has_hash == attributes['SHA256'])
+            if not match:
+                continue
             row = dict()
             row['SCENARIO'] = scenario
             row['SCENARIO_URL'] = attributes['URL']
-            if has_hash is not None:
-                if not (has_hash == attributes['MD5'] or
-                        has_hash == attributes['SHA1'] or
-                        has_hash == attributes['SHA256']):
-                    continue
             # Get remaining attributes
             for c in self.columns:
                 if c not in row:
@@ -789,6 +801,14 @@ class CTUList(Lister):
             help=('Only list scenarioes including this string'
                   'in the "PROBABLE_NAME" (default: None).')
         )
+        find.add_argument(
+            '--description-includes',
+            dest='description_includes',
+            metavar='<string>',
+            default=None,
+            help=('Only list scenarioes including this string'
+                  'in the description (default: None).')
+        )
         parser.epilog = textwrap.dedent("""\
            The ``--group`` option can be repeated multiple times to include multiple
            subgroups, or you can use ``--group all`` to include all groups.
@@ -825,6 +845,7 @@ class CTUList(Lister):
         columns = self.ctu_metadata.columns
         results = self.ctu_metadata.get_metadata(
             name_includes=parsed_args.name_includes,
+            description_includes=parsed_args.description_includes,
             groups=parsed_args.groups,
             has_hash=parsed_args.hash)
         if self.app_args.limit > 0:
