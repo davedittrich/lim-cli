@@ -16,6 +16,7 @@ import time
 import requests
 import textwrap
 import warnings
+import webbrowser
 
 from bs4 import BeautifulSoup  # noqa
 from collections import OrderedDict
@@ -648,20 +649,67 @@ class CTUOverview(Command):
 
     log = logging.getLogger(__name__)
 
+    __BROWSERS__ = ['firefox', 'chrome', 'safari']
+
     def get_parser(self, prog_name):
         parser = super(CTUOverview, self).get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        parser.add_argument(
+            '--browser',
+            action='store',
+            dest='browser',
+            choices=self.__BROWSERS__,
+            # default=self.__BROWSERS__[0],
+            # help="Browser to use for viewing " +
+            #      "(default: {}).".format(self.__BROWSERS__[0])
+            default=None,
+            help="Browser to use for viewing " +
+                 "(default: {}).".format(None)
+        )
+        parser.add_argument(
+            '--cache-file',
+            action='store',
+            dest='cache_file',
+            default=None,
+            help="Cache file path (default: None)."
+        )
+        parser.add_argument(
+            '--ignore-cache',
+            action='store_true',
+            dest='ignore_cache',
+            default=False,
+            help="Ignore any cached results (default: False)."
+        )
+        parser.add_argument(
+            'scenario',
+            nargs='*',
+            default=None)
         parser.epilog = textwrap.dedent("""\
            \n""") + CTU_Dataset.get_disclaimer()
         return parser
 
     def take_action(self, parsed_args):
         self.log.debug('[+] showing overview of CTU datasets')
-        print("For an overview of the CTU Datasets, open the following " +
-              "URL in a browser:\n" +
-              "{overview}\n\n{disclaimer}".format(
-                overview=CTU_Dataset.get_ctu_datasets_overview_url(),
-                disclaimer=CTU_Dataset.get_disclaimer()))
+        # TODO(dittrich): Getting really not DRY: Move this into class.
+        pages = []
+        if 'ctu_metadata' not in dir(self):
+            self.ctu_metadata = CTU_Dataset(
+                cache_file=parsed_args.cache_file,
+                ignore_cache=parsed_args.ignore_cache,
+                debug=self.app_args.debug)
+        self.ctu_metadata.load_ctu_metadata()
+        if len(parsed_args.scenario) == 0:
+            print("{}".format(CTU_Dataset.get_disclaimer()))
+            pages.append(CTU_Dataset.get_ctu_datasets_overview_url())
+        else:
+            for scenario in parsed_args.scenario:
+                pages.append(self.ctu_metadata.get_scenario_attribute(
+                    scenario, 'URL'))
+        for page in pages:
+            if parsed_args.browser is not None:
+                webbrowser.get(parsed_args.browser).open_new_tab(page)
+            else:
+                webbrowser.open(page, new=1)
 
 
 class CTUGet(Command):
