@@ -162,6 +162,7 @@ class CTU_Dataset(object):
         'normal': 'https://www.stratosphereips.org/datasets-normal',
         'malware': 'https://www.stratosphereips.org/datasets-malware'
     }
+    __CTU_PREFIX__ = 'CTU-Malware-Capture-'
     __DEFAULT_GROUP__ = 'malware'
     __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
@@ -283,6 +284,34 @@ class CTU_Dataset(object):
         return cls.__DISCLAIMER__
 
     @classmethod
+    def get_fullname(cls, name):
+        """
+        Return a full scenario name from a possible abbreviated
+        name consisting of just the part after '{}'.
+        """.format(cls.__CTU_PREFIX__)
+
+        if len(name) > len(cls.__CTU_PREFIX__):
+            # Don't try to add the prefix if it looks like it might already
+            # be there (even typod)
+            if name[0] == 'C':
+                return name
+        else:
+            if name[0] != 'C' and not name.startswith(cls.__CTU_PREFIX__):
+                return cls.__CTU_PREFIX__ + name
+        return name
+
+    @classmethod
+    def get_shortname(cls, name):
+        """
+        Return a short scenario name from a full scenario name if
+        the name begins with '{}'.
+        """.format(cls.__CTU_PREFIX__)
+
+        if name.startswith(cls.__CTU_PREFIX__):
+            return name[len(cls.__CTU_PREFIX__):]
+        return name
+
+    @classmethod
     def filename_from_url(cls, url=None):
         if url is None:
             return None
@@ -362,6 +391,7 @@ class CTU_Dataset(object):
                                            name=None,
                                            attribute=None,
                                            filename=None):
+        name = self.get_fullname(name)
         url = self.get_scenario_attribute(name, attribute)
         if url in ['', None]:
             logger.info('[-] scenario "{}" does not have '.format(name) +
@@ -600,6 +630,7 @@ class CTU_Dataset(object):
     def get_metadata(self,
                      groups=None,
                      name_includes=None,
+                     fullnames=False,
                      description_includes=None,
                      has_hash=None):
         """
@@ -634,7 +665,11 @@ class CTU_Dataset(object):
             if not match:
                 continue
             row = dict()
-            row['SCENARIO'] = scenario
+            # Support short names for Malware scenarios.
+            if fullnames:
+                row['SCENARIO'] = scenario
+            else:
+                row['SCENARIO'] = CTU_Dataset.get_shortname(scenario)
             row['SCENARIO_URL'] = attributes['URL']
             # Get remaining attributes
             for c in self.columns:
@@ -692,19 +727,24 @@ class CTUOverview(Command):
         self.log.debug('[+] showing overview of CTU datasets')
         # TODO(dittrich): Getting really not DRY: Move this into class.
         pages = []
+        # Expand scenario names if abbreviated
+        scenarios = [CTU_Dataset.get_fullname(s)
+                     for s in parsed_args.scenario]
         if 'ctu_metadata' not in dir(self):
             self.ctu_metadata = CTU_Dataset(
                 cache_file=parsed_args.cache_file,
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
-        if len(parsed_args.scenario) == 0:
+        if len(scenarios) == 0:
             print("{}".format(CTU_Dataset.get_disclaimer()))
             pages.append(CTU_Dataset.get_ctu_datasets_overview_url())
         else:
-            for scenario in parsed_args.scenario:
-                pages.append(self.ctu_metadata.get_scenario_attribute(
-                    scenario, 'URL'))
+            for scenario in scenarios:
+                page = self.ctu_metadata.get_scenario_attribute(scenario,
+                                                                'URL')
+                if page is not None:
+                    pages.append(page)
         for page in pages:
             if parsed_args.browser is not None:
                 webbrowser.get(parsed_args.browser).open_new_tab(page)
@@ -781,7 +821,7 @@ class CTUGet(Command):
             # TODO(dittrich): Work this back into init() method.
         self.ctu_metadata.load_ctu_metadata()
 
-        name = parsed_args.name[0]
+        name = self.get_fullname(parsed_args.name[0])
         if not self.ctu_metadata.is_valid_scenario(name):
             raise RuntimeError('Scenario "{}" '.format(name) +
                                'does not exist')
@@ -823,6 +863,13 @@ class CTUList(Lister):
             help="Ignore any cached results (default: False)."
         )
         parser.add_argument(
+            '--fullnames',
+            action='store_true',
+            dest='fullnames',
+            default=False,
+            help="Show full names including the " +
+                 "'{}' prefix".format(CTU_Dataset.__CTU_PREFIX__)
+        )
             '--group',
             action='append',
             dest='groups',
@@ -893,6 +940,7 @@ class CTUList(Lister):
         columns = self.ctu_metadata.columns
         results = self.ctu_metadata.get_metadata(
             name_includes=parsed_args.name_includes,
+            fullnames=parsed_args.fullnames,
             description_includes=parsed_args.description_includes,
             groups=parsed_args.groups,
             has_hash=parsed_args.hash)
