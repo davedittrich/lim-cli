@@ -180,8 +180,8 @@ class CTU_Dataset(object):
     __COLUMNS__ = [
         'SCENARIO',
         'GROUP',
-        'SCENARIO_URL',
         'PROBABLE_NAME',
+        'SCENARIO_URL',
         'ZIP',
         'MD5',
         'SHA1',
@@ -191,6 +191,7 @@ class CTU_Dataset(object):
         'PCAP',
         'WEBLOGNG'
     ]
+    __MIN_COLUMNS__ = 4
     __DISCLAIMER__ = textwrap.dedent("""\
        When using this data, make sure to respect the Disclaimer at the bottom of
        the scenario ``Readme.*`` files:
@@ -630,13 +631,14 @@ class CTU_Dataset(object):
 
     def get_metadata(self,
                      groups=None,
+                     columns=None,
                      name_includes=None,
                      fullnames=False,
                      description_includes=None,
                      has_hash=None):
         """
         Return a list of lists of data suitable for use by
-        cliff, following the order of elements in self.columns.
+        cliff, following the order of elements in 'columns'.
         """
         data = list()
         for (scenario, attributes) in self.scenarios.items():
@@ -673,10 +675,10 @@ class CTU_Dataset(object):
                 row['SCENARIO'] = CTU_Dataset.get_shortname(scenario)
             row['SCENARIO_URL'] = attributes['URL']
             # Get remaining attributes
-            for c in self.columns:
+            for c in columns:
                 if c not in row:
                     row[c] = attributes.get(c)
-            data.append([row.get(c) for c in self.columns])
+            data.append([row.get(c) for c in columns])
         return data
 
 
@@ -871,6 +873,15 @@ class CTUList(Lister):
             help="Show full names including the " +
                  "'{}' prefix".format(CTU_Dataset.__CTU_PREFIX__)
         )
+        parser.add_argument(
+            '--everything',
+            action='store_true',
+            dest='everything',
+            default=False,
+            help="Show all metadata attributes for scenarios " +
+                 "(default : False)"
+        )
+        parser.add_argument(
             '--group',
             action='append',
             dest='groups',
@@ -938,12 +949,16 @@ class CTUList(Lister):
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
 
-        columns = self.ctu_metadata.columns
+        if parsed_args.everything:
+            columns = self.ctu_metadata.columns
+        else:
+            columns = self.ctu_metadata.columns[:self.ctu_metadata.__MIN_COLUMNS__]  # noqa
         results = self.ctu_metadata.get_metadata(
+            groups=parsed_args.groups,
+            columns=columns,
             name_includes=parsed_args.name_includes,
             fullnames=parsed_args.fullnames,
             description_includes=parsed_args.description_includes,
-            groups=parsed_args.groups,
             has_hash=parsed_args.hash)
         if self.app_args.limit > 0:
             data = results[0:min(self.app_args.limit, len(results))]
