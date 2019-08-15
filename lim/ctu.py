@@ -188,7 +188,8 @@ class CTU_Dataset(object):
         'SHA256',
         'LABELED',
         'BINETFLOW',
-        'PCAP'
+        'PCAP',
+        'WEBLOGNG'
     ]
     __DISCLAIMER__ = textwrap.dedent("""\
        When using this data, make sure to respect the Disclaimer at the bottom of
