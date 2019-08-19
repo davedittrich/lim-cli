@@ -1,4 +1,6 @@
 aiohttp
+arrow
+dpkt
 beautifulsoup4
 cliff
 future
