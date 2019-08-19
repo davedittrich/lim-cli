@@ -14,7 +14,6 @@ import warnings
 
 from arrow.factory import ArrowParseWarning
 from cliff.command import Command
-from contextlib import redirect_stdout
 
 # Ignore parse warning per
 # https://github.com/crsmithdev/arrow/issues/612
@@ -149,7 +148,8 @@ class PCAPExtract(Command):
             else:
                 flist = os.path.splitext(fname)[0] + '.ips'
                 f_out = open(flist, 'w')
-                logger.debug('[+] writing IP addresses to file: {}'.format(flist))
+                logger.debug('[+] writing IP addresses ' +
+                             'to file: {}'.format(flist))
             with open(fname, 'rb') as f_in:
                 reader = dpkt.pcap.Reader(f_in)
                 ips = dict()
