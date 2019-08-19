@@ -12,6 +12,7 @@ import logging
 import os
 import signal
 import six
+import subprocess  # nosec
 import time
 import requests
 import textwrap
@@ -393,7 +394,7 @@ class CTU_Dataset(object):
                                            name=None,
                                            attribute=None,
                                            filename=None):
-        name = self.get_fullname(name)
+        name = CTU_Dataset.get_fullname(name)
         url = self.get_scenario_attribute(name, attribute)
         if url in ['', None]:
             logger.info('[-] scenario "{}" does not have '.format(name) +
@@ -808,6 +809,7 @@ class CTUGet(Command):
         parser.add_argument(
             'data',
             nargs='+',
+            type=str.upper,
             choices=CTU_Dataset.get_attributes() + ['ALL'],
             default=None)
         parser.epilog = textwrap.dedent("""\
@@ -824,23 +826,60 @@ class CTUGet(Command):
             # TODO(dittrich): Work this back into init() method.
         self.ctu_metadata.load_ctu_metadata()
 
-        name = self.get_fullname(parsed_args.name[0])
+        name = CTU_Dataset.get_fullname(parsed_args.name[0])
         if not self.ctu_metadata.is_valid_scenario(name):
             raise RuntimeError('Scenario "{}" '.format(name) +
                                'does not exist')
+        parsed_args.data
         if self.app_args.data_dir is not None:
             data_dir = self.app_args.data_dir
         else:
             data_dir = name
         if 'ALL' in parsed_args.data:
-            requested = self.ctu_metadata.get_attributes()
+            self.recursive_get_all(name)
         else:
-            requested = parsed_args.data
-        for data in requested:
-            self.log.debug('[+] downloading {} data '.format(data) +
-                           'for scenario {}'.format(name))
-            self.ctu_metadata.fetch_scenario_content_byattribute(
-                data_dir=data_dir, name=name, attribute=data)
+            for attribute in parsed_args.data:
+                self.log.debug('[+] downloading ' +
+                               '{} data '.format(attribute) +
+                               'for scenario {}'.format(name))
+                self.ctu_metadata.fetch_scenario_content_byattribute(
+                    data_dir=data_dir, name=name, attribute=attribute)
+
+    def recursive_get_all(self,
+                          name,
+                          cwd=os.getcwd(),
+                          stderr=subprocess.STDOUT,
+                          shell=False):
+        """Use wget to recursively get all scenario data."""
+        url = self.ctu_metadata.get_scenario_attribute(
+                name=name, attribute='URL')
+        cmd = ['wget',
+               '-r',
+               '--no-parent',
+               '--no-host-directories',
+               '--cut-dirs=1',
+               '--no-check-certificate',
+               url]
+        """Use subprocess.check_ouput to run subcommand"""
+        self.log.info('[+] recursively getting all data ' +
+                      'from {}'.format(url))
+        output = subprocess.check_output(  # nosec
+                cmd,
+                cwd=cwd,
+                stderr=stderr,
+                shell=shell
+            ).decode('UTF-8').splitlines()
+        cmd = ['find',
+               CTU_Dataset.get_fullname(name),
+               '-name',
+               '*?C=*',
+               '-delete']
+        output = subprocess.check_output(  # nosec
+                cmd,
+                cwd=cwd,
+                stderr=stderr,
+                shell=shell
+            ).decode('UTF-8').splitlines()
 
 
 class CTUList(Lister):
@@ -916,6 +955,10 @@ class CTUList(Lister):
             help=('Only list scenarioes including this string'
                   'in the description (default: None).')
         )
+        parser.add_argument(
+            'scenario',
+            nargs='*',
+            default=None)
         parser.epilog = textwrap.dedent("""\
            The ``--group`` option can be repeated multiple times to include multiple
            subgroups, or you can use ``--group all`` to include all groups.
@@ -940,6 +983,9 @@ class CTUList(Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('[+] listing CTU data')
+        # Expand scenario names if abbreviated
+        scenarios = [CTU_Dataset.get_fullname(s)
+                     for s in parsed_args.scenario]
         if 'all' in parsed_args.groups:
             parsed_args.groups = CTU_Dataset.get_groups()
         if 'ctu_metadata' not in dir(self):
@@ -960,10 +1006,12 @@ class CTUList(Lister):
             fullnames=parsed_args.fullnames,
             description_includes=parsed_args.description_includes,
             has_hash=parsed_args.hash)
-        if self.app_args.limit > 0:
-            data = results[0:min(self.app_args.limit, len(results))]
+        if len(scenarios) > 0:
+            data = [r for r in results
+                    if CTU_Dataset.get_fullname(r[0]) in scenarios]
         else:
-            data = results
+            if self.app_args.limit > 0:
+                data = results[0:min(self.app_args.limit, len(results))]
         return columns, data
 
 
