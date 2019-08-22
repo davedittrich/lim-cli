@@ -863,7 +863,7 @@ class CTUGet(Command):
         """Use subprocess.check_ouput to run subcommand"""
         self.log.info('[+] recursively getting all data ' +
                       'from {}'.format(url))
-        output = subprocess.check_output(  # nosec
+        _ = subprocess.check_output(  # nosec
                 cmd,
                 cwd=cwd,
                 stderr=stderr,
@@ -874,7 +874,7 @@ class CTUGet(Command):
                '-name',
                '*?C=*',
                '-delete']
-        output = subprocess.check_output(  # nosec
+        _ = subprocess.check_output(  # nosec
                 cmd,
                 cwd=cwd,
                 stderr=stderr,
