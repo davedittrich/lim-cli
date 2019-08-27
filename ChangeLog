@@ -1,6 +1,10 @@
 CHANGES
 =======
 
+* Improve robustness of ctu recursive get
+* Ignore output explicitly
+* Add recursive get (wget) of all scenario data
+* Update ChangeLog
 * Resolve pep8 findings
 
 v19.8.2

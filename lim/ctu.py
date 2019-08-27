@@ -13,6 +13,7 @@ import os
 import signal
 import six
 import subprocess  # nosec
+import sys
 import time
 import requests
 import textwrap
@@ -851,6 +852,22 @@ class CTUGet(Command):
                           stderr=subprocess.STDOUT,
                           shell=False):
         """Use wget to recursively get all scenario data."""
+        cmd = ['wget', '-h']
+        result = ""
+        try:
+            result = subprocess.check_output(  # nosec
+                    cmd,
+                    cwd=cwd,
+                    stderr=stderr,
+                    shell=shell
+                ).decode('UTF-8').splitlines()
+        except Exception as err:
+            message = 'cannot run "wget": {}'.format(err)
+        else:
+            message = 'cannot run "wget"'
+        if len(result) > 1 and result[0].find(' Wget ') < 0:
+            raise RuntimeError(message)
+
         url = self.ctu_metadata.get_scenario_attribute(
                 name=name, attribute='URL')
         cmd = ['wget',
@@ -858,28 +875,39 @@ class CTUGet(Command):
                '--no-parent',
                '--no-host-directories',
                '--cut-dirs=1',
-               '--no-check-certificate',
-               url]
+               '--no-check-certificate']
+        cmd.append(url)
         """Use subprocess.check_ouput to run subcommand"""
         self.log.info('[+] recursively getting all data ' +
                       'from {}'.format(url))
-        _ = subprocess.check_output(  # nosec
-                cmd,
-                cwd=cwd,
-                stderr=stderr,
-                shell=shell
-            ).decode('UTF-8').splitlines()
+        try:
+            result = subprocess.check_output(  # nosec
+                    cmd,
+                    cwd=cwd,
+                    stderr=stderr,
+                    shell=shell
+                ).decode('UTF-8').splitlines()
+        except subprocess.CalledProcessError as err:
+            sys.stderr.write('\n'.join([line for line in result]) + '\n')
+            sys.stderr.write(str(err.output) + '\n')
+            sys.exit(err.returncode)
+
         cmd = ['find',
                CTU_Dataset.get_fullname(name),
                '-name',
                '*?C=*',
                '-delete']
-        _ = subprocess.check_output(  # nosec
-                cmd,
-                cwd=cwd,
-                stderr=stderr,
-                shell=shell
-            ).decode('UTF-8').splitlines()
+        try:
+            result = subprocess.check_output(  # nosec
+                    cmd,
+                    cwd=cwd,
+                    stderr=stderr,
+                    shell=shell
+                ).decode('UTF-8').splitlines()
+        except subprocess.CalledProcessError as err:
+            sys.stderr.write('\n'.join([line for line in result]) + '\n')
+            sys.stderr.write(str(err.output) + '\n')
+            sys.exit(err.returncode)
 
 
 class CTUList(Lister):
@@ -1006,12 +1034,15 @@ class CTUList(Lister):
             fullnames=parsed_args.fullnames,
             description_includes=parsed_args.description_includes,
             has_hash=parsed_args.hash)
+        data = list()
         if len(scenarios) > 0:
             data = [r for r in results
                     if CTU_Dataset.get_fullname(r[0]) in scenarios]
         else:
             if self.app_args.limit > 0:
                 data = results[0:min(self.app_args.limit, len(results))]
+            else:
+                data = results
         return columns, data
 
 
