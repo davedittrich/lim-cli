@@ -122,8 +122,8 @@ class PCAPShift(Command):
                     newts, newbuf = self.shift(this, ts, buf)
                     if self.app_args.verbose_level > 1:
                         logger.info('{} {} {}'.format(packet_number,
-                                                      arrow.format(ts),
-                                                      arrow.format(newts)))
+                                                      str(arrow.get(ts)),
+                                                      str(arrow.get(newts))))
                     writer.writepkt(newbuf, newts)
                     packet_number += 1
 
