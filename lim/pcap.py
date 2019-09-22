@@ -49,6 +49,9 @@ class PCAPShift(Command):
             in ISO 8601 date format, e.g., ``2019-09-01T12:00:00Z`` or
             ``2019-09-01T20:00:00.00-08:00``.
 
+            To see the old and new timestamps for each packet as they are converted,
+            use ``-vv``.
+
             NOTE: Keep in mind that any embedded timestamps in the body of ethernet
             frames (e.g., in the UDP or TCP data portion of the packet) are not adjusted.
             """)
@@ -119,12 +122,12 @@ class PCAPShift(Command):
                 reader = dpkt.pcap.Reader(f_in)
                 writer = dpkt.pcap.Writer(f_out)
                 packet_number = 1
-                if self.app_args.verbose_level > 1:
-                    logger.info('[+] Details of time shift following with these fields:')
-                    logger.info('[+] PACKET OLD_TIMESTAMP NEW_TIMESTAMP')
                 for ts, buf in reader:
                     newts, newbuf = self.shift(this, ts, buf)
                     if self.app_args.verbose_level > 1:
+                        if packet_number == 1:
+                            logger.info('[+] details of time shift following with these fields:')
+                            logger.info('[+] PACKET_NUMBER OLD_TIMESTAMP NEW_TIMESTAMP')
                         logger.info('{} {} {}'.format(packet_number,
                                                       str(arrow.get(ts)),
                                                       str(arrow.get(newts))))
