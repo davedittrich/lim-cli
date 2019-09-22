@@ -46,7 +46,11 @@ class PCAPShift(Command):
         parser.epilog = textwrap.dedent("""
             Adjusts the timestamps in the ethernet frame headers of packets in a PCAP
             file by rebasing them to the specified date. The ``--start-time`` is specified
-            in ISO 8601 date format, e.g., ``2019-09-01T12:00``.
+            in ISO 8601 date format, e.g., ``2019-09-01T12:00:00Z`` or
+            ``2019-09-01T20:00:00.00-08:00``.
+
+            NOTE: Keep in mind that any embedded timestamps in the body of ethernet
+            frames (e.g., in the UDP or TCP data portion of the packet) are not adjusted.
             """)
         return parser
 
