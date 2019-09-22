@@ -18,7 +18,6 @@ help:
 	@echo 'test-tox - run tox tests'
 	@echo 'test-bats - run Bats unit tests'
 	@echo 'test-bats-runtime - run Bats runtime integration/system tests'
-	@echo 'test-load - use 'lim runpy' to load the nepotism dataset'
 	@echo 'release - produce a pypi production release'
 	@echo 'release-test - produce a pypi test release'
 	@echo 'egg - run "python setup.py bdist_egg"'
@@ -35,9 +34,11 @@ help:
 #HELP test - run 'tox' for testing
 .PHONY: test
 test: test-tox test-bats docs-tests
+	@echo '[+] All tests succeeded'
 
 .PHONY: test-tox
 test-tox:
+	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
 	tox
 
 .PHONY: test-bats
@@ -54,11 +55,6 @@ test-bats: bats-libraries
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
 	bats --tap tests/runtime.bats
-
-#HELP test-load - use 'lim runpy' to load the nepotism dataset
-.PHONY: test-load
-test-load:
-	lim runpy examples/de_01_nepotism_create.py examples/dm_01_nepotism_insert.py
 
 .PHONY: no-diffs
 no-diffs:
@@ -197,6 +193,5 @@ bats-support:
 bats-assert:
 	@[ -d tests/libs/bats-assert ] || \
 		(mkdir -p tests/libs/bats-assert; git clone https://github.com/ztombol/bats-assert tests/libs/bats-assert)
-
 
 #EOF

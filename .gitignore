@@ -1,5 +1,5 @@
 .eggs/
-lim.egg-info/
+*.egg-info/
 .tox/
 .vscode/
 build/
