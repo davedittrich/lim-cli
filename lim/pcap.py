@@ -114,9 +114,18 @@ class PCAPShift(Command):
             with open(fname, 'rb') as f_in, open(newfname, 'wb') as f_out:
                 reader = dpkt.pcap.Reader(f_in)
                 writer = dpkt.pcap.Writer(f_out)
+                packet_number = 1
+                if self.app_args.verbose_level > 1:
+                    logger.info('[+] Details of time shift following with these fields:')
+                    logger.info('[+] PACKET OLD_TIMESTAMP NEW_TIMESTAMP')
                 for ts, buf in reader:
                     newts, newbuf = self.shift(this, ts, buf)
+                    if self.app_args.verbose_level > 1:
+                        logger.info('{} {} {}'.format(packet_number,
+                                                      arrow.format(ts),
+                                                      arrow.format(newts)))
                     writer.writepkt(newbuf, newts)
+                    packet_number += 1
 
 
 class PCAPExtract(Command):
