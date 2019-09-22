@@ -44,7 +44,9 @@ class PCAPShift(Command):
             help="New starting time for first packet (default: None)."
         )
         parser.epilog = textwrap.dedent("""
-            Adjust attributes in a PCAP file, such as rebasing the timestamps.
+            Adjusts the timestamps in the ethernet frame headers of packets in a PCAP
+            file by rebasing them to the specified date. The ``--start-time`` is specified
+            in ISO 8601 date format, e.g., ``2019-09-01T12:00``.
             """)
         return parser
 
@@ -137,6 +139,9 @@ class PCAPExtract(Command):
             help="Write output to stdout (default: False)."
         )
         parser.epilog = textwrap.dedent("""
+            Output is a sorted list of unique IP addresses. By default, the results are
+            written to a file with the same base name as the input, but ending
+            in ``.ips``. To output to standard output, use the ``--stdout`` option.
             """)
         return parser
 
