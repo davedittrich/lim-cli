@@ -116,6 +116,10 @@ class LiminalApp(App):
         self.set_environment(self.options.environment)
 
     def prepare_to_run_command(self, cmd):
+        if cmd.app_args.verbose_level > 1:
+            self.LOG.info('[+] command line: {}'.format(
+                " ".join([arg for arg in sys.argv])
+            ))
         self.LOG.debug('prepare_to_run_command %s', cmd.__class__.__name__)
         if self.options.elapsed:
             self.timer.start()
