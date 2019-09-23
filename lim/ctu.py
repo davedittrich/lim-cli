@@ -169,7 +169,7 @@ class CTU_Dataset(object):
     __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
     __CACHE_FILE__ = "ctu-cache.json"
-    __CACHE_TIMEOUT__ = 60 * 60 * 24 * 7  # secs * mins * hours * days
+    __CACHE_TIMEOUT__ = 60 * 60 * 24 * 30  # secs * mins * hours * days
     # These are fields associated with files that can be downloaded.
     __ATTRIBUTES__ = [
         'ZIP',
