@@ -54,7 +54,7 @@ class PCAPShift(Command):
 
             NOTE: Keep in mind that any embedded timestamps in the body of ethernet
             frames (e.g., in the UDP or TCP data portion of the packet) are not adjusted.
-            """)
+            """)  # noqa
         return parser
 
     def networkshift(self, ts, buf):
@@ -126,8 +126,10 @@ class PCAPShift(Command):
                     newts, newbuf = self.shift(this, ts, buf)
                     if self.app_args.verbose_level > 1:
                         if packet_number == 1:
-                            logger.info('[+] details of time shift following with these fields:')
-                            logger.info('[+] PACKET_NUMBER OLD_TIMESTAMP NEW_TIMESTAMP')
+                            logger.info('[+] details of time shift '
+                                        'following with these fields:')
+                            logger.info('[+] PACKET_NUMBER OLD_TIMESTAMP '
+                                        'NEW_TIMESTAMP')
                         logger.info('{} {} {}'.format(packet_number,
                                                       str(arrow.get(ts)),
                                                       str(arrow.get(newts))))
@@ -158,7 +160,7 @@ class PCAPExtract(Command):
             Output is a sorted list of unique IP addresses. By default, the results are
             written to a file with the same base name as the input, but ending
             in ``.ips``. To output to standard output, use the ``--stdout`` option.
-            """)
+            """)  # noqa
         return parser
 
     def take_action(self, parsed_args):
