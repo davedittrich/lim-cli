@@ -6,8 +6,8 @@ import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import chose_wisely
-from lim.packet_cafe import get_ids
-from lim.packet_cafe import get_ids_for_session
+from lim.packet_cafe import get_requests
+from lim.packet_cafe import get_session_ids
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class Requests(Lister):
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing request ids')
-        ids = get_ids()
+        ids = get_session_ids()
         if parsed_args.sess_id is not None:
             sess_id = parsed_args.sess_id
         else:
@@ -42,7 +42,7 @@ class Requests(Lister):
         # capitalization of column headers. :(
         columns = ['Id', 'Filename', 'Original_Filename', 'Tools']
         data = list()
-        for row in get_ids_for_session(sess_id=sess_id):
+        for row in get_requests(sess_id=sess_id):
             data.append(
                 ([row[c.lower()] for c in columns])
             )

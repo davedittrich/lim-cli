@@ -40,7 +40,7 @@ def chose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
     return choice
 
 
-def get_ids():
+def get_session_ids():
     """Get IDs from packet-cafe admin service."""
     url = f'{CAFE_ADMIN_URL}/ids'
     response = requests.request("GET", url)
@@ -50,8 +50,8 @@ def get_ids():
         return None
 
 
-def get_ids_for_session(sess_id=None):
-    """Get IDs from packet-cafe admin service."""
+def get_requests(sess_id=None):
+    """Get requests for a session from packet-cafe admin service."""
     # TODO(dittrich): Mock this for unit testing.
     # if sess_id == "ab7af73526814d58bf35f1399a5594b2":
     #     # return None
@@ -73,6 +73,15 @@ def get_ids_for_session(sess_id=None):
         return None
 
 
+def get_request_ids(sess_id=None):
+    """Get IDs from packet-cafe admin service."""
+    results = get_requests(sess_id=sess_id)
+    if results is not None:
+        return [i['id'] for i in results]
+    else:
+        return None
+
+
 def get_files():
     """Get all files from packet-cafe admin service."""
     response = requests.request("GET", f'{CAFE_ADMIN_URL}/id/files')
@@ -87,6 +96,25 @@ def get_results():
     response = requests.request("GET", f'{CAFE_ADMIN_URL}/id/results')
     if response.status_code == 200:
         return json.loads(response.text)
+    else:
+        return None
+
+
+def get_tools():
+    """Get list of tools that produce output files."""
+    workers = get_workers()
+    tools = [
+        worker['name'] for worker in workers
+        if 'file' in worker['outputs']
+    ]
+    return tools
+
+
+def get_workers():
+    """Get details about workers."""
+    response = requests.request("GET", f'{CAFE_API_URL}/tools')
+    if response.status_code == 200:
+        return json.loads(response.text)['workers']
     else:
         return None
 
@@ -132,9 +160,15 @@ __all__ = [
     CAFE_API_VERSION,
     CAFE_ADMIN_URL,
     CAFE_API_URL,
-    get_ids,
+    chose_wisely,
+    get_session_ids,
+    get_requests,
+    get_request_ids,
     get_files,
     get_results,
+    get_tools,
+    get_workers,
+    get_status,
     upload,
 ]
 
