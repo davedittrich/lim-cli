@@ -5,7 +5,7 @@ import logging
 import textwrap
 
 from cliff.lister import Lister
-from lim.packet_cafe import get_ids
+from lim.packet_cafe import get_session_ids
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +26,7 @@ class Sessions(Lister):
     def take_action(self, parsed_args):
         logger.debug('[+] listing session ids')
         columns = ['SessionId']
-        data = [[row] for row in get_ids()]
+        data = [[row] for row in get_session_ids()]
         return (columns, data)
 
 
