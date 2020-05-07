@@ -1,5 +1,6 @@
 aiohttp
 arrow
+bullet
 dpkt
 beautifulsoup4
 cliff

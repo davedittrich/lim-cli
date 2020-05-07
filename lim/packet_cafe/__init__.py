@@ -6,11 +6,38 @@ import json
 import requests
 import uuid
 
+# TODO(dittrich): https://github.com/Mckinsey666/bullet/issues/2
+# Workaround until bullet has Windows missing 'termios' fix.
+try:
+    from bullet import Bullet
+except ModuleNotFoundError:
+    pass
+
+
 CAFE_SERVER = '127.0.0.1'
 CAFE_PORT = 5001
 CAFE_API_VERSION = 'v1'
 CAFE_ADMIN_URL = f'http://{CAFE_SERVER}:{CAFE_PORT}/{CAFE_API_VERSION}'
 CAFE_API_URL = f'http://{CAFE_SERVER}/api/{CAFE_API_VERSION}'
+
+
+def chose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
+    choices = ['<CANCEL>'] + from_list
+    cli = Bullet(prompt=f'\nChose { what }:',
+                 choices=choices,
+                 indent=0,
+                 align=2,
+                 margin=1,
+                 shift=0,
+                 bullet="→",
+                 pad_right=5)
+    choice = cli.launch()
+    if choice == "<CANCEL>":
+        if cancel_throws_exception:
+            raise RuntimeError(f'cancelled chosing { what }')
+        else:
+            return None
+    return choice
 
 
 def get_ids():
