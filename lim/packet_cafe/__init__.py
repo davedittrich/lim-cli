@@ -133,6 +133,22 @@ def get_status(sess_id=None, req_id=None):
         return None
 
 
+def get_raw(tool=None, counter=1, sess_id=None, req_id=None):
+    """Get raw output from a specific tool, session, and request."""
+    if tool is None:
+        raise RuntimeError(f'tool must not be None')
+    if sess_id is None:
+        raise RuntimeError(f'sess_id must not be None')
+    if req_id is None:
+        raise RuntimeError(f'req_id must not be None')
+    url = f'{ CAFE_API_URL }/raw/{ tool }/{ counter }/{ sess_id }/{ req_id }'
+    response = requests.request("GET", url)
+    if response.status_code == 200:
+        return json.loads(response.text)
+    else:
+        return None
+
+
 def upload(fname=None, sessionId=None):
     """Upload PCAP file to packet-cafe service for processing."""
 
@@ -169,6 +185,7 @@ __all__ = [
     get_tools,
     get_workers,
     get_status,
+    get_raw,
     upload,
 ]
 

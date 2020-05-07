@@ -415,7 +415,7 @@
             }
         },
         {
-            "name": "lim cafe admin results",
+            "name": "lim cafe admin results bd976556-fbc3-4e2e-a808-7024c0c0f69b",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -425,7 +425,30 @@
                 "--debug",
                 "cafe",
                 "admin",
-                "results"
+                "results",
+                "bd976556-fbc3-4e2e-a808-7024c0c0f69b"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim cafe raw bd976556-fbc3-4e2e-a808-7024c0c0f69b 9e74cc6f818c47ea9cd8c8ab94ce93db --tool p0f",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "cafe",
+                "raw",
+                "bd976556-fbc3-4e2e-a808-7024c0c0f69b",
+                "9e74cc6f818c47ea9cd8c8ab94ce93db",
+                "--tool",
+                "p0f"
             ],
             "stopOnEntry": false,
             "env": {
@@ -539,6 +562,24 @@
                 "status",
                 "00000000-fbc3-4e2e-a808-7024c0c0f69b",
                 "a421e4d7b0244c2ea9b0ef7f900255a8"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim cafe status",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "cafe",
+                "status"
             ],
             "stopOnEntry": false,
             "env": {
