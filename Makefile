@@ -107,6 +107,7 @@ twine-check: egg
 clean:
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
+	find . -name '__pycache__' -delete
 	find . -name '*.pyc' -delete
 
 #HELP spotless - deep clean
