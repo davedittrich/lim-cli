@@ -3,4 +3,4 @@
 History
 -------
 
-.. include:: ../Changelog
+.. include:: ../ChangeLog
