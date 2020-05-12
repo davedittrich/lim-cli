@@ -12,7 +12,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -29,7 +29,7 @@
             ],
             "stopOnEntry": true,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -45,7 +45,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -62,7 +62,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -79,7 +79,7 @@
             ],
             "stopOnEntry": true,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -97,7 +97,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -116,7 +116,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -136,7 +136,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -156,7 +156,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -178,7 +178,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -200,7 +200,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -225,7 +225,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -248,7 +248,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -269,7 +269,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -290,7 +290,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -311,7 +311,7 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
         },
@@ -332,9 +332,9 @@
             ],
             "stopOnEntry": false,
             "env": {
-                "PYTHONUNBUFFERED": 1,
+                "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
-        },
+        }
     ]
 }
