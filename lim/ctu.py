@@ -26,10 +26,10 @@ from cliff.command import Command
 from cliff.lister import Lister
 from datetime import datetime
 from urllib3.exceptions import InsecureRequestWarning
-from .main import BUFFER_SIZE
-from .main import DEFAULT_PROTOCOLS
-from .utils import safe_to_open
-from .utils import LineReader
+from lim.main import BUFFER_SIZE
+from lim.main import DEFAULT_PROTOCOLS
+from lim.utils import safe_to_open
+from lim.utils import LineReader
 
 # TODO(dittrich): Make this a command line argument?
 # Initialize a logger for this module.
