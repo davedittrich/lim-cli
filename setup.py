@@ -95,6 +95,7 @@ setup(
             'ctu get = lim.ctu:CTUGet',
             'ctu list = lim.ctu:CTUList',
             'ctu overview = lim.ctu:CTUOverview',
+            'ctu stats = lim.ctu:CTUStats',
             'pcap extract ips = lim.pcap:PCAPExtract',
             'pcap shift network = lim.pcap:PCAPShift',
             'pcap shift time = lim.pcap:PCAPShift',
