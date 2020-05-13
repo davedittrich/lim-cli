@@ -417,6 +417,28 @@
             }
         },
         {
+            "name": "lim cafe results bd976556-fbc3-4e2e-a808-7024c0c0f69b 9e74cc6f818c47ea9cd8c8ab94ce93db --tool p0f",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "cafe",
+                "results",
+                "bd976556-fbc3-4e2e-a808-7024c0c0f69b",
+                "9e74cc6f818c47ea9cd8c8ab94ce93db",
+                "--tool",
+                "p0f"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "lim cafe admin ids",
             "type": "python",
             "request": "launch",
@@ -492,7 +514,7 @@
             }
         },
         {
-            "name": "lim cafe ids",
+            "name": "lim cafe requests",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -501,7 +523,7 @@
             "args": [
                 "--debug",
                 "cafe",
-                "ids"
+                "requests"
             ],
             "stopOnEntry": false,
             "env": {
@@ -595,6 +617,25 @@
                 "cafe",
                 "upload",
                 "test.pcap"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim cafe upload ./tests/botnet-capture-20110816-sogou.pcap",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "cafe",
+                "upload",
+                "./tests/botnet-capture-20110816-sogou.pcap"
             ],
             "stopOnEntry": false,
             "env": {
