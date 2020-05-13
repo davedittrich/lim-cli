@@ -33,7 +33,7 @@ help:
 
 #HELP test - run 'tox' for testing
 .PHONY: test
-test: test-tox test-bats docs-tests
+test: test-tox test-bats
 	@echo '[+] All tests succeeded'
 
 .PHONY: test-tox
@@ -100,14 +100,16 @@ sdist: docs
 #HELP twine-check
 .PHONY: twine-check
 twine-check: egg
-	twine check "$(shell cat dist/.LATEST_EGG)"
+	twine check dist/"$(shell cat dist/.LATEST_EGG)"
 
 #HELP clean - remove build artifacts
 .PHONY: clean
 clean:
+	find . -name '*.pyc' -delete
+	rm -rf docs/_build/*
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
-	find . -name '*.pyc' -delete
+	rm -rf CTU-Malware-Capture-Botnet-48
 
 #HELP spotless - deep clean
 .PHONY: spotless

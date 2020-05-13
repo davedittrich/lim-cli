@@ -26,10 +26,10 @@ from cliff.command import Command
 from cliff.lister import Lister
 from datetime import datetime
 from urllib3.exceptions import InsecureRequestWarning
-from .main import BUFFER_SIZE
-from .main import DEFAULT_PROTOCOLS
-from .utils import safe_to_open
-from .utils import LineReader
+from lim.main import BUFFER_SIZE
+from lim.main import DEFAULT_PROTOCOLS
+from lim.utils import safe_to_open
+from lim.utils import LineReader
 
 # TODO(dittrich): Make this a command line argument?
 # Initialize a logger for this module.
@@ -148,6 +148,18 @@ class CTU_Dataset(object):
     is the unlabeled version, or the post-processed labeled
     version. Scraped data is cached for a period of time. You can
     force re-loading by using the --ignore-cache flag.
+
+
+    Examples of URLs from each set (for the purpose of knowing how
+    to parse them):
+
+    https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-9/
+    https://mcfp.felk.cvut.cz/publicDatasets/CTU-Normal-7/
+    https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-4/
+    https://mcfp.felk.cvut.cz/publicDatasets/IoTDatasets/CTU-IoT-Malware-Capture-34-1/
+
+    Note that the IoT datasets have a different directory path than
+    the rest, which complicates URL parsing logic below.
     """
 
     __CTU_DATASETS_OVERVIEW_URL__ = \
@@ -162,7 +174,8 @@ class CTU_Dataset(object):
     __CTU_DATASET_GROUPS__ = {
         'mixed': 'https://www.stratosphereips.org/datasets-mixed',
         'normal': 'https://www.stratosphereips.org/datasets-normal',
-        'malware': 'https://www.stratosphereips.org/datasets-malware'
+        'malware': 'https://www.stratosphereips.org/datasets-malware',
+        'iot': 'https://www.stratosphereips.org/datasets-iot',
     }
     __CTU_PREFIX__ = 'CTU-Malware-Capture-'
     __DEFAULT_GROUP__ = 'malware'
@@ -423,8 +436,11 @@ class CTU_Dataset(object):
     async def record_scenario_metadata(self, semaphore, group, url, session):
         if url is None:
             raise RuntimeError('url must not be None')
-        url_parts = url.split('/')
-        name = url_parts[url_parts.index('publicDatasets')+1]
+        if url.find('publicDatasets') == -1:
+            raise RuntimeError('url does not contain "publicDatasets"')
+        # The scenario name is the directory name in which the file
+        # is located.
+        name = os.path.basename(os.path.dirname(url))
         if name not in self.scenarios:
             self.scenarios[name] = dict()
         _scenario = self.scenarios[name]
@@ -453,8 +469,12 @@ class CTU_Dataset(object):
                             break
                 if ":" in line and line != ":":
                     try:
+                        # Special case for IoT malware, which is annotated
+                        # differently.
                         (_k, _v) = line.split(':')
                         k = _k.upper().replace(' ', '_')
+                        if k == "PROBABLE_MALWARE_NAME":
+                            k = "PROBABLE_NAME"
                         v = _v.strip()
                         if k in self.columns:
                             _scenario[k] = v
@@ -692,7 +712,7 @@ class CTUOverview(Command):
     __BROWSERS__ = ['firefox', 'chrome', 'safari']
 
     def get_parser(self, prog_name):
-        parser = super(CTUOverview, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--browser',
@@ -763,7 +783,7 @@ class CTUGet(Command):
     log = logging.getLogger(__name__)
 
     def get_parser(self, prog_name):
-        parser = super(CTUGet, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--force',
@@ -916,7 +936,7 @@ class CTUList(Lister):
     log = logging.getLogger(__name__)
 
     def get_parser(self, prog_name):
-        parser = super(CTUList, self).get_parser(prog_name)
+        parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--cache-file',
@@ -954,7 +974,7 @@ class CTUList(Lister):
             dest='groups',
             type=str,
             choices=CTU_Dataset.get_groups() + ['all'],
-            default=[CTU_Dataset.get_default_group()],
+            default=None,
             help="Dataset group to incldue or 'all' " +
                  "(default: '{}').".format(CTU_Dataset.get_default_group())
         )
@@ -1014,6 +1034,10 @@ class CTUList(Lister):
         # Expand scenario names if abbreviated
         scenarios = [CTU_Dataset.get_fullname(s)
                      for s in parsed_args.scenario]
+        # Defaulting doesn't work right with append, so set
+        # default here.
+        if parsed_args.groups is None:
+            parsed_args.groups = 'all'
         if 'all' in parsed_args.groups:
             parsed_args.groups = CTU_Dataset.get_groups()
         if 'ctu_metadata' not in dir(self):
@@ -1043,6 +1067,56 @@ class CTUList(Lister):
                 data = results[0:min(self.app_args.limit, len(results))]
             else:
                 data = results
+        return columns, data
+
+
+class CTUStats(Lister):
+    """List CTU dataset metadata."""
+
+    log = logging.getLogger(__name__)
+
+    def get_parser(self, prog_name):
+        parser = super().get_parser(prog_name)
+        parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        parser.add_argument(
+            '--cache-file',
+            action='store',
+            dest='cache_file',
+            default=None,
+            help="Cache file path (default: None)."
+        )
+        parser.add_argument(
+            '--ignore-cache',
+            action='store_true',
+            dest='ignore_cache',
+            default=False,
+            help="Ignore any cached results (default: False)."
+        )
+        parser.epilog = textwrap.dedent("""\
+            Shows the groups and counts of members in each dataset group.
+
+            To see more detailed descriptions of the CTU datasets as a whole,
+            or for specific groups, use ``lim ctu overview`` to go to the appropriate
+            web page.
+           """)  # noqa
+        return parser
+
+    def take_action(self, parsed_args):
+        self.log.debug('[+] showing CTU data statistics')
+        if 'ctu_metadata' not in dir(self):
+            self.ctu_metadata = CTU_Dataset(
+                cache_file=parsed_args.cache_file,
+                ignore_cache=parsed_args.ignore_cache,
+                debug=self.app_args.debug)
+        self.ctu_metadata.load_ctu_metadata()
+        columns = ('GROUP', 'COUNT')
+        count = dict()
+        for k, v in self.ctu_metadata.scenarios.items():
+            try:
+                count[v['GROUP']] += 1
+            except KeyError:
+                count[v['GROUP']] = 1
+        data = [(r, count[r]) for r in count]
         return columns, data
 
 

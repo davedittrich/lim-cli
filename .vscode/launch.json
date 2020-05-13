@@ -102,6 +102,24 @@
             }
         },
         {
+            "name": "lim ctu stats",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "ctu",
+                "stats"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "lim ctu overview Botnet-113-1",
             "type": "python",
             "request": "launch",
@@ -153,6 +171,28 @@
                 "list",
                 "Botnet-113-1",
                 "Botnet-137-1"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim ctu list --group iot",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "-vv",
+                "ctu",
+                "list",
+                "--group",
+                "iot",
+                "--fit-width"
             ],
             "stopOnEntry": false,
             "env": {

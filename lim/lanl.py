@@ -7,11 +7,11 @@ import os
 import textwrap
 
 from cliff.command import Command
-from .main import BUFFER_SIZE
-from .main import DAY
-from .utils import check_whole
-from .utils import safe_to_open
-from .utils import BZ2_LineReader
+from lim.main import BUFFER_SIZE
+from lim.main import DAY
+from lim.utils import check_whole
+from lim.utils import safe_to_open
+from lim.utils import BZ2_LineReader
 
 
 LANL_WLS_URL_TEMPLATE = 'https://s3-us-gov-west-1.amazonaws.com/unified-host-network-dataset/2017/wls/wls_day-{day:02d}.bz2'  # noqa
