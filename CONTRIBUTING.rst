@@ -13,7 +13,7 @@ Types of Contributions
 Report Bugs
 ~~~~~~~~~~~
 
-Report bugs at https://github.com/davedittrich/xgtq/issues.
+Report bugs at https://github.com/LiminalInfo/lim/issues.
 
 If you are reporting a bug, please include:
 
@@ -36,14 +36,14 @@ is open to whoever wants to implement it.
 Write Documentation
 ~~~~~~~~~~~~~~~~~~~
 
-xgtq could always use more documentation, whether as part of the
-official xgtq docs, in docstrings, or even on the web in blog posts,
+`lim` could always use more documentation, whether as part of the
+official docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
-The best way to send feedback is to file an issue at https://github.com/davedittrich/xgtq/issues.
+The best way to send feedback is to file an issue at https://github.com/LiminalInfo/lim/issues.
 
 If you are proposing a feature:
 
@@ -55,18 +55,23 @@ If you are proposing a feature:
 Get Started!
 ------------
 
-Ready to contribute? Here's how to set up `xgtq` for local development.
+Ready to contribute? Here's how to set up `lim` for local development.
 
-1. Fork the `xgtq` repo on GitHub.
+1. Fork the `lim` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/xgtq.git
+    $ git clone git@github.com:your_name_here/lim.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 
-    $ mkvirtualenv xgtq
-    $ cd xgtq/
+    $ mkvirtualenv lim
+    $ cd lim/
     $ python setup.py develop
+
+   If you are using an IDE like Visual Studio Code, and you want to add new subcommands
+   in the `setup.py` file, you will need to install the package into the virtualenv first
+   in order for `cliff` to dynamically load the functions. Run `make install-active` to do
+   this. You can then run the debugger and the new subcommands will load properly.
 
 4. Create a branch for local development::
 
@@ -74,13 +79,9 @@ Ready to contribute? Here's how to set up `xgtq` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass `flake8`, `bandit`, and other tests including testing other Python versions with `tox`::
 
-    $ flake8 xgtq tests
-    $ python setup.py test
-    $ tox
-
-   To get flake8 and tox, just pip install them into your virtualenv.
+    $ make test
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -97,15 +98,21 @@ Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include tests.
 2. If the pull request adds functionality, the docs should be updated. Put
-   your new functionality into a function with a docstring, and add the
-   feature to the list in README.rst.
-3. The pull request should work for Python 2.6, 2.7, 3.3, and 3.4, and for PyPy. Check
-   https://travis-ci.org/davedittrich/xgtq/pull_requests
+   your new functionality into a `cliff`` class with a docstring and epilog
+   text and/or add the feature description to the list in `README.rst`.
+3. The pull request should work for the environments listed in `tox.ini`.Check
+   https://travis-ci.org/LiminalInfo/lim/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
 Tips
 ----
 
-To run a subset of tests::
+To run a subset of tests, do something like this::
 
-    $ python -m unittest tests.test_xgtq
+    $ workon lim
+    $ python -m unittest tests.test_ctu
+    ........................
+    ----------------------------------------------------------------------
+    Ran 24 tests in 0.519s
+
+    OK
