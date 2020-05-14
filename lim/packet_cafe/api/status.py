@@ -52,7 +52,7 @@ class Status(Lister):
         data = list()
         status = get_status(sess_id=sess_id, req_id=req_id)
         if status is None:
-            raise RuntimeError(f'failed to get status for '
+            raise RuntimeError('failed to get status for '
                                f'session { sess_id }, '
                                f'request { req_id }')
         for k, v in status.items():

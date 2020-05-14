@@ -28,7 +28,8 @@ class ApiInfo(ShowOne):
 
     def take_action(self, parsed_args):
         logger.debug('[+] showing info (api)')
-        url = f'{CAFE_API_URL}/info'
+        # Doing this manually here to include URL in output.
+        url = f'{ CAFE_API_URL }/info'
         response = requests.request("GET", url)
         columns = ['url']
         data = [(url)]

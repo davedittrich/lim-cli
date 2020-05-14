@@ -87,7 +87,7 @@ def chose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
 
 def get_session_ids():
     """Get IDs from packet-cafe admin service."""
-    url = f'{CAFE_ADMIN_URL}/ids'
+    url = f'{ CAFE_ADMIN_URL }/ids'
     response = requests.request("GET", url)
     if response.status_code == 200:
         return json.loads(response.text)
@@ -109,7 +109,7 @@ def get_requests(sess_id=None):
     #         }
     #     ]
 
-    url = f'{CAFE_API_URL}/ids/{sess_id}'
+    url = f'{ CAFE_API_URL }/ids/{ sess_id }'
     response = requests.request("GET", url)
     if response.status_code == 200:
         results = json.loads(response.text)
@@ -129,7 +129,7 @@ def get_request_ids(sess_id=None):
 
 def get_files():
     """Get all files from packet-cafe admin service."""
-    response = requests.request("GET", f'{CAFE_ADMIN_URL}/id/files')
+    response = requests.request("GET", f'{ CAFE_ADMIN_URL }/id/files')
     if response.status_code == 200:
         return json.loads(response.text)
     else:
@@ -138,7 +138,7 @@ def get_files():
 
 def get_results():
     """Get all results from packet-cafe admin service."""
-    response = requests.request("GET", f'{CAFE_ADMIN_URL}/id/results')
+    response = requests.request("GET", f'{ CAFE_ADMIN_URL }/id/results')
     if response.status_code == 200:
         return json.loads(response.text)
     else:
@@ -157,7 +157,7 @@ def get_tools():
 
 def get_workers():
     """Get details about workers."""
-    response = requests.request("GET", f'{CAFE_API_URL}/tools')
+    response = requests.request("GET", f'{ CAFE_API_URL }/tools')
     if response.status_code == 200:
         return json.loads(response.text)['workers']
     else:
@@ -167,9 +167,9 @@ def get_workers():
 def get_status(sess_id=None, req_id=None):
     """Get status for session ID + request ID."""
     if sess_id is None:
-        raise RuntimeError(f'sess_id must not be None')
+        raise RuntimeError('sess_id must not be None')
     if req_id is None:
-        raise RuntimeError(f'req_id must not be None')
+        raise RuntimeError('req_id must not be None')
     url = f'{ CAFE_API_URL }/status/{ sess_id }/{ req_id }'
     response = requests.request("GET", url)
     if response.status_code == 200:
@@ -181,11 +181,11 @@ def get_status(sess_id=None, req_id=None):
 def get_raw(tool=None, counter=1, sess_id=None, req_id=None):
     """Get raw output from a specific tool, session, and request."""
     if tool is None:
-        raise RuntimeError(f'tool must not be None')
+        raise RuntimeError('tool must not be None')
     if sess_id is None:
-        raise RuntimeError(f'sess_id must not be None')
+        raise RuntimeError('sess_id must not be None')
     if req_id is None:
-        raise RuntimeError(f'req_id must not be None')
+        raise RuntimeError('req_id must not be None')
     url = f'{ CAFE_API_URL }/raw/{ tool }/{ counter }/{ sess_id }/{ req_id }'
     response = requests.request("GET", url)
     if response.status_code == 200:
@@ -206,7 +206,7 @@ def upload(fname=None, sessionId=None):
     with open(fname, 'rb') as f:
         files = {'file': (fname, f.read())}
         data = {'sessionId': sessionId}
-        response = requests.post(f'{CAFE_API_URL}/upload',
+        response = requests.post(f'{ CAFE_API_URL }/upload',
                                  files=files,
                                  data=data)
     if response.status_code == 201:

@@ -28,7 +28,8 @@ class AdminInfo(ShowOne):
 
     def take_action(self, parsed_args):
         logger.debug('[+] showing info (admin)')
-        url = f'{CAFE_ADMIN_URL}/info'
+        # Doing this manually here to include URL in output.
+        url = f'{ CAFE_ADMIN_URL }/info'
         response = requests.request("GET", url)
         columns = ['url']
         data = [(url)]

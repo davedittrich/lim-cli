@@ -42,7 +42,7 @@ class Upload(Command):
         logger.debug('[+] upload file')
         fname = parsed_args.pcap[0]
         if not os.path.exists(fname):
-            raise RuntimeError(f'file {fname} not found')
+            raise RuntimeError(f'file { fname } not found')
         result = upload(fname=fname, sessionId=parsed_args.sessionId)
         if result is not None:
             logger.info(result)
