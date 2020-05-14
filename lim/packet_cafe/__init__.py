@@ -2,9 +2,14 @@
 
 # See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-tools
 
+import argparse
 import json
+import os
 import requests
+import sys
+import time
 import uuid
+
 
 # TODO(dittrich): https://github.com/Mckinsey666/bullet/issues/2
 # Workaround until bullet has Windows missing 'termios' fix.
@@ -145,6 +150,25 @@ def get_results():
         return None
 
 
+def get_worker_output(tool=None, counter=1, sess_id=None, req_id=None):
+    """Get output from worker processing."""
+    if tool is None:
+        raise RuntimeError('tool must not be None')
+    if sess_id is None:
+        raise RuntimeError('sess_id must not be None')
+    if req_id is None:
+        raise RuntimeError('req_id must not be None')
+    url = (
+        f'{ CAFE_API_URL }/results/'
+        f'{ tool }/{ counter }/{ sess_id }/{ req_id }'
+    )
+    response = requests.request("GET", url)
+    if response.status_code == 200:
+        return response.text
+    else:
+        return None
+
+
 def get_tools():
     """Get list of tools that produce output files."""
     workers = get_workers()
@@ -175,7 +199,10 @@ def get_status(sess_id=None, req_id=None):
     if response.status_code == 200:
         return json.loads(response.text)
     else:
-        return None
+        raise RuntimeError(
+            'packet-cafe returned response '
+            f'{ response.status_code } { response.reason }'
+        )
 
 
 def get_raw(tool=None, counter=1, sess_id=None, req_id=None):
@@ -205,14 +232,54 @@ def upload(fname=None, sessionId=None):
         sessionId = uuid.uuid4()
     with open(fname, 'rb') as f:
         files = {'file': (fname, f.read())}
-        data = {'sessionId': sessionId}
+        data = {'sessionId': str(sessionId)}
         response = requests.post(f'{ CAFE_API_URL }/upload',
                                  files=files,
                                  data=data)
     if response.status_code == 201:
-        return json.loads(response.text)
+        result = json.loads(response.text)
+        result['sess_id'] = str(sessionId)
+        time.sleep(3)
+        return result
     else:
-        return None
+        raise RuntimeError(
+            'packet-cafe returned response '
+            f'{ response.status_code } { response.reason }'
+        )
+
+
+def track_progress(sess_id=None, req_id=None, debug=False):
+    """Track the progress of workers similar to the web UI."""
+    if sess_id is None:
+        raise RuntimeError('sess_id must not be None')
+    if req_id is None:
+        raise RuntimeError('req_id must not be None')
+    workers = [worker['name'] for worker in get_workers()]  # noqa
+    reported = dict()
+    last_status = {}
+    while True:
+        # Throttle API calls and give extra time to spin up initial workers
+        time.sleep(5 if len(reported) == 0 else 2)
+        status = get_status(sess_id=sess_id, req_id=req_id)
+        # Worker status dictionaries are mixed into the dictionary
+        # with a boolean flag. Filter it out.
+        workers_reporting = [k for k in status.keys() if k != 'cleaned']
+        states = dict()
+        if debug and status != last_status:
+            print(json.dumps(status), file=sys.stderr)
+            last_status = status
+        for worker in workers_reporting:
+            states[status[worker]['state']] = True
+            if (
+                status[worker]['state'] not in ["Queued", "In progress"]
+                and worker not in reported
+            ):
+                print(f"{ worker } "
+                      f"{ status[worker]['state'].lower() } "
+                      f"{ status[worker]['timestamp'] }")
+                reported[worker] = True
+        if len(reported) == len(workers):
+            break
 
 
 __all__ = [
@@ -234,6 +301,7 @@ __all__ = [
     get_status,
     get_raw,
     upload,
+    track_progress,
 ]
 
 

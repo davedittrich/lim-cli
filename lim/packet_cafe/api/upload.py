@@ -7,6 +7,7 @@ import textwrap
 
 from cliff.command import Command
 from lim.packet_cafe import add_packet_cafe_global_options
+from lim.packet_cafe import track_progress
 from lim.packet_cafe import upload
 
 logger = logging.getLogger(__name__)
@@ -44,7 +45,17 @@ class Upload(Command):
         if not os.path.exists(fname):
             raise RuntimeError(f'file { fname } not found')
         result = upload(fname=fname, sessionId=parsed_args.sessionId)
-        if result is not None:
-            logger.info(result)
+        if self.app.options.verbose_level > 0:
+            # NOTE(dittrich): Don't forget: 'req_id' is 'uuid' in result
+            readable_result = (f"{ result['filename'] } "
+                               f"{ result['status'].lower() } "
+                               f"sess_id: { result['sess_id'] } "
+                               f"req_id: { result['uuid'] }")
+            logger.info(readable_result)
+        if not parsed_args.notrack:
+            track_progress(sess_id=result['sess_id'],
+                           req_id=result['uuid'],
+                           debug=self.app.options.debug)
+
 
 # vim: set fileencoding=utf-8 ts=4 sw=4 tw=0 et :
