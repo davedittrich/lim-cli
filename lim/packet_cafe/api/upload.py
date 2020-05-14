@@ -6,6 +6,7 @@ import os
 import textwrap
 
 from cliff.command import Command
+from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import upload
 
 logger = logging.getLogger(__name__)
@@ -35,7 +36,7 @@ class Upload(Command):
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-upload
             """)  # noqa
-        return parser
+        return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] upload file')

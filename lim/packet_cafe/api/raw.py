@@ -8,6 +8,8 @@ import sys
 import textwrap
 
 from cliff.command import Command
+from lim.packet_cafe import add_packet_cafe_global_options
+from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_request_ids
 from lim.packet_cafe import get_session_ids
@@ -17,15 +19,6 @@ from pygments import highlight
 from pygments import lexers
 
 logger = logging.getLogger(__name__)
-
-
-def _valid_counter(value):
-    """Counter must be integer starting with 1."""
-    n = int(value)
-    if n <= 0:
-        raise argparse.ArgumentTypeError(
-            f'counter must be positive integer (got { value })')
-    return n
 
 
 class Raw(Command):
@@ -78,7 +71,7 @@ class Raw(Command):
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-raw-tool-counter-sess_id-req_id
             """)  # noqa
-        return parser
+        return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] get raw results')
@@ -111,7 +104,8 @@ class Raw(Command):
                 if parsed_args.nocolor or not sys.stdout.isatty():
                     print(json.dumps(results, indent=parsed_args.indent))
                 else:
-                    formatted_json = json.dumps(results, indent=parsed_args.indent)
+                    formatted_json = json.dumps(results,
+                                                indent=parsed_args.indent)
                     colored_json = highlight(formatted_json,
                                              lexers.JsonLexer(),
                                              formatters.TerminalFormatter())

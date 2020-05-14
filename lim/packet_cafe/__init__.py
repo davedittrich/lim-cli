@@ -14,11 +14,56 @@ except ModuleNotFoundError:
     pass
 
 
-CAFE_SERVER = '127.0.0.1'
-CAFE_PORT = 5001
+CAFE_SERVER = os.getenv('LIM_CAFE_SERVER', '127.0.0.1')
+CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
+CAFE_ADMIN_PORT = os.getenv('LIM_CAFE_ADMIN_PORT', 5001)
 CAFE_API_VERSION = 'v1'
-CAFE_ADMIN_URL = f'http://{CAFE_SERVER}:{CAFE_PORT}/{CAFE_API_VERSION}'
-CAFE_API_URL = f'http://{CAFE_SERVER}/api/{CAFE_API_VERSION}'
+CAFE_ADMIN_URL = f'http://{ CAFE_SERVER }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
+CAFE_API_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
+
+
+def add_packet_cafe_global_options(parser):
+    """Add global packet_cafe options."""
+    parser.add_argument(
+        '--cafe-host',
+        action='store',
+        type=str,
+        metavar='<cafe_host_ip>',
+        dest='cafe_host_ip',
+        default=CAFE_SERVER,
+        help=('IP address for packet_cafe server '
+              f'(env var LIM_CAFE_HOST; default: \'{ CAFE_SERVER }\')')
+    )
+    parser.add_argument(
+        '--cafe-ui-port',
+        action='store',
+        type=int,
+        metavar='<cafe_ui_port>',
+        dest='cafe_ui_port',
+        default=CAFE_UI_PORT,
+        help=('TCP port for packet_cafe UI service '
+              f'(env var LIM_CAFE_UI_PORT; default: { CAFE_UI_PORT })')
+    )
+    parser.add_argument(
+        '--cafe-admin-port',
+        action='store',
+        type=int,
+        metavar='<cafe_admin_port>',
+        dest='cafe_admin_port',
+        default=CAFE_ADMIN_PORT,
+        help=('TCP port for packet_cafe admin service '
+              '(env var LIM_CAFE_ADMIN_PORT; default: { CAFE_ADMIN_PORT })')
+    )
+    return parser
+
+
+def _valid_counter(value):
+    """Counter must be integer starting with 1."""
+    n = int(value)
+    if n <= 0:
+        raise argparse.ArgumentTypeError(
+            f'counter must be positive integer (got { value })')
+    return n
 
 
 def chose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
@@ -172,10 +217,12 @@ def upload(fname=None, sessionId=None):
 
 __all__ = [
     CAFE_SERVER,
-    CAFE_PORT,
+    CAFE_ADMIN_PORT,
+    CAFE_UI_PORT,
     CAFE_API_VERSION,
     CAFE_ADMIN_URL,
     CAFE_API_URL,
+    add_packet_cafe_global_options,
     chose_wisely,
     get_session_ids,
     get_requests,

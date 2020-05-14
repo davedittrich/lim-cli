@@ -5,6 +5,7 @@ import logging
 import textwrap
 
 from cliff.lister import Lister
+from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_request_ids
 from lim.packet_cafe import get_session_ids
@@ -26,7 +27,7 @@ class Status(Lister):
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-status-sess_id-req_id
             """)  # noqa
-        return parser
+        return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] showing status for request')

@@ -5,6 +5,7 @@ import logging
 import textwrap
 
 from cliff.lister import Lister
+from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_requests
 from lim.packet_cafe import get_session_ids
@@ -24,7 +25,7 @@ class Requests(Lister):
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-ids-sess_id
             """)  # noqa
-        return parser
+        return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing request ids')

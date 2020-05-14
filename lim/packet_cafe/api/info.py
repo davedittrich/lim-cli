@@ -8,6 +8,7 @@ import textwrap
 
 from cliff.show import ShowOne
 from lim.packet_cafe import CAFE_API_URL
+from lim.packet_cafe import add_packet_cafe_global_options
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class ApiInfo(ShowOne):
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-info
             """)  # noqa
-        return parser
+        return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] showing info (api)')

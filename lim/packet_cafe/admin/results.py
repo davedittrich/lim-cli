@@ -5,6 +5,7 @@ import logging
 import textwrap
 
 from cliff.lister import Lister
+from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import get_results
 
 logger = logging.getLogger(__name__)
@@ -67,7 +68,7 @@ class Results(Lister):
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-id-results
             """)  # noqa
-        return parser
+        return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing results')
