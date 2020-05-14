@@ -30,6 +30,8 @@ class Requests(Lister):
     def take_action(self, parsed_args):
         logger.debug('[+] listing request ids')
         ids = get_session_ids()
+        if len(ids) == 0:
+            raise RuntimeError('no sessions found')
         if parsed_args.sess_id is not None:
             sess_id = parsed_args.sess_id
         else:
