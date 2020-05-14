@@ -10,14 +10,9 @@ import os
 import socket
 import sys
 import textwrap
-import warnings
 
-from arrow.factory import ArrowParseWarning
 from cliff.command import Command
 
-# Ignore parse warning per
-# https://github.com/crsmithdev/arrow/issues/612
-warnings.simplefilter("ignore", ArrowParseWarning)
 
 # TODO(dittrich): Make this a command line argument?
 # Initialize a logger for this module.

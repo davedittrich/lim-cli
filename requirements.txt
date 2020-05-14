@@ -1,5 +1,5 @@
 aiohttp
-arrow
+arrow>=0.15.6
 dpkt
 beautifulsoup4
 cliff
