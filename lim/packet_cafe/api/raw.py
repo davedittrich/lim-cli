@@ -23,7 +23,6 @@ from pygments import lexers
 logger = logging.getLogger(__name__)
 
 
-(??)
 class Raw(Command):
     """Get raw output from a specific tool, session, and request."""
 
@@ -145,4 +144,3 @@ class Raw(Command):
 
 
 # vim: set fileencoding=utf-8 ts=4 sw=4 tw=0 et :
-

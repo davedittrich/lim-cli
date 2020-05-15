@@ -1,6 +1,60 @@
 CHANGES
 =======
 
+* Start generalizing web browser control
+* Correct logic mistake
+* Add documentation
+* Add "cafe ui" subcommand
+* Save and use last session and request ID state
+* Add "cafe about" subcommand for online docs
+* Add "cafe stop" subcommand
+* Add "cafe results" subcommand
+* Handle situation where no sessions exist
+* Track worker progress in realtime on "cafe upload"
+* Fix issues with f strings
+* Add global options for packet\_cafe host IP & port
+* Fixed missed merge conflict resolution target
+* Add more launch targets
+* Add another debug option
+* Update README.md to reflect API coverage
+* Add "cafe raw" subcommand
+* Add filtering to "cafe admin results" subcommand
+* Rename functions to better clarify purpose
+* Add interactive selection using bullet
+* Remove unused file
+* Initial working packet-cafe CLI subcommands
+* Arrow no longer issues parse warning
+* Can't use env variables in bats test titles
+* Add more launch targets
+* Add another debug option
+* Update documentation
+* Fix testing
+* Add support for added IoT datasets
+* Ignore Python cache directories
+* Fix tox configuration
+* Replace relative imports
+* Fix typo in file name
+* Add more launch targets
+* Fix type in VSCode launch.json file
+* Update README.md to reflect API coverage
+* Add "cafe raw" subcommand
+* Add filtering to "cafe admin results" subcommand
+* Rename functions to better clarify purpose
+* Add interactive selection using bullet
+* Remove unused file
+* Initial working packet-cafe CLI subcommands
+* Fix type error
+* Resolve pep8 findings
+* Keep .vscode/launch.json in Git
+* Add VSCode launch.json file
+* Log reconstructed command line on -vv
+* Up cache timeout from 7 to 30 days
+* Add help about old->new time logging
+* Clarify time conversion usage
+* Fix formatting
+* Fixes to Makefile
+* Log shifted packet timestamps on -vv
+* Add to help output
 * Improve robustness of ctu recursive get
 * Ignore output explicitly
 * Add recursive get (wget) of all scenario data

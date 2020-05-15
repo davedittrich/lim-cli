@@ -43,7 +43,7 @@ class Endpoints(Lister):
             ..
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v1
-            """)
+            """)  # noqa
         return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
@@ -55,4 +55,3 @@ class Endpoints(Lister):
 
 
 # vim: set fileencoding=utf-8 ts=4 sw=4 tw=0 et :
-
