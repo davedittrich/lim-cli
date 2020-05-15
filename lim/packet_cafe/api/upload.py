@@ -115,7 +115,7 @@ class Upload(Command):
         logger.debug('[+] upload file')
         # Avoid the confusing double-negative if statement
         track_status = (self.app.options.verbose_level > 0
-                        and parsed_args.no_track is not False)
+                        and parsed_args.no_track is not True)
         fname = parsed_args.pcap[0]
         if parsed_args.sessionId == "last":
             parsed_args.sessionId = get_last_session_id()
