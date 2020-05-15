@@ -722,6 +722,7 @@
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
+<<<<<<< HEAD
         },
         {
             "name": "lim cafe stop",
@@ -741,6 +742,8 @@
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
+=======
+>>>>>>> f5affe39efb686f41d67eb4de9c7dde6598d4353
         }
     ]
 }
