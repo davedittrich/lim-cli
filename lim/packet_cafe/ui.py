@@ -32,13 +32,16 @@ class UI(Command):
             help="Browser to use for viewing " +
                  "(default: {}).".format(None)
         )
+        # NOTE(dittrich): Not DRY. Similar text in lim/packet_cafe/about.py
         parser.epilog = textwrap.dedent("""
             Opens up the packet-cafe UI in a browser.
 
             Use the ``--browser`` option to chose which browser from the
             set shown.  One systems that do not have any of those browsers
             available, or can't open them for some reason, the page may open
-            in the ``lynx`` text browser.
+            in the ``lynx`` text browser. If you wish to chose (a) different
+            browser(s), export the environment variable ``LIM_BROWSERS``
+            with a comma separated list of options.
 
             See also: https://docs.python.org/3/library/webbrowser.html
             """)  # noqa

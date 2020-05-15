@@ -19,7 +19,7 @@ except ModuleNotFoundError:
     pass
 
 
-__BROWSERS__ = ['firefox', 'chrome', 'safari']
+__BROWSERS__ = os.getenv('LIM_BROWSERS', 'firefox,chrome,safari').split(',')
 CAFE_SERVER = os.getenv('LIM_CAFE_SERVER', '127.0.0.1')
 CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
 CAFE_ADMIN_PORT = os.getenv('LIM_CAFE_ADMIN_PORT', 5001)
