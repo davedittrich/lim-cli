@@ -111,6 +111,7 @@ setup(
             'cafe stop = lim.packet_cafe.api.stop:Stop',
             'cafe tools = lim.packet_cafe.api.tools:Tools',
             'cafe upload = lim.packet_cafe.api.upload:Upload',
+            'cafe ui = lim.packet_cafe.ui:UI',
             'pcap extract ips = lim.pcap:PCAPExtract',
             'pcap shift network = lim.pcap:PCAPShift',
             'pcap shift time = lim.pcap:PCAPShift',

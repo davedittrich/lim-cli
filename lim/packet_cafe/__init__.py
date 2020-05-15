@@ -26,6 +26,7 @@ CAFE_ADMIN_PORT = os.getenv('LIM_CAFE_ADMIN_PORT', 5001)
 CAFE_API_VERSION = 'v1'
 CAFE_ADMIN_URL = f'http://{ CAFE_SERVER }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
 CAFE_API_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
+CAFE_UI_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/'
 CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
 LAST_SESSION_STATE = '.packet_cafe_last_session_id'
 LAST_REQUEST_STATE = '.packet_cafe_last_request_id'
