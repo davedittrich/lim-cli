@@ -96,6 +96,7 @@ setup(
             'ctu list = lim.ctu:CTUList',
             'ctu stats = lim.ctu:CTUStats',
             'ctu overview = lim.ctu:CTUOverview',
+            'cafe about = lim.packet_cafe.about:About',
             'cafe admin endpoints = lim.packet_cafe.admin.endpoints:Endpoints',
             'cafe admin files = lim.packet_cafe.admin.files:Files',
             'cafe admin results = lim.packet_cafe.admin.results:Results',

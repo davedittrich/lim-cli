@@ -19,12 +19,14 @@ except ModuleNotFoundError:
     pass
 
 
+__BROWSERS__ = ['firefox', 'chrome', 'safari']
 CAFE_SERVER = os.getenv('LIM_CAFE_SERVER', '127.0.0.1')
 CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
 CAFE_ADMIN_PORT = os.getenv('LIM_CAFE_ADMIN_PORT', 5001)
 CAFE_API_VERSION = 'v1'
 CAFE_ADMIN_URL = f'http://{ CAFE_SERVER }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
 CAFE_API_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
+CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
 
 
 def add_packet_cafe_global_options(parser):
