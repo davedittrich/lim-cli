@@ -722,6 +722,25 @@
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
+        },
+        {
+            "name": "lim cafe stop",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "-q",
+                "cafe",
+                "stop"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }

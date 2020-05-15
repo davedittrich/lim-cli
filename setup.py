@@ -107,6 +107,7 @@ setup(
             'cafe results = lim.packet_cafe.api.results:Results',
             'cafe info = lim.packet_cafe.api.info:ApiInfo',
             'cafe status = lim.packet_cafe.api.status:Status',
+            'cafe stop = lim.packet_cafe.api.stop:Stop',
             'cafe tools = lim.packet_cafe.api.tools:Tools',
             'cafe upload = lim.packet_cafe.api.upload:Upload',
             'pcap extract ips = lim.pcap:PCAPExtract',

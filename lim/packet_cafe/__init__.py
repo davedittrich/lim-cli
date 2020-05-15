@@ -248,6 +248,25 @@ def upload(fname=None, sessionId=None):
         )
 
 
+def stop(sess_id=None, req_id=None, raise_exception=True):
+    """Stop jobs of a request ID."""
+    if sess_id is None:
+        raise RuntimeError('sess_id must not be None')
+    if req_id is None:
+        raise RuntimeError('req_id must not be None')
+    url = f'{ CAFE_API_URL }/stop/{ sess_id }/{ req_id }'
+    response = requests.request("GET", url)
+    if response.status_code == 200:
+        return json.loads(response.text)
+    elif raise_exception:
+        raise RuntimeError(
+            'packet-cafe returned response '
+            f'{ response.status_code } { response.reason }'
+        )
+    else:
+        return None
+
+
 def track_progress(sess_id=None, req_id=None, debug=False):
     """Track the progress of workers similar to the web UI."""
     if sess_id is None:
@@ -301,6 +320,7 @@ __all__ = [
     get_status,
     get_raw,
     upload,
+    stop,
     track_progress,
 ]
 
