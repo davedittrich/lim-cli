@@ -53,4 +53,11 @@ CTU
    :command: ctu *
 
 
+Packet Cafe
+-----------
+
+.. autoprogram-cliff:: lim
+   :command: cafe *
+
+
 .. EOF

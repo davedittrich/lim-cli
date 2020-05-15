@@ -18,7 +18,9 @@ class Files(Lister):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.epilog = textwrap.dedent("""
-            List files uploaded into the packet-cafe server.
+            Lists all files uploaded into the packet-cafe server.  This can produce
+            a large amount of output with very long lines, so you may want to use the
+            ``--fit-width`` option to break lines to fit the screen.
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-id-files
             """)  # noqa

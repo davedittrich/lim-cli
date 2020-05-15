@@ -22,6 +22,22 @@ class ApiInfo(ShowOne):
         parser.epilog = textwrap.dedent("""
             Return basic information about the packet-cafe service.
 
+            .. code-block:: console
+
+                $ lim cafe info
+                +----------+---------------------------------+
+                | Field    | Value                           |
+                +----------+---------------------------------+
+                | url      | http://127.0.0.1:80/api/v1/info |
+                | version  | v0.1.0                          |
+                | hostname | bf1456253115                    |
+                +----------+---------------------------------+
+
+            ..
+
+            Note that the last session ID and last request ID are found in the output
+            of ``lim cafe admin info`` (not ``lim cafe info``).
+
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-info
             """)  # noqa
         return add_packet_cafe_global_options(parser)

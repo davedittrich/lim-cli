@@ -22,6 +22,22 @@ class Endpoints(Lister):
         parser.epilog = textwrap.dedent("""
             List the available admin endpoints for this packet-cafe server.
 
+            .. code-block:: console
+
+                $ lim cafe admin endpoints
+                +-------------------+
+                | Endpoint          |
+                +-------------------+
+                | /v1               |
+                | /v1/id/files      |
+                | /v1/id/results    |
+                | /v1/ids           |
+                | /v1/info          |
+                | /v1/logs/{req_id} |
+                +-------------------+
+
+            ..
+
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#v1
             """)
         return add_packet_cafe_global_options(parser)

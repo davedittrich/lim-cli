@@ -73,6 +73,33 @@ class Raw(Command):
         parser.epilog = textwrap.dedent("""
             Get raw output from a specific tool, session, and request.
 
+            To select the tool from which you want output, use the ``--tool`` option.
+            You must select a tool (from the list produced by ``lim cafe tools``.)
+
+            .. code-block:: console
+
+                $ lim cafe raw --tool networkml | head
+                [
+                  {
+                    "81778bb8a9b946ba82659732baacdb44": {
+                      "valid": true,
+                      "pcap_labels": "ip-147-32-84-79-147-32-84-165-147-32-84-79-data-udp-frame-eth-ip-port-0",
+                      "decisions": {
+                        "behavior": "normal",
+                        "investigate": false
+                      },
+                      "classification": {
+
+            ..
+
+            If there is more than one file, use ``--counter`` to select which one.
+
+            By default, JSON output is colored unless ``stdout`` is not a TTY (e.g.,
+            when piping output to another program, or redirecting output to a file.)
+            Disable colored output with ``--no-color``, select ``pprint`` style
+            pretty-printing with ``--pprint``, and control indentation with
+            ``--indent``.
+
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-raw-tool-counter-sess_id-req_id
             """)  # noqa
         return add_packet_cafe_global_options(parser)

@@ -57,18 +57,20 @@ class Results(Lister):
             To show only results for a given tool, specify it with the
             ``-tool`` option.
 
-            ```
-            $ lim cafe admin results --tool networkml
-            +---------------------------------------------------------------------------------------------------+
-            | Results                                                                                           |
-            +---------------------------------------------------------------------------------------------------+
-            | /id/6f080abf-ef71-461d-b754-a81a54fb5ad5/d709256a73b44f4e82d45f6e4ffd03e5/networkml/metadata.json |
-            | /id/86f71039-e6e5-44e2-90b4-3eaf27253d6d/fa142a055de24896923cc69407feeaba/networkml/metadata.json |
-            | /id/278adaae-df30-4d7d-883a-990ddcf6ce88/a383d781275f4dbe9e2c78ec4b8abda4/networkml/metadata.json |
-            | /id/bd976556-fbc3-4e2e-a808-7024c0c0f69b/6bb276459cba45b3abce9043d0bc0ad9/networkml/metadata.json |
-            | /id/bd976556-fbc3-4e2e-a808-7024c0c0f69b/9e74cc6f818c47ea9cd8c8ab94ce93db/networkml/metadata.json |
-            +---------------------------------------------------------------------------------------------------+
-            ```
+            .. code-block:: console
+
+                $ lim cafe admin results --tool networkml
+                +---------------------------------------------------------------------------------------------------+
+                | Results                                                                                           |
+                +---------------------------------------------------------------------------------------------------+
+                | /id/6f080abf-ef71-461d-b754-a81a54fb5ad5/d709256a73b44f4e82d45f6e4ffd03e5/networkml/metadata.json |
+                | /id/86f71039-e6e5-44e2-90b4-3eaf27253d6d/fa142a055de24896923cc69407feeaba/networkml/metadata.json |
+                | /id/278adaae-df30-4d7d-883a-990ddcf6ce88/a383d781275f4dbe9e2c78ec4b8abda4/networkml/metadata.json |
+                | /id/bd976556-fbc3-4e2e-a808-7024c0c0f69b/6bb276459cba45b3abce9043d0bc0ad9/networkml/metadata.json |
+                | /id/bd976556-fbc3-4e2e-a808-7024c0c0f69b/9e74cc6f818c47ea9cd8c8ab94ce93db/networkml/metadata.json |
+                +---------------------------------------------------------------------------------------------------+
+
+            ..
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-id-results
             """)  # noqa

@@ -23,7 +23,22 @@ class Requests(Lister):
         parser.add_argument(
             'sess_id', nargs='?', default=get_last_session_id())
         parser.epilog = textwrap.dedent("""
-            List current request IDs for a specific packet-cafe session ID.
+            List current request IDs for a specific packet-cafe session ID. By default,
+            the last used session ID will be the default. Otherwise, specify the session ID
+            as an argument
+
+            .. code-block:: console
+
+                $ lim cafe requests --fit-width
+                +--------------------------+--------------------------+-------------------+---------------------------+
+                | Id                       | Filename                 | Original_Filename | Tools                     |
+                +--------------------------+--------------------------+-------------------+---------------------------+
+                | 81778bb8a9b946ba82659732 | trace_81778bb8a9b946ba82 | test.pcap         | ['networkml', 'mercury',  |
+                | baacdb44                 | 659732baacdb44_2020-05-1 |                   | 'pcap-stats', 'snort',    |
+                |                          | 5_01_25_44.pcap          |                   | 'p0f', 'pcapplot']        |
+                +--------------------------+--------------------------+-------------------+---------------------------+
+
+            ..
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-ids-sess_id
             """)  # noqa

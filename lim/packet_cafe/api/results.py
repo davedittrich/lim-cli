@@ -44,7 +44,12 @@ class Results(Command):
                   'from a set (default: 1)')
         )
         parser.epilog = textwrap.dedent("""
-            Get the results from a tool for local storage or rendering.
+            Get the results from a tool (in the form of HTML) for local storage
+            or rendering.
+
+            In this version, the contents are simply put on ``stdout`` and you must
+            redirect them to a file. (In future, this will be saved and a browser
+            opened to view the file, as if you had selected a result in the web UI.)
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-results-tool-counter-sess_id-req_id
             """)  # noqa

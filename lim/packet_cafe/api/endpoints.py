@@ -22,6 +22,26 @@ class Endpoints(Lister):
         parser.epilog = textwrap.dedent("""
             List the available API endpoints for this packet-cafe server.
 
+            .. code-block:: console
+
+                $ lim cafe endpoints
+                +---------------------------------------------------------------------+
+                | Endpoint                                                            |
+                +---------------------------------------------------------------------+
+                | /api/v1                                                             |
+                | /api/v1/id/{session_id}/{req_id}/{tool}/{pcap}/{counter}/{filename} |
+                | /api/v1/ids/{session_id}                                            |
+                | /api/v1/info                                                        |
+                | /api/v1/raw/{tool}/{counter}/{session_id}/{req_id}                  |
+                | /api/v1/results/{tool}/{counter}/{session_id}/{req_id}              |
+                | /api/v1/status/{session_id}/{req_id}                                |
+                | /api/v1/stop/{session_id}/{req_id}                                  |
+                | /api/v1/tools                                                       |
+                | /api/v1/upload                                                      |
+                +---------------------------------------------------------------------+
+
+            ..
+
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v1
             """)
         return add_packet_cafe_global_options(parser)
