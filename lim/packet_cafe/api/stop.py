@@ -22,8 +22,10 @@ class Stop(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument('sess_id', nargs='?', default=get_last_session_id())
-        parser.add_argument('req_id', nargs='?', default=get_last_request_id())
+        parser.add_argument(
+            'sess_id', nargs='?', default=get_last_session_id())
+        parser.add_argument(
+            'req_id', nargs='?', default=get_last_request_id())
         parser.epilog = textwrap.dedent("""
             Stop jobs of a request ID.
 

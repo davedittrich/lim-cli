@@ -27,6 +27,8 @@ CAFE_API_VERSION = 'v1'
 CAFE_ADMIN_URL = f'http://{ CAFE_SERVER }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
 CAFE_API_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
 CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
+LAST_SESSION_STATE = '.packet_cafe_last_session_id'
+LAST_REQUEST_STATE = '.packet_cafe_last_request_id'
 
 
 def add_packet_cafe_global_options(parser):
@@ -190,7 +192,7 @@ def get_workers():
         return None
 
 
-def get_status(sess_id=None, req_id=None):
+def get_status(sess_id=None, req_id=None, raise_exception=True):
     """Get status for session ID + request ID."""
     if sess_id is None:
         raise RuntimeError('sess_id must not be None')
@@ -200,11 +202,13 @@ def get_status(sess_id=None, req_id=None):
     response = requests.request("GET", url)
     if response.status_code == 200:
         return json.loads(response.text)
-    else:
+    elif raise_exception:
         raise RuntimeError(
             'packet-cafe returned response '
             f'{ response.status_code } { response.reason }'
         )
+    else:
+        return None
 
 
 def get_raw(tool=None, counter=1, sess_id=None, req_id=None):
@@ -241,6 +245,10 @@ def upload(fname=None, sessionId=None):
     if response.status_code == 201:
         result = json.loads(response.text)
         result['sess_id'] = str(sessionId)
+        # Save state for later defaulting
+        set_last_session_id(result['sess_id'])
+        # NOTE(dittrich): Don't forget: 'req_id' is 'uuid' in result
+        set_last_request_id(result['uuid'])
         time.sleep(3)
         return result
     else:
@@ -303,6 +311,75 @@ def track_progress(sess_id=None, req_id=None, debug=False):
             break
 
 
+def get_last_session_id():
+    """
+    Return the last session ID if one is saved, else None.
+
+    If the session does not exist in the server, deletes the
+    state file and returns None.
+    """
+    if not os.path.exists(LAST_SESSION_STATE):
+        return None
+    sess_ids = get_session_ids()
+    with open(LAST_SESSION_STATE, 'r') as sf:
+        sess_id = sf.read().strip()
+        if sess_id in sess_ids:
+            return sess_id
+    os.remove(LAST_SESSION_STATE)
+    return None
+
+
+def set_last_session_id(sess_id=None):
+    """
+    Save the last session ID for later use.
+    """
+    if sess_id is None:
+        return False
+    try:
+        with open(LAST_SESSION_STATE, 'w') as sf:
+            sf.write(str(sess_id) + '\n')
+    except:  # noqa
+        return False
+    return True
+
+
+def get_last_request_id():
+    """
+    Return the last request ID if one is saved and it exists
+    in the last session, else None.
+
+    If the request does not exist in the server, deletes the
+    state file and returns None.
+    """
+    sess_id = get_last_session_id()
+    if not os.path.exists(LAST_REQUEST_STATE):
+        return None
+    with open(LAST_REQUEST_STATE, 'r') as sf:
+        req_id = sf.read().strip()
+    if get_status(
+        sess_id=sess_id,
+        req_id=req_id,
+        raise_exception=False
+    ) is not None:
+        return req_id
+    os.remove(LAST_REQUEST_STATE)
+    return None
+
+
+def set_last_request_id(req_id=None):
+    """
+    Save the last request ID for later use.
+    """
+    if req_id is None:
+        return False
+    try:
+        with open(LAST_REQUEST_STATE, 'w') as sf:
+            sf.write(str(req_id) + '\n')
+    except:  # noqa
+        return False
+    return True
+
+
 __all__ = [
     CAFE_SERVER,
     CAFE_ADMIN_PORT,
@@ -323,6 +400,10 @@ __all__ = [
     get_raw,
     upload,
     stop,
+    get_last_session_id,
+    set_last_session_id,
+    get_last_request_id,
+    set_last_request_id,
     track_progress,
 ]
 

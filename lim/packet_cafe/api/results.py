@@ -11,6 +11,8 @@ from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_request_ids
 from lim.packet_cafe import get_session_ids
 from lim.packet_cafe import get_worker_output
+from lim.packet_cafe import get_last_session_id
+from lim.packet_cafe import get_last_request_id
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +23,10 @@ class Results(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument('sess_id', nargs='?', default=None)
-        parser.add_argument('req_id', nargs='?', default=None)
+        parser.add_argument(
+            'sess_id', nargs='?', default=get_last_session_id())
+        parser.add_argument(
+            'req_id', nargs='?', default=get_last_request_id())
         parser.add_argument(
             '-t', '--tool',
             metavar='<tool>',

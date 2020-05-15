@@ -7,6 +7,8 @@ import textwrap
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import get_results
+from lim.packet_cafe import get_last_session_id
+from lim.packet_cafe import get_last_request_id
 
 logger = logging.getLogger(__name__)
 
@@ -32,8 +34,10 @@ class Results(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument('sess_id', nargs='?', default=None)
-        parser.add_argument('req_id', nargs='?', default=None)
+        parser.add_argument(
+            'sess_id', nargs='?', default=get_last_session_id())
+        parser.add_argument(
+            'req_id', nargs='?', default=get_last_request_id())
         parser.add_argument(
             '-t', '--tool',
             metavar='<tool>',

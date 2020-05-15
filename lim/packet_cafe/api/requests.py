@@ -9,6 +9,7 @@ from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_requests
 from lim.packet_cafe import get_session_ids
+from lim.packet_cafe import get_last_session_id
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,8 @@ class Requests(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument('sess_id', nargs='?', default=None)
+        parser.add_argument(
+            'sess_id', nargs='?', default=get_last_session_id())
         parser.epilog = textwrap.dedent("""
             List current request IDs for a specific packet-cafe session ID.
 
