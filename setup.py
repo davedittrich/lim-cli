@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Setup script for the LiminalAI CLI utility
+# Setup script for the LiminalInfo CLI utility
 #
 # Author: Dave Dittrich <dave.dittrich@gmail.com>
-# URL: ...
+# Copyright: 2018, Dave Dittrich. 2020,Liminal Information Corp.
+# URL: https://github.com/LiminalInfo/lim
 
 import codecs
 import os
@@ -115,6 +116,7 @@ setup(
             'pcap extract ips = lim.pcap.extract:PCAPExtract',
             'pcap shift network = lim.pcap.shift:PCAPShift',
             'pcap shift time = lim.pcap.shift:PCAPShift',
+            'version = lim.about:About',
         ],
     },
     zip_safe=False,

@@ -1,16 +1,16 @@
-# LiminalAI CLI utility.
-#
-# Author: Dave Dittrich <dave.dittrich@gmail.com>
-# URL: https://davedittrich.github.io
+# -*- encoding: utf-8 -*-
 
-"""LiminalAI command line app"""
+"""LiminalInfo command line app."""
 
-from __future__ import print_function
+# See COPYRIGHT variable below (also found in ``lim help`` output).
 
 # Standard library modules.
+import argparse
+import datetime
 import logging
 import os
 import sys
+import textwrap
 
 from lim import __version__
 from lim import __release__
@@ -22,10 +22,23 @@ from cliff.app import App
 from cliff.commandmanager import CommandManager
 
 if sys.version_info < (3, 6, 0):
-    print("The {} program ".format(os.path.basename(sys.argv[0])) +
-          "prequires Python 3.6.0 or newer\n" +
-          "Found Python {}".format(sys.version), file=sys.stderr)
+    print(f"The { os.path.basename(sys.argv[0]) } program "
+          "prequires Python 3.6.0 or newer\n"
+          "Found Python { sys.version }", file=sys.stderr)
     sys.exit(1)
+
+this_year = datetime.datetime.today().year
+COPYRIGHT = f"""
+Author:    Dave Dittrich <dave.dittrich@gmail.com>
+Copyright: 2018-{ this_year }, Dave Dittrich. 2019-{ this_year }, Liminal Information Corp.
+License:   Apache 2.0 License
+URL:       https://pypi.python.org/pypi/lim
+"""  # noqa
+
+def copyright():
+    """Copyright string"""
+    return COPYRIGHT
+
 
 BUFFER_SIZE = 128 * 1024
 DAY = os.environ.get('DAY', 5)
@@ -63,11 +76,11 @@ class LiminalApp(App):
         self.timer = Timer()
 
     def build_option_parser(self, description, version):
-        parser = super(LiminalApp, self).build_option_parser(
+        parser = super().build_option_parser(
             description,
             version
         )
-
+        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         # Global options
         parser.add_argument(
             '-D', '--data-dir',
@@ -104,6 +117,8 @@ class LiminalApp(App):
             help="Limit result to no more than this many items " +
                  "(0 means no limit; default: 0)"
         )
+        parser.epilog = textwrap.dedent(f"""
+        { COPYRIGHT }""")
         return parser
 
     def initialize_app(self, argv):
