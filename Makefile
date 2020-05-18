@@ -115,6 +115,7 @@ clean:
 .PHONY: spotless
 spotless: clean
 	rm -rf .eggs .tox
+	rm -rf .packet_cafe_last_{request,session}_id
 	(cd docs && make clean)
 	rm -rf tests/libs/{bats,bats-support,bats-assert}
 
