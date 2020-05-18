@@ -31,6 +31,7 @@ BUFFER_SIZE = 128 * 1024
 DAY = os.environ.get('DAY', 5)
 DEFAULT_PROTOCOLS = ['icmp', 'tcp', 'udp']
 KEEPALIVE = 5.0
+LIM_DATA_DIR = os.environ.get('LIM_DATA_DIR', os.getcwd())
 MAX_LINES = None
 MAX_ITEMS = 10
 # Use syslog for logging?
@@ -39,11 +40,6 @@ SYSLOG = False
 
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
-
-
-def default_data_dir():
-    """Return the directory path root for data storage"""
-    return os.getenv('LIM_DATA_DIR', None)
 
 
 def default_environment(default=None):
@@ -77,10 +73,9 @@ class LiminalApp(App):
             '-D', '--data-dir',
             metavar='<data-directory>',
             dest='data_dir',
-            default=os.getenv('LIM_DATA_DIR', None),
-            help="Root directory for holding data files " +
-            "(Env: LIM_DATA_DIR; default: {})".format(
-                os.getenv('LIM_DATA_DIR', None))
+            default=LIM_DATA_DIR,
+            help=('Root directory for holding data files '
+                  f'(Env: LIM_DATA_DIR; default: { LIM_DATA_DIR })')
         )
         parser.add_argument(
             '-e', '--elapsed',
