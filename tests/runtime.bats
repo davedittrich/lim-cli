@@ -12,11 +12,6 @@ teardown() {
     rm -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou-time-shifted.pcap
 }
 
-@test "\"lim about\" contains \"version\"" {
-    run bash -c "$LIM -q about"
-    assert_output --partial 'version'
-}
-
 @test "\"lim -q ctu list CTU-Malware-Capture-Botnet-48\" works" {
     run bash -c "$LIM -q ctu list CTU-Malware-Capture-Botnet-48"
     assert_output '+-----------+---------+---------------+-------------------------------------------------------------------------+
