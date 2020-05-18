@@ -66,13 +66,14 @@ seen here:
         Cache entry deserialization failed, entry ignored
         Collecting pip
           Cache entry deserialization failed, entry ignored
-          Downloading https://files.pythonhosted.org/packages/c2/d7/90f34cb0d83a6c5631cf71dfe64cc1054598c843a92b400e55675cc2ac37/pip-18.1-py2.py3-none-any.whl (1.3MB)
+          Downloading https://files.pythonhosted.org/packages/.../pip-20.1-py2.py3-none-any.whl (1.5 MB)
             100% |████████████████████████████████| 1.3MB 306kB/s
         Installing collected packages: pip
-          Found existing installation: pip 9.0.3
-            Uninstalling pip-9.0.3:
-              Successfully uninstalled pip-9.0.3
-        Successfully installed pip-18.1
+          Attempting uninstall: pip
+            Found existing installation: pip 19.3.1
+            Uninstalling pip-19.3.1:
+              Successfully uninstalled pip-19.3.1
+        Successfully installed pip-20.1
 
     ..
 

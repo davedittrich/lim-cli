@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # lim documentation build configuration file, created by
@@ -13,6 +13,7 @@
 # All configuration values have a default; values that are commented out
 # serve to show the default.
 
+import datetime
 import sys
 import os
 
@@ -58,7 +59,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'lim'
-copyright = u'2019, Dave Dittrich'
+copyright = f'2019-{ datetime.datetime.today().year }, Dave Dittrich'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
