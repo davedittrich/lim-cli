@@ -58,8 +58,8 @@ setup(
     author="Dave Dittrich",
     author_email='dave.dittrich@gmail.com',
 
-    url='https://github.com/LiminalAI/lim',
-    download_url='https://github.com/LiminalAI/lim/tarball/master',
+    url='https://github.com/davedittrich/lim',
+    download_url='https://github.com/davedittrich/lim/tarball/master',
 
     namespace_packages=[],
     packages=find_packages(),
@@ -67,7 +67,7 @@ setup(
                  'lim'},
     include_package_data=True,
 
-    python_requires='>=3.6,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
+    python_requires='>=3.6',
     install_requires=get_contents('requirements.txt'),
 
     license="Apache Software License",
@@ -83,6 +83,8 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Topic :: Security',
+        'Topic :: Utilities',
     ],
 
     test_suite='tests',
