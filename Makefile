@@ -110,6 +110,7 @@ clean:
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
 	rm -rf CTU-Malware-Capture-Botnet-48
+	rm -f botnet-capture-20110816-sogou.pcap
 
 #HELP spotless - deep clean
 .PHONY: spotless
