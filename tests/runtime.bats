@@ -30,6 +30,11 @@ teardown() {
 +-----------+---------+---------------+-------------------------------------------------------------------------+'
 }
 
+@test "\"lim -q ctu get Botnet-48 pcap --no-subdir \" gets PCAP file to cwd" {
+    run bash -c "[ -f botnet-capture-20110816-sogou.pcap ] || $LIM -q ctu get Botnet-48 pcap --no-subdir"
+    [ -f botnet-capture-20110816-sogou.pcap ]
+}
+
 @test "\"lim -q ctu get Botnet-48 pcap\" gets PCAP file" {
     run bash -c "[ -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap ] || $LIM -q ctu get Botnet-48 pcap"
     [ -d CTU-Malware-Capture-Botnet-48 ]

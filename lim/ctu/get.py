@@ -27,6 +27,14 @@ class CTUGet(Command):
             default=False,
             help="Force over-writing files if they exist (default: False)."
         )
+        parser.add_argument(
+            '--no-subdir',
+            action='store_true',
+            dest='no_subdir',
+            default=False,
+            help=('Do not maintain scenario name subdirectory '
+                  '(default: False).')
+        )
         _default_protocols = ",".join(DEFAULT_PROTOCOLS)
         parser.add_argument(
             '-P', '--protocols',
@@ -84,20 +92,18 @@ class CTUGet(Command):
 
         name = CTU_Dataset.get_fullname(parsed_args.name[0])
         if not self.ctu_metadata.is_valid_scenario(name):
-            raise RuntimeError('Scenario "{}" '.format(name) +
-                               'does not exist')
-        parsed_args.data
-        if self.app_args.data_dir is not None:
-            data_dir = self.app_args.data_dir
-        else:
+            raise RuntimeError(f'Scenario "{ name }" does not exist')
+        if parsed_args.no_subdir is False:
             data_dir = name
+        else:
+            data_dir = self.app_args.data_dir
         if 'ALL' in parsed_args.data:
             self.recursive_get_all(name)
         else:
             for attribute in parsed_args.data:
-                self.log.debug('[+] downloading ' +
-                               '{} data '.format(attribute) +
-                               'for scenario {}'.format(name))
+                self.log.debug(
+                    f'[+] downloading { attribute } data '
+                    f'for scenario { name }')
                 self.ctu_metadata.fetch_scenario_content_byattribute(
                     data_dir=data_dir, name=name, attribute=attribute)
 
@@ -117,7 +123,7 @@ class CTUGet(Command):
                     shell=shell
                 ).decode('UTF-8').splitlines()
         except Exception as err:
-            message = 'cannot run "wget": {}'.format(err)
+            message = f'cannot run "wget": { err }'
         else:
             message = 'cannot run "wget"'
         if len(result) > 1 and result[0].find(' Wget ') < 0:
@@ -133,8 +139,8 @@ class CTUGet(Command):
                '--no-check-certificate']
         cmd.append(url)
         """Use subprocess.check_ouput to run subcommand"""
-        self.log.info('[+] recursively getting all data ' +
-                      'from {}'.format(url))
+        self.log.info('[+] recursively getting all data '
+                      f'from { url } ')
         try:
             result = subprocess.check_output(  # nosec
                     cmd,
