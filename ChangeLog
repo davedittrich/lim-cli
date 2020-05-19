@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+
+20.5.0
+------
+
+* Fix tests
 * Bump version
 * More documentation updates
 * Change variable initialization
