@@ -1,6 +1,19 @@
 CHANGES
 =======
 
+* Bump version
+* More documentation updates
+* Change variable initialization
+* Fix copyright+license in help output
+* Update documentation
+* Remove redundant file encoding setting
+* Clean up state files
+* Fix default data directory option
+* Remove obsolete file
+* Restructure "pcap" subcommand
+* Restructure "ctu" subcommand
+* Fix missed merge conflict
+* Resolve pep8 findings
 * Start generalizing web browser control
 * Correct logic mistake
 * Add documentation

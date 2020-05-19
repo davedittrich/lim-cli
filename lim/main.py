@@ -35,6 +35,7 @@ License:   Apache 2.0 License
 URL:       https://pypi.python.org/pypi/lim
 """  # noqa
 
+
 def copyright():
     """Copyright string"""
     return COPYRIGHT

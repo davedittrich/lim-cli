@@ -12,7 +12,7 @@ teardown() {
 }
 
 @test "\"lim about\" contains \"version\"" {
-    run bash -c "$LIM -q about"
+    run bash -c "$LIM about"
     assert_output --partial 'version'
 }
 
