@@ -3,17 +3,18 @@ The CTU Datasets
 ================
 
 One of the largest unredacted sandbox and network traffic capture datasets
-available for research and experimentation is the "CTU Datasets" from the
-Czech Technical University in Prague.
+available for research and experimentation are the "CTU Datasets" from the
+Czech Technical University in Prague, Czech Republic.
 
-The ``lim ctu`` subcommand group assists in processing these datasets.
+The ``lim ctu`` subcommand group assists in searching and accessing
+these datasets.
 
 Datasets Overview
 -----------------
 
-Read the output of ``lim ctu overview`` to get a URL for the main web
-page. Please respect their request from their *Disclaimer* when using
-and publishing this data.
+The ``lim ctu overview`` command attempts to load the URL for the main web
+page. If it can't do this, you will at least be shown the URL as seen
+here.
 
 .. code-block:: console
 
@@ -49,6 +50,9 @@ and publishing this data.
 
 ..
 
+Please respect the request in their *Disclaimer* for properly crediting them when
+publishing results using this data.
+
 Listing Scenario Data
 ---------------------
 
@@ -65,7 +69,9 @@ to minimize impact on their web site.
     [+] group "normal" has 3 scenarios
     [+] identifying scenarios for group malware from https://www.stratosphereips.org/datasets-malware
     [+] group "malware" has 345 scenarios
-    [+] queued 353 pages for processing
+    [+] identifying scenarios for group iot from https://www.stratosphereips.org/datasets-iot
+    [+] group "iot" has 7 scenarios
+    [+] queued 360 pages for processing
     +-------------------------------+---------+---------------+
     | SCENARIO                      | GROUP   | PROBABLE_NAME |
     +-------------------------------+---------+---------------+
@@ -85,10 +91,10 @@ to minimize impact on their web site.
 
 .. note::
 
-    This example only shows three columns, just to fit the output
-    into the space in this document. By default, there are many
-    fields and some are quite long, so generally you will want to
-    add ``--fit-width`` to make the output more readable.
+    This example only shows three columns, simply so as to fit
+    the output into the space in this document. By default, there
+    are many more fields and some are quite long, so generally you
+    will want to add ``--fit-width`` to make the output more readable.
 
     .. image:: images/lim-ctu-list-fit-width.png
 

@@ -45,8 +45,12 @@ class PCAPShift(Command):
             To see the old and new timestamps for each packet as they are converted,
             use ``-vv``.
 
-            NOTE: Keep in mind that any embedded timestamps in the body of ethernet
-            frames (e.g., in the UDP or TCP data portion of the packet) are not adjusted.
+            NOTE 1: Keep in mind that this utility only maniuplates the packet headers.
+            This means that any embedded timestamps in the body of ethernet frames
+            (e.g., in the UDP or TCP data portion of the packet) *do not* get adjusted.
+
+            NOTE 2: The ``network`` address shifting logic has not been completed yet.
+            The program raises an exception with a message to that effect.
             """)  # noqa
         return parser
 

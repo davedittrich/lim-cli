@@ -17,7 +17,9 @@ class About(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.epilog = textwrap.dedent(f"""
+        parser.epilog = textwrap.dedent(f"""\
+            Shows information about the ``lim`` CLI.
+
             .. code-block:: console
 
                 $ lim about
@@ -25,7 +27,8 @@ class About(Command):
 
             ..
 
-            { copyright() }
+            It will also print out copyright and related information (which isn't easy
+            to force ``autoprogram-cliff`` to parse correctly in help output).
             """)  # noqa
         return parser
 
