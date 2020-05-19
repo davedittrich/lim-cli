@@ -93,7 +93,7 @@ class Status(Lister):
                 cancel_throws_exception=True
             )
         columns = ['Tool', 'State', 'Timestamp']
-        data = list()
+        data = []
         status = get_status(sess_id=sess_id, req_id=req_id)
         if status is None:
             raise RuntimeError('failed to get status for '

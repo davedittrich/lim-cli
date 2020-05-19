@@ -61,7 +61,7 @@ class Requests(Lister):
         # "viewableOutput" in the tools list), which complicates
         # capitalization of column headers. :(
         columns = ['Id', 'Filename', 'Original_Filename', 'Tools']
-        data = list()
+        data = []
         for row in get_requests(sess_id=sess_id):
             data.append(
                 ([row[c.lower()] for c in columns])

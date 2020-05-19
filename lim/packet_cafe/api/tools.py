@@ -52,7 +52,7 @@ class Tools(Lister):
         columns = ['Name', 'Image', 'Version', 'Labels',
                    'Stage', 'ViewableOutput', 'Outputs', 'Inputs']
         workers = get_workers()
-        data = list()
+        data = []
         for worker in workers:
             data.append(
                 ([

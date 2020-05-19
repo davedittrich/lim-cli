@@ -651,7 +651,7 @@ class CTU_Dataset(object):
         Return a list of lists of data suitable for use by
         cliff, following the order of elements in 'columns'.
         """
-        data = list()
+        data = []
         for (scenario, attributes) in self.scenarios.items():
             if '_SUCCESS' in attributes and not attributes['_SUCCESS']:
                 continue

@@ -136,7 +136,7 @@ class CTUList(Lister):
             fullnames=parsed_args.fullnames,
             description_includes=parsed_args.description_includes,
             has_hash=parsed_args.hash)
-        data = list()
+        data = []
         if len(scenarios) > 0:
             data = [r for r in results
                     if CTU_Dataset.get_fullname(r[0]) in scenarios]
