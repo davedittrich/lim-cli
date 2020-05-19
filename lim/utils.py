@@ -286,4 +286,4 @@ class LineReader(object):
                         if maxlines is not None and count >= int(maxlines):
                             raise StopIteration
 
-# vim: set fileencoding=utf-8 ts=4 sw=4 tw=0 et :
+# vim: set ts=4 sw=4 tw=0 et :

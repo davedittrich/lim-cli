@@ -1,6 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
+VERSION:=20.5.0
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -17,7 +18,6 @@ help:
 	@echo 'test-tox - run tox tests'
 	@echo 'test-bats - run Bats unit tests'
 	@echo 'test-bats-runtime - run Bats runtime integration/system tests'
-	@echo 'test-load - use 'lim runpy' to load the nepotism dataset'
 	@echo 'release - produce a pypi production release'
 	@echo 'release-test - produce a pypi test release'
 	@echo 'egg - run "python setup.py bdist_egg"'
@@ -33,10 +33,12 @@ help:
 
 #HELP test - run 'tox' for testing
 .PHONY: test
-test: test-tox test-bats docs-tests
+test: test-tox test-bats
+	@echo '[+] All tests succeeded'
 
 .PHONY: test-tox
 test-tox:
+	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
 	tox
 
 .PHONY: test-bats
@@ -53,11 +55,6 @@ test-bats: bats-libraries
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
 	bats --tap tests/runtime.bats
-
-#HELP test-load - use 'lim runpy' to load the nepotism dataset
-.PHONY: test-load
-test-load:
-	lim runpy examples/de_01_nepotism_create.py examples/dm_01_nepotism_insert.py
 
 .PHONY: no-diffs
 no-diffs:
@@ -103,19 +100,22 @@ sdist: docs
 #HELP twine-check
 .PHONY: twine-check
 twine-check: egg
-	twine check "$(shell cat dist/.LATEST_EGG)"
+	twine check dist/"$(shell cat dist/.LATEST_EGG)"
 
 #HELP clean - remove build artifacts
 .PHONY: clean
 clean:
+	find . -name '*.pyc' -delete
+	rm -rf docs/_build/*
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
-	find . -name '*.pyc' -delete
+	rm -rf CTU-Malware-Capture-Botnet-48
 
 #HELP spotless - deep clean
 .PHONY: spotless
 spotless: clean
 	rm -rf .eggs .tox
+	rm -rf .packet_cafe_last_{request,session}_id
 	(cd docs && make clean)
 	rm -rf tests/libs/{bats,bats-support,bats-assert}
 
@@ -196,6 +196,5 @@ bats-support:
 bats-assert:
 	@[ -d tests/libs/bats-assert ] || \
 		(mkdir -p tests/libs/bats-assert; git clone https://github.com/ztombol/bats-assert tests/libs/bats-assert)
-
 
 #EOF

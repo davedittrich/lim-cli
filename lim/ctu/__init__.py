@@ -1,35 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import print_function
-
 import aiohttp
-import argparse
-import asyncio
 import async_timeout
+import asyncio
 import ipaddress
 import json
 import logging
 import os
+import requests
 import signal
 import six
-import time
-import requests
 import textwrap
+import time
 import warnings
 
-from bs4 import BeautifulSoup  # noqa
+from bs4 import BeautifulSoup
 from collections import OrderedDict
-from cliff.command import Command
-from cliff.lister import Lister
 from datetime import datetime
+from lim.main import BUFFER_SIZE
+from lim.utils import safe_to_open
+from lim.utils import LineReader
 from urllib3.exceptions import InsecureRequestWarning
-from .main import BUFFER_SIZE
-from .main import DEFAULT_PROTOCOLS
-from .utils import safe_to_open
-from .utils import LineReader
 
-# TODO(dittrich): Make this a command line argument?
-# Initialize a logger for this module.
 logger = logging.getLogger(__name__)
 
 
@@ -145,6 +137,18 @@ class CTU_Dataset(object):
     is the unlabeled version, or the post-processed labeled
     version. Scraped data is cached for a period of time. You can
     force re-loading by using the --ignore-cache flag.
+
+
+    Examples of URLs from each set (for the purpose of knowing how
+    to parse them):
+
+    https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-9/
+    https://mcfp.felk.cvut.cz/publicDatasets/CTU-Normal-7/
+    https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-4/
+    https://mcfp.felk.cvut.cz/publicDatasets/IoTDatasets/CTU-IoT-Malware-Capture-34-1/
+
+    Note that the IoT datasets have a different directory path than
+    the rest, which complicates URL parsing logic below.
     """
 
     __CTU_DATASETS_OVERVIEW_URL__ = \
@@ -159,13 +163,15 @@ class CTU_Dataset(object):
     __CTU_DATASET_GROUPS__ = {
         'mixed': 'https://www.stratosphereips.org/datasets-mixed',
         'normal': 'https://www.stratosphereips.org/datasets-normal',
-        'malware': 'https://www.stratosphereips.org/datasets-malware'
+        'malware': 'https://www.stratosphereips.org/datasets-malware',
+        'iot': 'https://www.stratosphereips.org/datasets-iot',
     }
+    __CTU_PREFIX__ = 'CTU-Malware-Capture-'
     __DEFAULT_GROUP__ = 'malware'
     __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
     __CACHE_FILE__ = "ctu-cache.json"
-    __CACHE_TIMEOUT__ = 60 * 60 * 24 * 7  # secs * mins * hours * days
+    __CACHE_TIMEOUT__ = 60 * 60 * 24 * 30  # secs * mins * hours * days
     # These are fields associated with files that can be downloaded.
     __ATTRIBUTES__ = [
         'ZIP',
@@ -178,16 +184,18 @@ class CTU_Dataset(object):
     __COLUMNS__ = [
         'SCENARIO',
         'GROUP',
-        'SCENARIO_URL',
         'PROBABLE_NAME',
+        'SCENARIO_URL',
         'ZIP',
         'MD5',
         'SHA1',
         'SHA256',
         'LABELED',
         'BINETFLOW',
-        'PCAP'
+        'PCAP',
+        'WEBLOGNG'
     ]
+    __MIN_COLUMNS__ = 4
     __DISCLAIMER__ = textwrap.dedent("""\
        When using this data, make sure to respect the Disclaimer at the bottom of
        the scenario ``Readme.*`` files:
@@ -282,6 +290,34 @@ class CTU_Dataset(object):
         return cls.__DISCLAIMER__
 
     @classmethod
+    def get_fullname(cls, name):
+        """
+        Return a full scenario name from a possible abbreviated
+        name consisting of just the part after '{}'.
+        """.format(cls.__CTU_PREFIX__)
+
+        if len(name) > len(cls.__CTU_PREFIX__):
+            # Don't try to add the prefix if it looks like it might already
+            # be there (even typod)
+            if name[0] == 'C':
+                return name
+        else:
+            if name[0] != 'C' and not name.startswith(cls.__CTU_PREFIX__):
+                return cls.__CTU_PREFIX__ + name
+        return name
+
+    @classmethod
+    def get_shortname(cls, name):
+        """
+        Return a short scenario name from a full scenario name if
+        the name begins with '{}'.
+        """.format(cls.__CTU_PREFIX__)
+
+        if name.startswith(cls.__CTU_PREFIX__):
+            return name[len(cls.__CTU_PREFIX__):]
+        return name
+
+    @classmethod
     def filename_from_url(cls, url=None):
         if url is None:
             return None
@@ -361,6 +397,7 @@ class CTU_Dataset(object):
                                            name=None,
                                            attribute=None,
                                            filename=None):
+        name = CTU_Dataset.get_fullname(name)
         url = self.get_scenario_attribute(name, attribute)
         if url in ['', None]:
             logger.info('[-] scenario "{}" does not have '.format(name) +
@@ -388,8 +425,11 @@ class CTU_Dataset(object):
     async def record_scenario_metadata(self, semaphore, group, url, session):
         if url is None:
             raise RuntimeError('url must not be None')
-        url_parts = url.split('/')
-        name = url_parts[url_parts.index('publicDatasets')+1]
+        if url.find('publicDatasets') == -1:
+            raise RuntimeError('url does not contain "publicDatasets"')
+        # The scenario name is the directory name in which the file
+        # is located.
+        name = os.path.basename(os.path.dirname(url))
         if name not in self.scenarios:
             self.scenarios[name] = dict()
         _scenario = self.scenarios[name]
@@ -418,8 +458,12 @@ class CTU_Dataset(object):
                             break
                 if ":" in line and line != ":":
                     try:
+                        # Special case for IoT malware, which is annotated
+                        # differently.
                         (_k, _v) = line.split(':')
                         k = _k.upper().replace(' ', '_')
+                        if k == "PROBABLE_MALWARE_NAME":
+                            k = "PROBABLE_NAME"
                         v = _v.strip()
                         if k in self.columns:
                             _scenario[k] = v
@@ -596,242 +640,65 @@ class CTU_Dataset(object):
                     'has {} scenarios'.format(len(scenarios)))
         return scenarios
 
-    def get_metadata(self, groups=None, name_includes=None, has_hash=None):
+    def get_metadata(self,
+                     groups=None,
+                     columns=None,
+                     name_includes=None,
+                     fullnames=False,
+                     description_includes=None,
+                     has_hash=None):
         """
         Return a list of lists of data suitable for use by
-        cliff, following the order of elements in self.columns.
+        cliff, following the order of elements in 'columns'.
         """
-        data = list()
+        data = []
         for (scenario, attributes) in self.scenarios.items():
             if '_SUCCESS' in attributes and not attributes['_SUCCESS']:
                 continue
             if 'GROUP' in attributes and attributes['GROUP'] not in groups:
                 continue
+            match = True
             if name_includes is not None:
                 # Can't look for something that doesn't exist.
                 if 'PROBABLE_NAME' not in attributes:
                     continue
                 probable_name = attributes['PROBABLE_NAME'].lower()
                 find = probable_name.find(name_includes.lower())
-                if find == -1:
+                match = match and (find != -1)
+            elif description_includes is not None:
+                # Can't look for something that doesn't exist.
+                if '_PAGE' not in attributes:
                     continue
-            row = dict()
-            row['SCENARIO'] = scenario
-            row['SCENARIO_URL'] = attributes['URL']
+                page = attributes['_PAGE'].lower()
+                find = page.find(description_includes.lower())
+                match = match and (find != -1)
             if has_hash is not None:
-                if not (has_hash == attributes['MD5'] or
-                        has_hash == attributes['SHA1'] or
-                        has_hash == attributes['SHA256']):
-                    continue
+                match = match and (has_hash == attributes['MD5'] or
+                                   has_hash == attributes['SHA1'] or
+                                   has_hash == attributes['SHA256'])
+            if not match:
+                continue
+            row = dict()
+            # Support short names for Malware scenarios.
+            if fullnames:
+                row['SCENARIO'] = scenario
+            else:
+                row['SCENARIO'] = CTU_Dataset.get_shortname(scenario)
+            row['SCENARIO_URL'] = attributes['URL']
             # Get remaining attributes
-            for c in self.columns:
+            for c in columns:
                 if c not in row:
                     row[c] = attributes.get(c)
-            data.append([row.get(c) for c in self.columns])
+            data.append([row.get(c) for c in columns])
         return data
 
 
-class CTUOverview(Command):
-    """Get CTU dataset overview."""
-
-    log = logging.getLogger(__name__)
-
-    def get_parser(self, prog_name):
-        parser = super(CTUOverview, self).get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.epilog = textwrap.dedent("""\
-           \n""") + CTU_Dataset.get_disclaimer()
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('[+] showing overview of CTU datasets')
-        print("For an overview of the CTU Datasets, open the following " +
-              "URL in a browser:\n" +
-              "{overview}\n\n{disclaimer}".format(
-                overview=CTU_Dataset.get_ctu_datasets_overview_url(),
-                disclaimer=CTU_Dataset.get_disclaimer()))
+all = [
+    unhex,
+    IPv4ToID,
+    download_ctu_netflow,
+    CTU_Dataset,
+]
 
 
-class CTUGet(Command):
-    """Get CTU dataset components."""
-
-    log = logging.getLogger(__name__)
-
-    def get_parser(self, prog_name):
-        parser = super(CTUGet, self).get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
-            '--force',
-            action='store_true',
-            dest='force',
-            default=False,
-            help="Force over-writing files if they exist (default: False)."
-        )
-        _default_protocols = ",".join(DEFAULT_PROTOCOLS)
-        parser.add_argument(
-            '-P', '--protocols',
-            metavar='<protocol-list>',
-            dest='protocols',
-            type=lambda s: [i for i in s.split(',')],
-            default=_default_protocols,
-            help='Protocols to include, or "any" ' +
-                 '(default: {})'.format(_default_protocols)
-        )
-        parser.add_argument(
-            '-L', '--maxlines',
-            metavar='<lines>',
-            dest='maxlines',
-            default=None,
-            help="Maximum number of lines to get (default: None)"
-        )
-        parser.add_argument(
-            '--cache-file',
-            action='store',
-            dest='cache_file',
-            default=None,
-            help="Cache file path (default: None)."
-        )
-        parser.add_argument(
-            '--ignore-cache',
-            action='store_true',
-            dest='ignore_cache',
-            default=False,
-            help="Ignore any cached results (default: False)."
-        )
-        parser.add_argument(
-            'name',
-            nargs=1,
-            default=None)
-        parser.add_argument(
-            'data',
-            nargs='+',
-            choices=CTU_Dataset.get_attributes() + ['ALL'],
-            default=None)
-        parser.epilog = textwrap.dedent("""\
-           \n""") + CTU_Dataset.get_disclaimer()
-        return parser
-
-    def take_action(self, parsed_args):
-        self.log.debug('[+] getting CTU data')
-        if 'ctu_metadata' not in dir(self):
-            self.ctu_metadata = CTU_Dataset(
-                cache_file=parsed_args.cache_file,
-                ignore_cache=parsed_args.ignore_cache,
-                debug=self.app_args.debug)
-            # TODO(dittrich): Work this back into init() method.
-        self.ctu_metadata.load_ctu_metadata()
-
-        name = parsed_args.name[0]
-        if not self.ctu_metadata.is_valid_scenario(name):
-            raise RuntimeError('Scenario "{}" '.format(name) +
-                               'does not exist')
-        if self.app_args.data_dir is not None:
-            data_dir = self.app_args.data_dir
-        else:
-            data_dir = name
-        if 'ALL' in parsed_args.data:
-            requested = self.ctu_metadata.get_attributes()
-        else:
-            requested = parsed_args.data
-        for data in requested:
-            self.log.debug('[+] downloading {} data '.format(data) +
-                           'for scenario {}'.format(name))
-            self.ctu_metadata.fetch_scenario_content_byattribute(
-                data_dir=data_dir, name=name, attribute=data)
-
-
-class CTUList(Lister):
-    """List CTU dataset metadata."""
-
-    log = logging.getLogger(__name__)
-
-    def get_parser(self, prog_name):
-        parser = super(CTUList, self).get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
-            '--cache-file',
-            action='store',
-            dest='cache_file',
-            default=None,
-            help="Cache file path (default: None)."
-        )
-        parser.add_argument(
-            '--ignore-cache',
-            action='store_true',
-            dest='ignore_cache',
-            default=False,
-            help="Ignore any cached results (default: False)."
-        )
-        parser.add_argument(
-            '--group',
-            action='append',
-            dest='groups',
-            type=str,
-            choices=CTU_Dataset.get_groups() + ['all'],
-            default=[CTU_Dataset.get_default_group()],
-            help="Dataset group to incldue or 'all' " +
-                 "(default: '{}').".format(CTU_Dataset.get_default_group())
-        )
-        find = parser.add_mutually_exclusive_group(required=False)
-        find.add_argument(
-            '--hash',
-            dest='hash',
-            metavar='<{md5|sha1|sha256} hash>',
-            default=None,
-            help=('Only list scenarios that involve a '
-                  'specific hash (default: None).')
-        )
-        find.add_argument(
-            '--name-includes',
-            dest='name_includes',
-            metavar='<string>',
-            default=None,
-            help=('Only list scenarioes including this string'
-                  'in the "PROBABLE_NAME" (default: None).')
-        )
-        parser.epilog = textwrap.dedent("""\
-           The ``--group`` option can be repeated multiple times to include multiple
-           subgroups, or you can use ``--group all`` to include all groups.
-
-           The ``--hash`` option makes an exact match on any one of the stored hash
-           values.  This is the hash of the executable binary referenced in the
-           ``ZIP`` column.
-
-           The ``--name-includes`` option is rather simplistic, matching any occurance
-           of the substring (case insensitive) in the ``PROBABLE_NAME`` field.  For more
-           accurate matching, you can use something like the ``-f csv`` option and then
-           match on regular expressions using one of the ``grep`` variants.  Or add
-           regular expression handling and submit a pull request! ;)
-
-           \n""") + CTU_Dataset.get_disclaimer()  # noqa
-
-        return parser
-
-    # FYI, https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-269-1/README.html  # noqa
-    # is an Emotet sample...
-    # TODO(dittrich): Figure out how to handle these
-
-    def take_action(self, parsed_args):
-        self.log.debug('[+] listing CTU data')
-        if 'all' in parsed_args.groups:
-            parsed_args.groups = CTU_Dataset.get_groups()
-        if 'ctu_metadata' not in dir(self):
-            self.ctu_metadata = CTU_Dataset(
-                cache_file=parsed_args.cache_file,
-                ignore_cache=parsed_args.ignore_cache,
-                debug=self.app_args.debug)
-        self.ctu_metadata.load_ctu_metadata()
-
-        columns = self.ctu_metadata.columns
-        results = self.ctu_metadata.get_metadata(
-            name_includes=parsed_args.name_includes,
-            groups=parsed_args.groups,
-            has_hash=parsed_args.hash)
-        if self.app_args.limit > 0:
-            data = results[0:min(self.app_args.limit, len(results))]
-        else:
-            data = results
-        return columns, data
-
-
-# vim: set fileencoding=utf-8 ts=4 sw=4 tw=0 et :
+# vim: set ts=4 sw=4 tw=0 et :

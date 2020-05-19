@@ -2,25 +2,14 @@
 Usage
 =====
 
-Commands (and subcommands) generally follow the model set by the
-`OpenStackClient`_ for its `Command Structure`_. The general structure
-of a command is:
+Subcommand groups in ``lim`` are divided by categories reflecting (a) APIs for
+services or data stores (e.g., ``cafe`` for `packet-cafe`_ or ``ctu`` for the
+`CTU Datasets`_), or (b) by file type for utilities that process files of that
+data type (e.g., ``pcap`` for PCAP file processing).
 
-.. code-block:: console
-
-   $ lim [<global-options>] <object-1> <action> [<object-2>] [<command-arguments>]
-
-
-  * The primary objects are things like ``query``, ``jobs``, etc.
-
-  * The secondary objects are things like ``vars``, ``tql``, etc.
-
-  * The actions are things like ``list``, ``show``, ``cancel``, etc.
-
-
-.. _OpenStackClient: https://docs.openstack.org/python-openstackclient/latest/
-.. _Command Structure: https://docs.openstack.org/python-openstackclient/latest/cli/commands.html
-
+There is generally an ``about`` subcommand that helps get you to documentation
+about those subcommands, which in most cases leads you to the appropriate web
+site with online documentation.
 
 Getting help
 ------------
@@ -52,5 +41,22 @@ CTU
 .. autoprogram-cliff:: lim
    :command: ctu *
 
+
+Packet Cafe
+-----------
+
+.. autoprogram-cliff:: lim
+   :command: cafe *
+
+
+PCAP
+----
+
+.. autoprogram-cliff:: lim
+   :command: pcap *
+
+
+.. _packet-cafe: https://www.cyberreboot.org/projects/packet-cafe/
+.. _CTU Datasets: https://www.stratosphereips.org/datasets-overview
 
 .. EOF

@@ -111,6 +111,30 @@ class Test_CTU_Dataset(unittest.TestCase):
         self.assertEqual(filename, '2015-07-28_mixed.pcap',
                          msg='filename={}'.format(filename))
 
+    def test_get_fullname_short(self):
+        prefix = self.ctu_dataset.__CTU_PREFIX__
+        shortname = 'Botnet-1'
+        fullname = self.ctu_dataset.get_fullname(shortname)
+        self.assertEqual(fullname, prefix + shortname)
+
+    def test_get_fullname_typo(self):
+        prefix = self.ctu_dataset.__CTU_PREFIX__
+        typoname = 'CTU_Malware_Capture-Botnet-1'
+        fullname = self.ctu_dataset.get_fullname(typoname)
+        self.assertEqual(fullname, typoname)
+
+    def test_get_shortname_match(self):
+        actual_shortname = 'Botnet-1'
+        prefix = self.ctu_dataset.__CTU_PREFIX__
+        fullname = prefix + actual_shortname
+        shortname = self.ctu_dataset.get_shortname(fullname)
+        self.assertEqual(shortname, actual_shortname)
+
+    def test_get_shortname_nomatch(self):
+        actual_shortname = 'Botnet-1'
+        shortname = self.ctu_dataset.get_shortname(actual_shortname)
+        self.assertEqual(shortname, actual_shortname)
+
 if __name__ == '__main__':
     import sys
     sys.exit(unittest.main())

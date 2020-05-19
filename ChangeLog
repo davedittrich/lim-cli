@@ -1,10 +1,134 @@
 CHANGES
 =======
 
+* Bump version
+* More documentation updates
+* Change variable initialization
+* Fix copyright+license in help output
+* Update documentation
+* Remove redundant file encoding setting
+* Clean up state files
+* Fix default data directory option
+* Remove obsolete file
+* Restructure "pcap" subcommand
+* Restructure "ctu" subcommand
+* Fix missed merge conflict
+* Resolve pep8 findings
+* Start generalizing web browser control
+* Correct logic mistake
+* Add documentation
+* Add "cafe ui" subcommand
+* Save and use last session and request ID state
+* Add "cafe about" subcommand for online docs
+* Add "cafe stop" subcommand
+* Add "cafe results" subcommand
+* Handle situation where no sessions exist
+* Track worker progress in realtime on "cafe upload"
+* Fix issues with f strings
+* Add global options for packet\_cafe host IP & port
+* Fixed missed merge conflict resolution target
+* Add more launch targets
+* Add another debug option
+* Update README.md to reflect API coverage
+* Add "cafe raw" subcommand
+* Add filtering to "cafe admin results" subcommand
+* Rename functions to better clarify purpose
+* Add interactive selection using bullet
+* Remove unused file
+* Initial working packet-cafe CLI subcommands
+* Arrow no longer issues parse warning
+* Can't use env variables in bats test titles
+* Add more launch targets
+* Add another debug option
+* Update documentation
+* Fix testing
+* Add support for added IoT datasets
+* Ignore Python cache directories
+* Fix tox configuration
+* Replace relative imports
+* Fix typo in file name
+* Add more launch targets
+* Fix type in VSCode launch.json file
+* Update README.md to reflect API coverage
+* Add "cafe raw" subcommand
+* Add filtering to "cafe admin results" subcommand
+* Rename functions to better clarify purpose
+* Add interactive selection using bullet
+* Remove unused file
+* Initial working packet-cafe CLI subcommands
+* Fix type error
+* Resolve pep8 findings
+* Keep .vscode/launch.json in Git
+* Add VSCode launch.json file
+* Log reconstructed command line on -vv
+* Up cache timeout from 7 to 30 days
+* Add help about old->new time logging
+* Clarify time conversion usage
+* Fix formatting
+* Fixes to Makefile
+* Log shifted packet timestamps on -vv
+* Add to help output
+* Improve robustness of ctu recursive get
+* Ignore output explicitly
+* Add recursive get (wget) of all scenario data
+* Update ChangeLog
+* Resolve pep8 findings
+
+v19.8.2
+-------
+
+* Bump version: 19.8.1 → 19.8.2
+* Add pcap subcommands
+* Default to just primary attributes
+* Add WeblogNG file to attributes
+* Support short names for Malware group
+* Invoke web browser for visiting URLs in "overview"
+* Add searching for string in scenario description
+* Add .gitignore file
+
+19.8.1
+------
+
+* Forgot to bump version
+
 19.8.0
 ------
 
 * Squashed commit of the following:
+* Relabel CTU section
+* Fix docs-tests to generate text for docs
+* Improve cache handling
+* Improve getting scenario attributes
+* Handle bats in a simpler way than Git submodules
+* Document CTU subcommands with examples
+* Add ability to limit output
+* Only log debug messages when debug is True
+* Only log debug messages when debug is True
+* Resolve pep8 findings
+* Fix Makefile
+* Git ignore Sphinx build directory
+* Make help txt file on install
+* Temporarily remove LANL commands
+* Update Changelog
+* Forgot to commit added command 'ctu overview'
+* Finish 'ctu get' logic
+* Improve unit tests
+* Fix module id and version numbers
+* Only apply CTU disclaimer to 'ctu' commands
+* Fix use of test cache file
+* Add more methods and unit tests
+* Improve OO nature of CTU\_Dataset class & scraping
+* Add initial unit tests for CTU\_Dataset class
+* Update documentation
+* Resolve pep8 findings
+* Simplify and generalize ctu commands
+* Fix help text and include CTU disclaimer
+* Make elapsed time an option (default off)
+* Fix command name in docs
+* Fix timer
+* Rename lim/ctu13.py to lim/ctu.py
+* Finish asyncio web scraper for CTU datasets
+* Clean up cache file
 
 19.7.0
 ------

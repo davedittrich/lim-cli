@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Setup script for the LiminalAI CLI utility
+# Setup script for the LiminalInfo CLI utility
 #
 # Author: Dave Dittrich <dave.dittrich@gmail.com>
-# URL: ...
+# Copyright: 2018, Dave Dittrich. 2020,Liminal Information Corp.
+# URL: https://github.com/LiminalInfo/lim
 
 import codecs
 import os
@@ -92,9 +93,30 @@ setup(
         ],
         'lim': [
             'about = lim.about:About',
-            'ctu get = lim.ctu:CTUGet',
-            'ctu list = lim.ctu:CTUList',
-            'ctu overview = lim.ctu:CTUOverview',
+            'ctu get = lim.ctu.get:CTUGet',
+            'ctu list = lim.ctu.list:CTUList',
+            'ctu stats = lim.ctu.stats:CTUStats',
+            'ctu overview = lim.ctu.overview:CTUOverview',
+            'cafe about = lim.packet_cafe.about:About',
+            'cafe admin endpoints = lim.packet_cafe.admin.endpoints:Endpoints',
+            'cafe admin files = lim.packet_cafe.admin.files:Files',
+            'cafe admin results = lim.packet_cafe.admin.results:Results',
+            'cafe admin sessions = lim.packet_cafe.admin.sessions:Sessions',
+            'cafe admin info = lim.packet_cafe.admin.info:AdminInfo',
+            'cafe endpoints = lim.packet_cafe.api.endpoints:Endpoints',
+            'cafe raw = lim.packet_cafe.api.raw:Raw',
+            'cafe requests = lim.packet_cafe.api.requests:Requests',
+            'cafe results = lim.packet_cafe.api.results:Results',
+            'cafe info = lim.packet_cafe.api.info:ApiInfo',
+            'cafe status = lim.packet_cafe.api.status:Status',
+            'cafe stop = lim.packet_cafe.api.stop:Stop',
+            'cafe tools = lim.packet_cafe.api.tools:Tools',
+            'cafe upload = lim.packet_cafe.api.upload:Upload',
+            'cafe ui = lim.packet_cafe.ui:UI',
+            'pcap extract ips = lim.pcap.extract:PCAPExtract',
+            'pcap shift network = lim.pcap.shift:PCAPShift',
+            'pcap shift time = lim.pcap.shift:PCAPShift',
+            'version = lim.about:About',
         ],
     },
     zip_safe=False,
