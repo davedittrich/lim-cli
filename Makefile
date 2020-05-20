@@ -57,6 +57,7 @@ test-bats-runtime: bats-libraries
 .PHONY: no-diffs
 no-diffs:
 	@echo 'Checking Git for uncommitted changes'
+	git checkout ChangeLog
 	git diff --quiet HEAD
 
 #HELP release - package and upload a release to pypi
