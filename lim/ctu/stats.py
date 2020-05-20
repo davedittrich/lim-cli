@@ -32,12 +32,14 @@ class CTUStats(Lister):
             default=False,
             help="Ignore any cached results (default: False)"
         )
-        parser.epilog = textwrap.dedent("""\
-            Shows the groups and counts of members in each dataset group.
+        parser.epilog = textwrap.dedent(f"""\
+            Shows the dataset groups and a count of scenarios in each group.
+
+            Valid groups are: { ",".join(CTU_Dataset.get_groups()) }
 
             To see more detailed descriptions of the CTU datasets as a whole,
-            or for specific groups, use ``lim ctu overview`` to go to the appropriate
-            web page.
+            or for specific groups, use ``lim ctu overview`` to view the
+            appropriate web page.
            """)  # noqa
         return parser
 

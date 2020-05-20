@@ -88,7 +88,7 @@ class CTUList(Lister):
             'scenario',
             nargs='*',
             default=None)
-        parser.epilog = textwrap.dedent("""\
+        parser.epilog = textwrap.dedent(f"""\
            The ``--group`` option can be repeated multiple times to include multiple
            subgroups, or you can use ``--group all`` to include all groups.
 
@@ -102,6 +102,11 @@ class CTUList(Lister):
            match on regular expressions using one of the ``grep`` variants.  Or add
            regular expression handling and submit a pull request! ;)
 
+           Valid column labels for options ``-c``, ``--column``, ``--sort-column``:
+           { ",".join(CTU_Dataset.get_columns()) }
+
+           Subset of columns shown by default:
+           { ",".join(CTU_Dataset.get_columns()[:CTU_Dataset.__MIN_COLUMNS__]) }
            \n""") + CTU_Dataset.get_disclaimer()  # noqa
 
         return parser
