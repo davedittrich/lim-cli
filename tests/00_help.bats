@@ -48,6 +48,7 @@ teardown() {
   ctu get
   ctu list
   ctu overview
+  ctu show
   ctu stats'
 }
 

@@ -417,6 +417,25 @@
             }
         },
         {
+            "name": "lim ctu show Botnet-42",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "ctu",
+                "show",
+                "Botnet-42"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "lim --debug ctu get Botnet-261-1 all",
             "type": "python",
             "request": "launch",

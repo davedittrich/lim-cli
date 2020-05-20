@@ -96,6 +96,7 @@ setup(
             'about = lim.about:About',
             'ctu get = lim.ctu.get:CTUGet',
             'ctu list = lim.ctu.list:CTUList',
+            'ctu show = lim.ctu.show:CTUShow',
             'ctu stats = lim.ctu.stats:CTUStats',
             'ctu overview = lim.ctu.overview:CTUOverview',
             'cafe about = lim.packet_cafe.about:About',
