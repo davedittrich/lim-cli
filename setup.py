@@ -54,6 +54,7 @@ setup(
     #
     description="Python CLI for LiminalAI",
     long_description=long_description + "\n\n" + history,
+    long_description_content_type="text/x-rst",
 
     author="Dave Dittrich",
     author_email='dave.dittrich@gmail.com',
