@@ -686,9 +686,9 @@ class CTU_Dataset(object):
                 find = page.find(description_includes.lower())
                 match = match and (find != -1)
             if has_hash is not None:
-                match = match and (has_hash == attributes['MD5'] or
-                                   has_hash == attributes['SHA1'] or
-                                   has_hash == attributes['SHA256'])
+                match = match and (has_hash == attributes.get('MD5', '') or
+                                   has_hash == attributes.get('SHA1', '') or
+                                   has_hash == attributes.get('SHA256', ''))
             if not match:
                 continue
             row = dict()
