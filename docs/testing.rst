@@ -8,8 +8,8 @@ regression errors, or to validate when bugs in dependent libraries
 have been fixed.
 
 There are built-in unit tests for the Python ``lim`` application,
-as well as runtime ``bats`` tests that perform integration tests with
-a running AWS xGT instance.
+as well as runtime ``bats`` tests that perform realtime integration
+or system tests.
 
 .. note::
 

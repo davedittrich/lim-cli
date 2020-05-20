@@ -23,7 +23,7 @@ class CTUList(Lister):
             dest='cache_file',
             default=cache_file,
             help=('Cache file path for CTU metadata '
-                  '(Env: LIM_CTU_CACHE; '
+                  '(Env: ``LIM_CTU_CACHE``; '
                   f'default: { cache_file })')
         )
         parser.add_argument(
@@ -103,10 +103,10 @@ class CTUList(Lister):
            regular expression handling and submit a pull request! ;)
 
            Valid column labels for options ``-c``, ``--column``, ``--sort-column``:
-           { ",".join(CTU_Dataset.get_columns()) }
+           { ", ".join([f'``{ i }``' for i in CTU_Dataset.get_columns()]) }
 
            Subset of columns shown by default:
-           { ",".join(CTU_Dataset.get_columns()[:CTU_Dataset.__MIN_COLUMNS__]) }
+           { ", ".join([f'``{ i }``' for i in CTU_Dataset.get_columns()[:CTU_Dataset.__MIN_COLUMNS__]]) }
            \n""") + CTU_Dataset.get_disclaimer()  # noqa
 
         return parser

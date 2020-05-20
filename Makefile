@@ -139,7 +139,8 @@ docs-tests:
 #HELP docs-help - generate "lim help" output for documentation
 .PHONY: docs-help
 docs-help:
-	(unset LIM_DATA_DIR; \
+	(export LIM_DATA_DIR='/path/to/data'; \
+	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
 	 python -m lim.main help |\
 		sed 's/lim.main/lim/g' |\
 		sed 's/main.py/lim/g') > docs/lim-help.txt
@@ -147,7 +148,10 @@ docs-help:
 #HELP docs - build Sphinx docs (NOT INTEGRATED YET FROM OPENSTACK CODE BASE)
 .PHONY: docs
 docs:
-	(cd docs && make clean html)
+	(export LIM_DATA_DIR='/path/to/data'; \
+	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
+	 cd docs && \
+	 make clean html)
 
 #HELP examples - produce some example output for docs
 .PHONY: examples

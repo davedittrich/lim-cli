@@ -89,7 +89,7 @@ class LiminalApp(App):
             dest='data_dir',
             default=LIM_DATA_DIR,
             help=('Root directory for holding data files '
-                  f'(Env: LIM_DATA_DIR; default: { LIM_DATA_DIR })')
+                  f'(Env: ``LIM_DATA_DIR``; default: { LIM_DATA_DIR })')
         )
         parser.add_argument(
             '-e', '--elapsed',
@@ -105,7 +105,7 @@ class LiminalApp(App):
             dest='environment',
             default=default_environment(),
             help="Deployment environment selector " +
-            "(Env: LIM_ENVIRONMENT; default: {})".format(
+            "(Env: ``LIM_ENVIRONMENT``; default: {})".format(
                 default_environment())
         )
         parser.add_argument(

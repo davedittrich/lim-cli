@@ -42,7 +42,7 @@ def add_packet_cafe_global_options(parser):
         dest='cafe_host_ip',
         default=CAFE_SERVER,
         help=('IP address for packet_cafe server '
-              f'(env var LIM_CAFE_HOST; default: \'{ CAFE_SERVER }\')')
+              f'(Env: ``LIM_CAFE_HOST``; default: \'{ CAFE_SERVER }\')')
     )
     parser.add_argument(
         '--cafe-ui-port',
@@ -52,7 +52,7 @@ def add_packet_cafe_global_options(parser):
         dest='cafe_ui_port',
         default=CAFE_UI_PORT,
         help=('TCP port for packet_cafe UI service '
-              f'(env var LIM_CAFE_UI_PORT; default: { CAFE_UI_PORT })')
+              f'(Env: ``LIM_CAFE_UI_PORT``; default: { CAFE_UI_PORT })')
     )
     parser.add_argument(
         '--cafe-admin-port',
@@ -62,7 +62,7 @@ def add_packet_cafe_global_options(parser):
         dest='cafe_admin_port',
         default=CAFE_ADMIN_PORT,
         help=('TCP port for packet_cafe admin service '
-              '(env var LIM_CAFE_ADMIN_PORT; default: { CAFE_ADMIN_PORT })')
+              f'(Env: ``LIM_CAFE_ADMIN_PORT``; default: { CAFE_ADMIN_PORT })')
     )
     return parser
 
