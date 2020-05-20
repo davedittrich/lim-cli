@@ -62,13 +62,13 @@ no-diffs:
 
 #HELP release - package and upload a release to pypi
 .PHONY: release
-release: clean docs-tests docs-help docs sdist test twine-check
+release: clean docs-tests docs-help docs sdist twine-check
 	$(MAKE) no-diffs
 	twine upload dist/*.tar.gz -r pypi
 
 #HELP release-test - upload to "testpypi"
 .PHONY: release-test
-release-test: clean docs-tests docs-help docs sdist test twine-check
+release-test: clean docs-tests docs-help docs sdist twine-check
 	$(MAKE) no-diffs
 	twine upload dist/*.tar.gz -r testpypi
 
