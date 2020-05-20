@@ -170,7 +170,11 @@ class CTU_Dataset(object):
     __DEFAULT_GROUP__ = 'malware'
     __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
-    __CACHE_FILE__ = "ctu-cache.json"
+    # Put the cache file in user's home directory by default
+    # (or fall back to cwd, just to be robust).
+    __CACHE_FILE__ = os.path.join(
+        os.getenv('LIM_CTU_CACHE', os.getenv('HOME', os.getcwd())),
+        '.lim-ctu-cache.json')
     __CACHE_TIMEOUT__ = 60 * 60 * 24 * 30  # secs * mins * hours * days
     # These are fields associated with files that can be downloaded.
     __ATTRIBUTES__ = [
@@ -248,6 +252,14 @@ class CTU_Dataset(object):
         self.columns = self.get_columns()
         self.groups = self.get_groups()
         pass
+
+    @classmethod
+    def get_cache_file(cls):
+        """Return path to CTU cache file."""
+        try:
+            return cls.cache_file
+        except AttributeError:
+            return cls.__CACHE_FILE__
 
     @classmethod
     def get_ctu_datasets_overview_url(cls):

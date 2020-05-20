@@ -16,19 +16,22 @@ class CTUList(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        cache_file = CTU_Dataset.get_cache_file()
         parser.add_argument(
             '--cache-file',
             action='store',
             dest='cache_file',
-            default=None,
-            help="Cache file path (default: None)."
+            default=cache_file,
+            help=('Cache file path for CTU metadata '
+                  '(Env: LIM_CTU_CACHE; '
+                  f'default: { cache_file })')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)."
+            help="Ignore any cached results (default: False)"
         )
         parser.add_argument(
             '--fullnames',
@@ -54,7 +57,7 @@ class CTUList(Lister):
             choices=CTU_Dataset.get_groups() + ['all'],
             default=None,
             help="Dataset group to incldue or 'all' " +
-                 "(default: '{}').".format(CTU_Dataset.get_default_group())
+                 "(default: '{}')".format(CTU_Dataset.get_default_group())
         )
         find = parser.add_mutually_exclusive_group(required=False)
         find.add_argument(
@@ -63,7 +66,7 @@ class CTUList(Lister):
             metavar='<{md5|sha1|sha256} hash>',
             default=None,
             help=('Only list scenarios that involve a '
-                  'specific hash (default: None).')
+                  'specific hash (default: None)')
         )
         find.add_argument(
             '--name-includes',
@@ -71,7 +74,7 @@ class CTUList(Lister):
             metavar='<string>',
             default=None,
             help=('Only list scenarioes including this string'
-                  'in the "PROBABLE_NAME" (default: None).')
+                  'in the "PROBABLE_NAME" (default: None)')
         )
         find.add_argument(
             '--description-includes',
@@ -79,7 +82,7 @@ class CTUList(Lister):
             metavar='<string>',
             default=None,
             help=('Only list scenarioes including this string'
-                  'in the description (default: None).')
+                  'in the description (default: None)')
         )
         parser.add_argument(
             'scenario',

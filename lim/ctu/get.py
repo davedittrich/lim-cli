@@ -25,7 +25,7 @@ class CTUGet(Command):
             action='store_true',
             dest='force',
             default=False,
-            help="Force over-writing files if they exist (default: False)."
+            help="Force over-writing files if they exist (default: False)"
         )
         parser.add_argument(
             '--no-subdir',
@@ -33,7 +33,7 @@ class CTUGet(Command):
             dest='no_subdir',
             default=False,
             help=('Do not maintain scenario name subdirectory '
-                  '(default: False).')
+                  '(default: False)')
         )
         _default_protocols = ",".join(DEFAULT_PROTOCOLS)
         parser.add_argument(
@@ -52,19 +52,22 @@ class CTUGet(Command):
             default=None,
             help="Maximum number of lines to get (default: None)"
         )
+        cache_file = CTU_Dataset.get_cache_file()
         parser.add_argument(
             '--cache-file',
             action='store',
             dest='cache_file',
-            default=None,
-            help="Cache file path (default: None)."
+            default=cache_file,
+            help=('Cache file path for CTU metadata '
+                  '(Env: LIM_CTU_CACHE; '
+                  f'default: { cache_file })')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)."
+            help="Ignore any cached results (default: False)"
         )
         parser.add_argument(
             'name',
