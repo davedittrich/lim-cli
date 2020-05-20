@@ -4,8 +4,8 @@
 # Setup script for the LiminalInfo CLI utility
 #
 # Author: Dave Dittrich <dave.dittrich@gmail.com>
-# Copyright: 2018, Dave Dittrich. 2020,Liminal Information Corp.
-# URL: https://github.com/LiminalInfo/lim
+# Copyright: 2018-2020, Dave Dittrich. 2019-2020, Liminal Information Corp.
+# URL: https://github.com/davedittrich/lim
 
 import codecs
 import os
@@ -14,7 +14,7 @@ import re
 from setuptools import find_packages, setup
 
 
-PROJECT = 'lim'
+PROJECT = 'lim-cli'
 
 try:
     with open('README.rst') as readme_file:
@@ -48,7 +48,7 @@ def get_absolute_path(*args):
 
 
 setup(
-    name='lim',
+    name='lim-cli',
     pbr=True,
     # version=get_version('lim', '__init__.py'),
     #
@@ -58,8 +58,8 @@ setup(
     author="Dave Dittrich",
     author_email='dave.dittrich@gmail.com',
 
-    url='https://github.com/LiminalAI/lim',
-    download_url='https://github.com/LiminalAI/lim/tarball/master',
+    url='https://github.com/davedittrich/lim-cli',
+    download_url='https://github.com/davedittrich/lim-cli/tarball/master',
 
     namespace_packages=[],
     packages=find_packages(),
