@@ -20,8 +20,6 @@ help:
 	@echo 'test-bats-runtime - run Bats runtime integration/system tests'
 	@echo 'release - produce a pypi production release'
 	@echo 'release-test - produce a pypi test release'
-	@echo 'egg - run "python setup.py bdist_egg"'
-	@echo 'wheel - run "python setup.py bdist_wheel"'
 	@echo 'sdist - run "python setup.py sdist"'
 	@echo 'twine-check - run "twine check"'
 	@echo 'install - install pip package'
@@ -65,29 +63,13 @@ no-diffs:
 .PHONY: release
 release: clean docs-tests docs-help docs sdist test twine-check
 	$(MAKE) no-diffs
-	twine upload dist/* -r pypi
+	twine upload dist/*.tar.gz -r pypi
 
 #HELP release-test - upload to "testpypi"
 .PHONY: release-test
 release-test: clean docs-tests docs-help docs sdist test twine-check
 	$(MAKE) no-diffs
-	twine upload dist/* -r testpypi
-
-#HELP egg - build an egg package
-.PHONY: egg
-egg:
-	rm -f dist/.LATEST_EGG
-	python setup.py bdist_egg
-	(cd dist && ls -t *.egg 2>/dev/null | head -n 1) > dist/.LATEST_EGG
-	ls -lt dist/*
-
-#HELP wheel - build a wheel package
-.PHONY: wheel
-wheel:
-	rm -f dist/.LATEST_WHEEL
-	python setup.py bdist_wheel
-	(cd dist && ls -t *.whl 2>/dev/null | head -n 1) > dist/.LATEST_WHEEL
-	ls -lt dist/*.whl
+	twine upload dist/*.tar.gz -r testpypi
 
 #HELP sdist - build a source package
 .PHONY: sdist
@@ -99,8 +81,8 @@ sdist: docs
 
 #HELP twine-check
 .PHONY: twine-check
-twine-check: egg
-	twine check dist/"$(shell cat dist/.LATEST_EGG)"
+twine-check: sdist
+	twine check dist/"$(shell cat dist/.LATEST_TARGZ)"
 
 #HELP clean - remove build artifacts
 .PHONY: clean
@@ -140,17 +122,9 @@ install:
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
 .PHONY: install
-i install-active: wheel
-	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
+i install-active: sdist
+	python -m pip install -U "dist/$(shell cat dist/.LATEST_TARGZ)"
 	$(MAKE) docs-help
-
-.PHONY: install-instance
-install-instance: wheel
-	if ssh xgt true 2>/dev/null; \
-	then \
-		scp dist/$(shell cat dist/.LATEST_WHEEL) xgt:; \
-		ssh xgt sudo -H python3 -m pip install -U $(shell cat dist/.LATEST_WHEEL); \
-	fi
 
 #HELP docs-tests - generate bats test output for documentation
 .PHONY: docs-tests
