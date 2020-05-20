@@ -310,6 +310,27 @@
             }
         },
         {
+            "name": "lim ctu list --hash 6daff56b1c5429b7460dcf836803bea3",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "-vv",
+                "ctu",
+                "list",
+                "--hash",
+                "6daff56b1c5429b7460dcf836803bea3"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "lim pcap shift time tests/botnet-capture-20110816-sogou.pcap --start-time 2019-01-01T12:00:01.0+0100",
             "type": "python",
             "request": "launch",
