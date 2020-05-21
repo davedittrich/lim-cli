@@ -391,7 +391,7 @@ class CTU_Dataset(object):
             except Exception as err:  # noqa
                 result = None
         else:
-            raise RuntimeError('getting attribute "{}"'.format(attribute) +
+            raise RuntimeError('getting attribute "{}" '.format(attribute) +
                                'is not supported')
         return result
 
@@ -665,6 +665,8 @@ class CTU_Dataset(object):
         cliff, following the order of elements in 'columns'.
         """
         data = []
+        if groups is None:
+            groups = self.groups
         for (scenario, attributes) in self.scenarios.items():
             if '_SUCCESS' in attributes and not attributes['_SUCCESS']:
                 continue

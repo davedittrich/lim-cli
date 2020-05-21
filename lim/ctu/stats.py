@@ -32,10 +32,16 @@ class CTUStats(Lister):
             default=False,
             help="Ignore any cached results (default: False)"
         )
+        parser.add_argument(
+            'attribute',
+            nargs='?',
+            default='GROUP',
+            choices=CTU_Dataset.get_columns(),
+            help='Attribute to quantify (default: "GROUP")'
+        )
         parser.epilog = textwrap.dedent(f"""\
-            Shows the dataset groups and a count of scenarios in each group.
-
-            Valid groups are: { ",".join(CTU_Dataset.get_groups()) }
+            Shows the selected dataset attribute and a count of unique
+            instances.
 
             To see more detailed descriptions of the CTU datasets as a whole,
             or for specific groups, use ``lim ctu overview`` to view the
@@ -51,14 +57,22 @@ class CTUStats(Lister):
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
-        columns = ('GROUP', 'COUNT')
-        count = dict()
-        for k, v in self.ctu_metadata.scenarios.items():
+        columns = (parsed_args.attribute, 'COUNT')
+        count = {}
+        results = [item[0] for item in self.ctu_metadata.get_metadata(
+                      columns=[parsed_args.attribute],
+                      fullnames=True)]
+        for item in results:
+            # Handle null values vs. no key (either way, be consistent)
+            if item == '':
+                item = None
             try:
-                count[v['GROUP']] += 1
+                count[item] += 1
             except KeyError:
-                count[v['GROUP']] = 1
-        data = [(r, count[r]) for r in count]
+                count[item] = 1
+        data = [(r, count[r]) for r in sorted(count,
+                                              key=count.get,
+                                              reverse=True)]
         return columns, data
 
 

@@ -120,7 +120,7 @@
             }
         },
         {
-            "name": "lim ctu stats",
+            "name": "lim ctu stats PROBABLE_NAME",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -129,7 +129,8 @@
             "args": [
                 "--debug",
                 "ctu",
-                "stats"
+                "stats",
+                "PROBABLE_NAME"
             ],
             "stopOnEntry": false,
             "env": {
