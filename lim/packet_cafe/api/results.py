@@ -3,7 +3,6 @@
 import argparse
 import logging
 import textwrap
-import sys
 
 from cliff.command import Command
 from lim.packet_cafe import _valid_counter

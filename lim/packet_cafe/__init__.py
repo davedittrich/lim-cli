@@ -108,6 +108,14 @@ def get_session_ids():
         return None
 
 
+def flatten(dict_item):
+    """Flatten lists in dictionary values for better formatting."""
+    flat_dict = {}
+    for k, v in dict_item.items():
+        flat_dict[k] = ",".join(v) if type(v) is list else v
+    return flat_dict
+
+
 def get_requests(sess_id=None):
     """Get requests for a session from packet-cafe admin service."""
     # TODO(dittrich): Mock this for unit testing.
@@ -126,7 +134,7 @@ def get_requests(sess_id=None):
     response = requests.request("GET", url)
     if response.status_code == 200:
         results = json.loads(response.text)
-        return [(i) for i in results]
+        return [(flatten(i)) for i in results]
     else:
         return None
 
@@ -191,7 +199,8 @@ def get_workers():
     """Get details about workers."""
     response = requests.request("GET", f'{ CAFE_API_URL }/tools')
     if response.status_code == 200:
-        return json.loads(response.text)['workers']
+        return [flatten(worker) for worker in
+                json.loads(response.text)['workers']]
     else:
         return None
 
