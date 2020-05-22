@@ -3,6 +3,7 @@
 # See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-tools
 
 import argparse
+import logging
 import json
 import os
 import requests
@@ -30,6 +31,8 @@ CAFE_UI_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/'
 CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
 LAST_SESSION_STATE = '.packet_cafe_last_session_id'
 LAST_REQUEST_STATE = '.packet_cafe_last_request_id'
+
+logger = logging.getLogger(__name__)
 
 
 def add_packet_cafe_global_options(parser):
@@ -381,6 +384,14 @@ def set_last_request_id(req_id=None):
     return True
 
 
+def check_remind_defaulting(arg=None, thing="argument"):
+    """Log a reminder when argument is implicitly being reused."""
+    if arg is not None:
+        if str(arg) not in sys.argv:
+            logger.info(f'[+] implicitly reusing { thing } { arg }')
+    return arg
+
+
 __all__ = [
     CAFE_SERVER,
     CAFE_ADMIN_PORT,
@@ -401,11 +412,12 @@ __all__ = [
     get_raw,
     upload,
     stop,
+    track_progress,
     get_last_session_id,
     set_last_session_id,
     get_last_request_id,
     set_last_request_id,
-    track_progress,
+    check_remind_defaulting,
 ]
 
 

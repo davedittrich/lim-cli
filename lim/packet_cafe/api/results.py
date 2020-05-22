@@ -3,10 +3,12 @@
 import argparse
 import logging
 import textwrap
+import sys
 
 from cliff.command import Command
-from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import _valid_counter
+from lim.packet_cafe import add_packet_cafe_global_options
+from lim.packet_cafe import check_remind_defaulting
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_request_ids
 from lim.packet_cafe import get_session_ids
@@ -60,13 +62,19 @@ class Results(Command):
         logger.debug('[+] get tool output')
         ids = get_session_ids()
         if parsed_args.sess_id is not None:
-            sess_id = parsed_args.sess_id
+            sess_id = check_remind_defaulting(
+                parsed_args.sess_id, 'last session id')
         else:
-            sess_id = chose_wisely(from_list=ids, what="session")
+            sess_id = chose_wisely(
+                from_list=ids,
+                what="session",
+                cancel_throws_exception=True
+            )
         if sess_id not in ids:
             raise RuntimeError(f'Session ID { sess_id } not found')
         if parsed_args.req_id is not None:
-            req_id = parsed_args.req_id
+            req_id = check_remind_defaulting(
+                parsed_args.req_id, 'last request id')
         else:
             req_id = chose_wisely(
                 from_list=get_request_ids(sess_id=sess_id),
