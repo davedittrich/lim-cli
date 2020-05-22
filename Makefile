@@ -38,6 +38,7 @@ test: test-tox test-bats
 test-tox:
 	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
 	tox
+	-git checkout ChangeLog
 
 .PHONY: test-bats
 test-bats: bats-libraries
@@ -153,6 +154,7 @@ docs:
 	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
 	 cd docs && \
 	 make clean html)
+	-git checkout ChangeLog
 
 #HELP examples - produce some example output for docs
 .PHONY: examples
