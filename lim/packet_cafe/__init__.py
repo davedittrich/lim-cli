@@ -179,7 +179,7 @@ def get_tools():
     workers = get_workers()
     tools = [
         worker['name'] for worker in workers
-        if 'file' in worker['outputs']
+        if worker['viewableOutput']
     ]
     return tools
 

@@ -538,6 +538,24 @@
             }
         },
         {
+            "name": "lim cafe results",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim.main",
+            "args": [
+                "--debug",
+                "cafe",
+                "results"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "lim cafe results bd976556-fbc3-4e2e-a808-7024c0c0f69b 9e74cc6f818c47ea9cd8c8ab94ce93db --tool p0f",
             "type": "python",
             "request": "launch",

@@ -10,6 +10,7 @@ from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_request_ids
 from lim.packet_cafe import get_session_ids
+from lim.packet_cafe import get_tools
 from lim.packet_cafe import get_worker_output
 from lim.packet_cafe import get_last_session_id
 from lim.packet_cafe import get_last_request_id
@@ -72,7 +73,15 @@ class Results(Command):
                 what="a request",
                 cancel_throws_exception=True
             )
-        results = get_worker_output(tool=parsed_args.tool,
+        tool = parsed_args.tool
+        if tool is None:
+            tools = get_tools()
+            tool = chose_wisely(
+                from_list=tools,
+                what="a tool",
+                cancel_throws_exception=True
+            )
+        results = get_worker_output(tool=tool,
                                     counter=parsed_args.counter,
                                     sess_id=sess_id,
                                     req_id=req_id)
