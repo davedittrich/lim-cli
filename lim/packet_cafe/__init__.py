@@ -208,9 +208,15 @@ def get_workers():
 def get_status(sess_id=None, req_id=None, raise_exception=True):
     """Get status for session ID + request ID."""
     if sess_id is None:
-        raise RuntimeError('sess_id must not be None')
+        if raise_exception:
+            raise RuntimeError('sess_id must not be None')
+        else:
+            return None
     if req_id is None:
-        raise RuntimeError('req_id must not be None')
+        if raise_exception:
+            raise RuntimeError('req_id must not be None')
+        else:
+            return None
     url = f'{ CAFE_API_URL }/status/{ sess_id }/{ req_id }'
     response = requests.request("GET", url)
     if response.status_code == 200:
@@ -354,6 +360,8 @@ def get_last_session_id():
     if not os.path.exists(LAST_SESSION_STATE):
         return None
     sess_ids = get_session_ids()
+    if sess_ids is None:
+        return None
     with open(LAST_SESSION_STATE, 'r') as sf:
         sess_id = sf.read().strip()
         if sess_id in sess_ids:
@@ -384,7 +392,10 @@ def get_last_request_id():
     If the request does not exist in the server, deletes the
     state file and returns None.
     """
-    sess_id = get_last_session_id()
+    try:
+        sess_id = get_last_session_id()
+    except RuntimeError:
+        return None
     if not os.path.exists(LAST_REQUEST_STATE):
         return None
     with open(LAST_REQUEST_STATE, 'r') as sf:
