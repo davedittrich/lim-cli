@@ -55,17 +55,19 @@ class Upload(Command):
 
             .. code-block:: console
 
-                $ lim cafe upload test.pcap
-                test.pcap success sess_id: 30b9ce67-75a4-49e6-b484-c4646b72fbd9 req_id: d38e7c1e0fc447d895716e2fa7d0b1af
-                ncapture complete 2020-05-15T07:12:42.294824+00:00
-                pcap-dot1q complete 2020-05-15T07:12:44.127325+00:00
-                pcap-stats complete 2020-05-15T07:12:44.252338+00:00
-                mercury complete 2020-05-15T07:12:45.693859+00:00
-                snort complete 2020-05-15T07:12:49.101549+00:00
-                pcap-splitter complete 2020-05-15T07:12:52.981766+00:00
-                pcapplot complete 2020-05-15T07:13:22.872526+00:00
-                networkml complete 2020-05-15T07:13:32.370534+00:00
-                p0f complete 2020-05-15T07:13:46.141741+00:00
+                $ lim cafe upload ~/git/packet_cafe/notebooks/smallFlows.pcap
+                [+] Upload smallFlows.pcap: success
+                [+] Session ID (sess_id): 30b9ce67-75a4-49e6-b484-c4646b72fbd9
+                [+] Request ID (req_id): 4e058115ed19491193eadf58f105032b
+                [+] pcap-stats:    complete 2020-05-23T17:29:56.982084+00:00
+                [+] pcap-dot1q:    complete 2020-05-23T17:29:55.773211+00:00
+                [+] ncapture:      complete 2020-05-23T17:29:53.333307+00:00
+                [+] mercury:       complete 2020-05-23T17:29:59.330288+00:00
+                [+] snort:         complete 2020-05-23T17:30:02.781840+00:00
+                [+] pcap-splitter: complete 2020-05-23T17:31:10.060056+00:00
+                [+] networkml:     complete 2020-05-23T17:32:13.648982+00:00
+                [+] p0f:           complete 2020-05-23T17:32:21.438466+00:00
+                [+] pcapplot:      complete 2020-05-23T17:33:05.999342+00:00
 
             ..
 
@@ -79,7 +81,9 @@ class Upload(Command):
             .. code-block:: console
 
                 $ lim cafe upload test.pcap --no-track
-                test.pcap success sess_id: 869d63d7-a46f-4221-8d59-610d9801e6a1 req_id: 79753a3b88af4f7e8a9e8462c2f9d50f
+                [+] Upload test.pcap: success
+                [+] Session ID (sess_id): d7c9eaaa-6360-44d0-b821-097b17d1b4fb
+                [+] Request ID (req_id): 20c34e04b91a4fed9b4f876e67a218c9
                 $ lim cafe status
                 +------------+-------------+----------------------------------+
                 | Tool       | State       | Timestamp                        |
