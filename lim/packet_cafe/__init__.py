@@ -290,6 +290,23 @@ def stop(sess_id=None, req_id=None, raise_exception=True):
         return None
 
 
+def delete(sess_id=None, raise_exception=True):
+    """Delete data for a session."""
+    if sess_id is None:
+        raise RuntimeError('sess_id must not be None')
+    url = f'{ CAFE_ADMIN_URL }/id/delete/{ sess_id }'
+    response = requests.request("GET", url)
+    if response.status_code == 200:
+        return json.loads(response.text)
+    elif raise_exception:
+        raise RuntimeError(
+            'packet-cafe returned response: '
+            f'{ response.status_code } { response.reason }'
+        )
+    else:
+        return None
+
+
 def track_progress(sess_id=None, req_id=None, debug=False):
     """Track the progress of workers similar to the web UI."""
     if sess_id is None:
@@ -421,6 +438,7 @@ __all__ = [
     get_raw,
     upload,
     stop,
+    delete,
     track_progress,
     get_last_session_id,
     set_last_session_id,
