@@ -45,6 +45,8 @@ class Sessions(Lister):
         logger.debug('[+] listing session ids')
         columns = ['SessionId']
         data = [[row] for row in get_session_ids()]
+        if not bool(len(data)):
+            logger.info('[-] packet-cafe server has no sessions')
         return (columns, data)
 
 
