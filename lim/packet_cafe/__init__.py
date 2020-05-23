@@ -217,7 +217,7 @@ def get_status(sess_id=None, req_id=None, raise_exception=True):
         return json.loads(response.text)
     elif raise_exception:
         raise RuntimeError(
-            'packet-cafe returned response '
+            'packet-cafe returned response: '
             f'{ response.status_code } { response.reason }'
         )
     else:
@@ -240,7 +240,7 @@ def get_raw(tool=None, counter=1, sess_id=None, req_id=None):
         return None
 
 
-def upload(fname=None, sessionId=None):
+def upload(fpath=None, sessionId=None):
     """Upload PCAP file to packet-cafe service for processing."""
 
     # Form data parameters
@@ -249,7 +249,9 @@ def upload(fname=None, sessionId=None):
     #
     if sessionId is None:
         sessionId = uuid.uuid4()
-    with open(fname, 'rb') as f:
+    # Only pass file basename to API
+    fname = os.path.basename(fpath)
+    with open(fpath, 'rb') as f:
         files = {'file': (fname, f.read())}
         data = {'sessionId': str(sessionId)}
         response = requests.post(f'{ CAFE_API_URL }/upload',
@@ -266,7 +268,7 @@ def upload(fname=None, sessionId=None):
         return result
     else:
         raise RuntimeError(
-            'packet-cafe returned response '
+            'packet-cafe returned response: '
             f'{ response.status_code } { response.reason }'
         )
 
@@ -283,7 +285,7 @@ def stop(sess_id=None, req_id=None, raise_exception=True):
         return json.loads(response.text)
     elif raise_exception:
         raise RuntimeError(
-            'packet-cafe returned response '
+            'packet-cafe returned response: '
             f'{ response.status_code } { response.reason }'
         )
     else:
@@ -314,6 +316,7 @@ def track_progress(sess_id=None, req_id=None, debug=False):
     if req_id is None:
         raise RuntimeError('req_id must not be None')
     workers = [worker['name'] for worker in get_workers()]  # noqa
+    max_worker_len = max([len(i) for i in workers])
     reported = dict()
     last_status = {}
     while True:
@@ -333,8 +336,8 @@ def track_progress(sess_id=None, req_id=None, debug=False):
                 status[worker]['state'] not in ["Queued", "In progress"]
                 and worker not in reported
             ):
-                print(f"{ worker } "
-                      f"{ status[worker]['state'].lower() } "
+                print("[+] {0:{1}}".format(worker + ':', max_worker_len + 2) +
+                      f"{ status[worker]['state'].lower() } " +
                       f"{ status[worker]['timestamp'] }")
                 reported[worker] = True
         if len(reported) == len(workers):

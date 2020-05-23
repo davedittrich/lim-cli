@@ -116,18 +116,18 @@ class Upload(Command):
         # Avoid the confusing double-negative if statement
         track_status = (self.app.options.verbose_level > 0
                         and parsed_args.no_track is not True)
-        fname = parsed_args.pcap[0]
+        fpath = parsed_args.pcap[0]
         if parsed_args.sessionId == "last":
             parsed_args.sessionId = get_last_session_id()
-        if not os.path.exists(fname):
-            raise RuntimeError(f'file { fname } not found')
-        result = upload(fname=fname, sessionId=parsed_args.sessionId)
+        if not os.path.exists(fpath):
+            raise RuntimeError(f'file { fpath } not found')
+        result = upload(fpath=fpath, sessionId=parsed_args.sessionId)
         if self.app.options.verbose_level > 0:
             # NOTE(dittrich): Don't forget: 'req_id' is 'uuid' in result
-            readable_result = (f"{ result['filename'] } "
-                               f"{ result['status'].lower() } "
-                               f"sess_id: { result['sess_id'] } "
-                               f"req_id: { result['uuid'] }")
+            readable_result = (
+                f"[+] Upload { result['filename'] }: { result['status'].lower() }\n"  # noqa
+                f"[+] Session ID (sess_id): { result['sess_id'] }\n"
+                f"[+] Request ID (req_id): { result['uuid'] }")
             logger.info(readable_result)
         if track_status:
             track_progress(sess_id=result['sess_id'],
