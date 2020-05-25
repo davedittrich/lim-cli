@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.5.0
+VERSION:=20.5.1
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -63,15 +63,15 @@ no-diffs:
 
 #HELP release - package and upload a release to pypi
 .PHONY: release
-release: clean docs-tests docs-help docs sdist twine-check
+release: clean docs-tests docs-help docs sdist bdist_wheel twine-check
 	$(MAKE) no-diffs
-	twine upload dist/*.tar.gz -r pypi
+	twine upload dist/* -r pypi
 
 #HELP release-test - upload to "testpypi"
 .PHONY: release-test
-release-test: clean docs-tests docs-help docs sdist twine-check
+release-test: clean docs-tests docs-help docs sdist bdist_wheel twine-check
 	$(MAKE) no-diffs
-	twine upload dist/*.tar.gz -r testpypi
+	twine upload dist/* -r testpypi
 
 #HELP sdist - build a source package
 .PHONY: sdist
@@ -80,6 +80,14 @@ sdist: docs
 	python setup.py sdist
 	(cd dist && ls -t *.tar.gz 2>/dev/null | head -n 1) > dist/.LATEST_TARGZ
 	ls -lt dist/*.tar.gz
+
+#HELP bdist_wheel - build a universal binary wheel
+.PHONY: bdist_wheel
+bdist_wheel:
+	rm -f dist/.LATEST_WHEEL
+	python setup.py bdist_wheel --universal
+	(cd dist && ls -t *.whl 2>/dev/null | head -n 1) > dist/.LATEST_WHEEL
+	ls -lt dist/*.whl
 
 #HELP twine-check
 .PHONY: twine-check
@@ -124,9 +132,8 @@ install:
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
 .PHONY: install
-i install-active: sdist
-	python -m pip install -U "dist/$(shell cat dist/.LATEST_TARGZ)"
-	$(MAKE) docs-help
+i install-active: bdist_wheel
+	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
 
 #HELP docs-tests - generate bats test output for documentation
 .PHONY: docs-tests
@@ -143,9 +150,7 @@ docs-tests:
 docs-help:
 	(export LIM_DATA_DIR='/path/to/data'; \
 	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
-	 python -m lim.main help |\
-		sed 's/lim.main/lim/g' |\
-		sed 's/main.py/lim/g') > docs/lim-help.txt
+	 python -m lim help) > docs/lim-help.txt
 
 #HELP docs - build Sphinx docs (NOT INTEGRATED YET FROM OPENSTACK CODE BASE)
 .PHONY: docs

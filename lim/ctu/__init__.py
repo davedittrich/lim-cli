@@ -17,7 +17,7 @@ import warnings
 from bs4 import BeautifulSoup
 from collections import OrderedDict
 from datetime import datetime
-from lim.main import BUFFER_SIZE
+from lim import BUFFER_SIZE
 from lim.utils import safe_to_open
 from lim.utils import LineReader
 from urllib3.exceptions import InsecureRequestWarning

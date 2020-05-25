@@ -6,7 +6,7 @@ import textwrap
 
 from cliff.command import Command
 from lim import __version__
-from lim.main import copyright
+from lim import copyright
 
 
 class About(Command):

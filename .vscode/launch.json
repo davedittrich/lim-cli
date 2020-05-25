@@ -22,7 +22,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "help"
@@ -39,7 +39,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--version"
             ],
@@ -55,7 +55,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "about"
@@ -72,7 +72,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "",
                 "complete"
@@ -89,7 +89,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -107,7 +107,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -125,7 +125,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -144,7 +144,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -163,7 +163,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -183,7 +183,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -203,7 +203,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -225,7 +225,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -247,7 +247,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -269,7 +269,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -291,7 +291,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -316,7 +316,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -337,7 +337,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -360,7 +360,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-vv",
@@ -381,7 +381,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -402,7 +402,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -423,7 +423,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -442,7 +442,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "ctu",
@@ -463,7 +463,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -482,7 +482,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -501,7 +501,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -520,7 +520,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -540,7 +540,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -562,7 +562,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -580,7 +580,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -602,7 +602,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -621,7 +621,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -640,7 +640,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -659,7 +659,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -677,7 +677,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -696,7 +696,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -714,7 +714,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -734,7 +734,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -752,7 +752,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -770,7 +770,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -788,7 +788,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "cafe",
@@ -807,7 +807,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "cafe",
                 "upload",
@@ -825,7 +825,7 @@
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
-            "module": "lim.main",
+            "module": "lim",
             "args": [
                 "--debug",
                 "-q",

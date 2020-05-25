@@ -13,14 +13,22 @@ import re
 
 from setuptools import find_packages, setup
 
-
-PROJECT = 'lim-cli'
+# Package meta-data.
+NAME = 'lim-cli'
+DESCRIPTION = 'LiminalInfo command line app.'
+URL = 'https://github.com/davedittrich/lim-cli'
+DOWNLOAD_URL = 'https://github.com/davedittrich/lim-cli/tarball/master'
+EMAIL = 'dave.dittrich@gmail.com'
+AUTHOR = 'Dave Dittrich'
+PYTHON_REQUIRES = '>=3.6.0'
 
 try:
     with open('README.rst') as readme_file:
         long_description = readme_file.read()
+        long_description_content_type = "text/x-rst"
 except IOError:
     long_description = ''
+    long_description_content_type = "text/plain"
 
 try:
     with open('HISTORY.rst') as history_file:
@@ -48,27 +56,23 @@ def get_absolute_path(*args):
 
 
 setup(
-    name='lim-cli',
+    name=NAME,
     pbr=True,
-    # version=get_version('lim', '__init__.py'),
-    #
-    description="Python CLI for LiminalAI",
+    description=DESCRIPTION,
     long_description=long_description + "\n\n" + history,
-    long_description_content_type="text/x-rst",
 
-    author="Dave Dittrich",
-    author_email='dave.dittrich@gmail.com',
+    author=AUTHOR,
+    author_email=EMAIL,
 
-    url='https://github.com/davedittrich/lim-cli',
-    download_url='https://github.com/davedittrich/lim-cli/tarball/master',
+    url=URL,
+    download_url=DOWNLOAD_URL,
 
     namespace_packages=[],
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     package_dir={'lim':
                  'lim'},
     include_package_data=True,
-
-    python_requires='>=3.6,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*',
+    python_requires=PYTHON_REQUIRES,
     install_requires=get_contents('requirements.txt'),
 
     license="Apache Software License",
@@ -84,13 +88,15 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Topic :: Security',
+        'Topic :: Utilities',
     ],
 
     test_suite='tests',
 
     entry_points={
         'console_scripts': [
-            'lim = lim.main:main',
+            'lim = lim.__main__:main',
         ],
         'lim': [
             'about = lim.about:About',
