@@ -8,12 +8,12 @@ version_info = pbr.version.VersionInfo('lim')
 try:
     __version__ = version_info.version_string()
 except AttributeError:
-    __version__ = '20.5.0'
+    __version__ = '20.5.1'
 
 try:
     __release__ = version_info.release_string()
 except AttributeError:
-    __release__ = '20.5.0'
+    __release__ = '20.5.1'
 
 this_year = datetime.datetime.today().year
 COPYRIGHT = f"""
