@@ -26,31 +26,43 @@ class CTUOverview(Command):
             choices=self.__BROWSERS__,
             # default=self.__BROWSERS__[0],
             # help="Browser to use for viewing " +
-            #      "(default: {}).".format(self.__BROWSERS__[0])
+            #      "(default: {})".format(self.__BROWSERS__[0])
             default=None,
             help="Browser to use for viewing " +
-                 "(default: {}).".format(None)
+                 "(default: {})".format(None)
         )
+        cache_file = CTU_Dataset.get_cache_file()
         parser.add_argument(
             '--cache-file',
             action='store',
             dest='cache_file',
-            default=None,
-            help="Cache file path (default: None)."
+            default=cache_file,
+            help=('Cache file path for CTU metadata '
+                  '(Env: ``LIM_CTU_CACHE``; '
+                  f'default: { cache_file })')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)."
+            help="Ignore any cached results (default: False)"
         )
         parser.add_argument(
             'scenario',
             nargs='*',
             default=None)
         parser.epilog = textwrap.dedent("""\
-           \n""") + CTU_Dataset.get_disclaimer()
+           Opens a browser for the web page containing the scenario
+           descriptions and data links.
+
+           Arguments are scenario names using either the full name
+           form (e.g., ``CTU-Malware-Capture-Botnet-123-1``) or an
+           abbreviated form (e.g., ``Botnet-123-1``).
+
+           The URL to use is the one seen in the ``SCENARIO_URL`` column
+           of the output of the ``lim ctu list`` command.
+           """)
         return parser
 
     def take_action(self, parsed_args):

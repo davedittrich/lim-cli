@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.5.0
+VERSION:=20.5.1
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -20,8 +20,6 @@ help:
 	@echo 'test-bats-runtime - run Bats runtime integration/system tests'
 	@echo 'release - produce a pypi production release'
 	@echo 'release-test - produce a pypi test release'
-	@echo 'egg - run "python setup.py bdist_egg"'
-	@echo 'wheel - run "python setup.py bdist_wheel"'
 	@echo 'sdist - run "python setup.py sdist"'
 	@echo 'twine-check - run "twine check"'
 	@echo 'install - install pip package'
@@ -40,6 +38,7 @@ test: test-tox test-bats
 test-tox:
 	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
 	tox
+	-git checkout ChangeLog
 
 .PHONY: test-bats
 test-bats: bats-libraries
@@ -59,35 +58,20 @@ test-bats-runtime: bats-libraries
 .PHONY: no-diffs
 no-diffs:
 	@echo 'Checking Git for uncommitted changes'
+	git checkout ChangeLog
 	git diff --quiet HEAD
 
 #HELP release - package and upload a release to pypi
 .PHONY: release
-release: clean docs-tests docs-help docs sdist test twine-check
+release: clean docs-tests docs-help docs sdist bdist_wheel twine-check
 	$(MAKE) no-diffs
 	twine upload dist/* -r pypi
 
 #HELP release-test - upload to "testpypi"
 .PHONY: release-test
-release-test: clean docs-tests docs-help docs sdist test twine-check
+release-test: clean docs-tests docs-help docs sdist bdist_wheel twine-check
 	$(MAKE) no-diffs
 	twine upload dist/* -r testpypi
-
-#HELP egg - build an egg package
-.PHONY: egg
-egg:
-	rm -f dist/.LATEST_EGG
-	python setup.py bdist_egg
-	(cd dist && ls -t *.egg 2>/dev/null | head -n 1) > dist/.LATEST_EGG
-	ls -lt dist/*
-
-#HELP wheel - build a wheel package
-.PHONY: wheel
-wheel:
-	rm -f dist/.LATEST_WHEEL
-	python setup.py bdist_wheel
-	(cd dist && ls -t *.whl 2>/dev/null | head -n 1) > dist/.LATEST_WHEEL
-	ls -lt dist/*.whl
 
 #HELP sdist - build a source package
 .PHONY: sdist
@@ -97,10 +81,18 @@ sdist: docs
 	(cd dist && ls -t *.tar.gz 2>/dev/null | head -n 1) > dist/.LATEST_TARGZ
 	ls -lt dist/*.tar.gz
 
+#HELP bdist_wheel - build a universal binary wheel
+.PHONY: bdist_wheel
+bdist_wheel:
+	rm -f dist/.LATEST_WHEEL
+	python setup.py bdist_wheel --universal
+	(cd dist && ls -t *.whl 2>/dev/null | head -n 1) > dist/.LATEST_WHEEL
+	ls -lt dist/*.whl
+
 #HELP twine-check
 .PHONY: twine-check
-twine-check: egg
-	twine check dist/"$(shell cat dist/.LATEST_EGG)"
+twine-check: sdist
+	twine check dist/"$(shell cat dist/.LATEST_TARGZ)"
 
 #HELP clean - remove build artifacts
 .PHONY: clean
@@ -140,17 +132,8 @@ install:
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
 .PHONY: install
-i install-active: wheel
+i install-active: bdist_wheel
 	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
-	$(MAKE) docs-help
-
-.PHONY: install-instance
-install-instance: wheel
-	if ssh xgt true 2>/dev/null; \
-	then \
-		scp dist/$(shell cat dist/.LATEST_WHEEL) xgt:; \
-		ssh xgt sudo -H python3 -m pip install -U $(shell cat dist/.LATEST_WHEEL); \
-	fi
 
 #HELP docs-tests - generate bats test output for documentation
 .PHONY: docs-tests
@@ -165,15 +148,18 @@ docs-tests:
 #HELP docs-help - generate "lim help" output for documentation
 .PHONY: docs-help
 docs-help:
-	(unset LIM_DATA_DIR; \
-	 python -m lim.main help |\
-		sed 's/lim.main/lim/g' |\
-		sed 's/main.py/lim/g') > docs/lim-help.txt
+	(export LIM_DATA_DIR='/path/to/data'; \
+	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
+	 python -m lim help) > docs/lim-help.txt
 
 #HELP docs - build Sphinx docs (NOT INTEGRATED YET FROM OPENSTACK CODE BASE)
 .PHONY: docs
 docs:
-	(cd docs && make clean html)
+	(export LIM_DATA_DIR='/path/to/data'; \
+	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
+	 cd docs && \
+	 make clean html)
+	-git checkout ChangeLog
 
 #HELP examples - produce some example output for docs
 .PHONY: examples

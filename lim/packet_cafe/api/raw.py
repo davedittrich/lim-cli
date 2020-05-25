@@ -13,9 +13,11 @@ from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_request_ids
 from lim.packet_cafe import get_session_ids
+from lim.packet_cafe import get_tools
 from lim.packet_cafe import get_raw
 from lim.packet_cafe import get_last_session_id
 from lim.packet_cafe import get_last_request_id
+from lim.packet_cafe import check_remind_defaulting
 from pygments import formatters
 from pygments import highlight
 from pygments import lexers
@@ -108,20 +110,34 @@ class Raw(Command):
         logger.debug('[+] get raw results')
         ids = get_session_ids()
         if parsed_args.sess_id is not None:
-            sess_id = parsed_args.sess_id
+            sess_id = check_remind_defaulting(
+                parsed_args.sess_id, 'last session id')
         else:
-            sess_id = chose_wisely(from_list=ids, what="session")
+            sess_id = chose_wisely(
+                from_list=ids,
+                what="session",
+                cancel_throws_exception=True
+            )
         if sess_id not in ids:
             raise RuntimeError(f'Session ID { sess_id } not found')
         if parsed_args.req_id is not None:
-            req_id = parsed_args.req_id
+            req_id = check_remind_defaulting(
+                parsed_args.req_id, 'last request id')
         else:
             req_id = chose_wisely(
                 from_list=get_request_ids(sess_id=sess_id),
                 what="a request",
                 cancel_throws_exception=True
             )
-        results = get_raw(tool=parsed_args.tool,
+        tool = parsed_args.tool
+        if tool is None:
+            tools = get_tools()
+            tool = chose_wisely(
+                from_list=tools,
+                what="a tool",
+                cancel_throws_exception=True
+            )
+        results = get_raw(tool=tool,
                           counter=parsed_args.counter,
                           sess_id=sess_id,
                           req_id=req_id)

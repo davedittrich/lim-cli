@@ -12,9 +12,9 @@ services under development. Later, some of the functionality was used for
 a client engagement involving creation of materials for developing security
 operations analyst skills.
 
-Then, in January 2020, a novel Carona virus took hold in the world and put
-our novel business in an induced coma, its founders isolated under "stay
-at home" orders, with an uncertain future.
+Then, in January 2020, a novel coronavirus took hold all around the world
+and put our novel business in an induced coma, its founders isolated under
+"stay at home" orders, with an uncertain future...
 
 What better time to release this tool, demonstrate how it can be used,
 and see where it leads? :)

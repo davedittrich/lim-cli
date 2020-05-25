@@ -17,7 +17,7 @@ import warnings
 from bs4 import BeautifulSoup
 from collections import OrderedDict
 from datetime import datetime
-from lim.main import BUFFER_SIZE
+from lim import BUFFER_SIZE
 from lim.utils import safe_to_open
 from lim.utils import LineReader
 from urllib3.exceptions import InsecureRequestWarning
@@ -38,8 +38,7 @@ def unhex(x):
 # TODO(dittrich): Add support for IPv6
 def IPv4ToID(x):
     """
-    Convert IPv4 dotted-quad address to INT for more
-    efficient use with xGT.
+    Convert IPv4 dotted-quad address to INT.
     """
 
 #     try:
@@ -68,7 +67,7 @@ def download_ctu_netflow(url=None,
     Get CTU Netflow data BZ2 file, decompressing into
     CSV data file. This function also filters input by
     row and/or column to produce "clean" data for use
-    by xGT without further post-load processing.
+    without further post-load processing.
 
     Examples of (randomly sampled) first lines:
     Botnet 17-1:  'StartTime,Dur,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,State,sTos,dTos,TotPkts,TotBytes,SrcBytes,srcUdata,dstUdata,Label\n'
@@ -112,7 +111,7 @@ def download_ctu_netflow(url=None,
                     except Exception as err:  # noqa
                         pass
                     # Convert ICMP hex fields to decimal values so all ports
-                    # can be inserted into xGT as INT instead of TEXT.
+                    # can be inserted into tables as INT instead of TEXT.
                     if fields[2] == 'icmp':
                         fields[4] = unhex(fields[4])
                         fields[7] = unhex(fields[7])
@@ -170,7 +169,13 @@ class CTU_Dataset(object):
     __DEFAULT_GROUP__ = 'malware'
     __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
-    __CACHE_FILE__ = "ctu-cache.json"
+    # Put the cache file in user's home directory by default
+    # (or fall back to cwd, just to be robust).
+    __CACHE_FILE__ = os.environ.get(
+        'LIM_CTU_CACHE',
+        os.path.join(os.getenv('HOME', os.getcwd()),
+                     '.lim-ctu-cache.json')
+        )
     __CACHE_TIMEOUT__ = 60 * 60 * 24 * 30  # secs * mins * hours * days
     # These are fields associated with files that can be downloaded.
     __ATTRIBUTES__ = [
@@ -248,6 +253,14 @@ class CTU_Dataset(object):
         self.columns = self.get_columns()
         self.groups = self.get_groups()
         pass
+
+    @classmethod
+    def get_cache_file(cls):
+        """Return path to CTU cache file."""
+        try:
+            return cls.cache_file
+        except AttributeError:
+            return cls.__CACHE_FILE__
 
     @classmethod
     def get_ctu_datasets_overview_url(cls):
@@ -378,7 +391,7 @@ class CTU_Dataset(object):
             except Exception as err:  # noqa
                 result = None
         else:
-            raise RuntimeError('getting attribute "{}"'.format(attribute) +
+            raise RuntimeError('getting attribute "{}" '.format(attribute) +
                                'is not supported')
         return result
 
@@ -652,6 +665,8 @@ class CTU_Dataset(object):
         cliff, following the order of elements in 'columns'.
         """
         data = []
+        if groups is None:
+            groups = self.groups
         for (scenario, attributes) in self.scenarios.items():
             if '_SUCCESS' in attributes and not attributes['_SUCCESS']:
                 continue
@@ -673,9 +688,9 @@ class CTU_Dataset(object):
                 find = page.find(description_includes.lower())
                 match = match and (find != -1)
             if has_hash is not None:
-                match = match and (has_hash == attributes['MD5'] or
-                                   has_hash == attributes['SHA1'] or
-                                   has_hash == attributes['SHA256'])
+                match = match and (has_hash == attributes.get('MD5', '') or
+                                   has_hash == attributes.get('SHA1', '') or
+                                   has_hash == attributes.get('SHA256', ''))
             if not match:
                 continue
             row = dict()

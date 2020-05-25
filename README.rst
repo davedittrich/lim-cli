@@ -13,7 +13,8 @@ lim
 ..         :alt: Documentation Status
 
 
-Python CLI for LiminalAI.
+Python CLI for accessing, manipulating, and processing computer and network
+security information (e.g., PCAP, Netflow, etc.)
 
 * License: Apache 2.0 License
 * Documentation: https://lim.readthedocs.io/en/latest/
@@ -23,54 +24,12 @@ Features
 --------
 
 * Uses the `openstack/cliff`_ command line framework.
+* Serves as a CLI for the `CTU Malware Capture Facility Datasets`_
+* Serves as a CLI for In-Q-Tel Labs' "`Packet Cafe`_" service
+* Provides basic PCAP file manipulation capabilities
 
-.. _openstack/cliff: https://github.com/openstack/cliff
-
-Usage information for subcommands is available in the **Usage** section.
-This section covers high-level concepts related to the ``lim`` app.
-
-Output formatting
------------------
-
-One of the benefits of the Cliff framework is the ability to switch from the
-table output seen earlier to another output format, such as JSON, CSV, or in
-certain cases even shell variable definitions.  This helps generalize and
-abstract out into data structures a mechanism to handle the coupling of
-internal program variable names between multiple programs. Rather than
-hard-coding, the template can be used to define the variables and values for a
-given program run.
-
-.. Here are examples of the JSON and CSV output:
-.. 
-.. .. code-block:: console
-.. 
-..     $ lim query show vars zrpattern -f json
-..     [
-..       {
-..         "variable": "port",
-..         "description": "Port number",
-..         "type": "int",
-..         "default": 3128,
-..         "substitute": ""
-..       },
-..       {
-..         "variable": "threshold",
-..         "description": "Threshold in seconds",
-..         "type": "int",
-..         "default": 3,
-..         "substitute": "actThresh"
-..       },
-..       {
-..         "variable": "duration",
-..         "description": "Duration in seconds",
-..         "type": "int",
-..         "default": 3600,
-..         "substitute": "mindur"
-..       }
-..     ]
-..     $ lim query show vars zrpattern -f csv
-..     "variable","description","type","default","substitute"
-..     "port","Port number","int",3128,""
-..     "threshold","Threshold in seconds","int",3,"actThresh"
+.. _openstack/cliff: https://github.com/openstack/clif 
+.. _Packet Cafe: https://www.cyberreboot.org/projects/packet-cafe/
+.. _CTU Malware Capture Facility Datasets: https://www.stratosphereips.org/datasets-overview
 
 .. EOF

@@ -8,8 +8,8 @@ regression errors, or to validate when bugs in dependent libraries
 have been fixed.
 
 There are built-in unit tests for the Python ``lim`` application,
-as well as runtime ``bats`` tests that perform integration tests with
-a running AWS xGT instance.
+as well as runtime ``bats`` tests that perform realtime integration
+or system tests.
 
 .. note::
 
@@ -45,12 +45,18 @@ will look like this:
 Integration tests
 -----------------
 
-The integration tests using ``bats`` require... (TK)
+The integration and system tests using ``bats`` require a live network
+connection and/or a running `packet-cafe`_ server.  Because of this,
+these tests are only run on demand and not as part of basic unit
+testing and code analysis.
 
 
-#. The ``bats`` tests can then be run using the helper ``Makefile`` target
-   ``test-bats-runtime``.
+The ``bats`` tests can then be run using the helper ``Makefile`` target
+``test-bats-runtime``.
 
-   .. literalinclude:: test-bats-runtime.txt
+.. literalinclude:: test-bats-runtime.txt
+
+
+.. _packet-cafe: https://www.cyberreboot.org/projects/packet-cafe/
 
 .. EOF

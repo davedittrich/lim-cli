@@ -6,6 +6,7 @@ import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
+from lim.packet_cafe import check_remind_defaulting
 from lim.packet_cafe import chose_wisely
 from lim.packet_cafe import get_requests
 from lim.packet_cafe import get_session_ids
@@ -30,13 +31,15 @@ class Requests(Lister):
             .. code-block:: console
 
                 $ lim cafe requests --fit-width
-                +--------------------------+--------------------------+-------------------+---------------------------+
-                | Id                       | Filename                 | Original_Filename | Tools                     |
-                +--------------------------+--------------------------+-------------------+---------------------------+
-                | 81778bb8a9b946ba82659732 | trace_81778bb8a9b946ba82 | test.pcap         | ['networkml', 'mercury',  |
-                | baacdb44                 | 659732baacdb44_2020-05-1 |                   | 'pcap-stats', 'snort',    |
-                |                          | 5_01_25_44.pcap          |                   | 'p0f', 'pcapplot']        |
-                +--------------------------+--------------------------+-------------------+---------------------------+
+                [+] implicitly reusing last session id bae5d69c-7180-445d-a8db-22a5ef0872e8
+                +--------------------------+--------------------------+-------------------+--------------------------+
+                | Id                       | Filename                 | Original_Filename | Tools                    |
+                +--------------------------+--------------------------+-------------------+--------------------------+
+                | 13394ad96ef3420094387a6a | trace_13394ad96ef3420094 | test.pcap         | networkml,mercury,pcap-  |
+                | a748490f                 | 387a6aa748490f_2020-05-1 |                   | stats,snort,p0f,pcapplot |
+                |                          | 5_07_25_48.pcap          |                   |                          |
+                +--------------------------+--------------------------+-------------------+--------------------------+
+
 
             ..
 
@@ -50,9 +53,14 @@ class Requests(Lister):
         if len(ids) == 0:
             raise RuntimeError('no sessions found')
         if parsed_args.sess_id is not None:
-            sess_id = parsed_args.sess_id
+            sess_id = check_remind_defaulting(
+                parsed_args.sess_id, 'last session id')
         else:
-            sess_id = chose_wisely(from_list=ids, what="session")
+            sess_id = chose_wisely(
+                from_list=ids,
+                what="session",
+                cancel_throws_exception=True
+            )
         if sess_id not in ids:
             raise RuntimeError(f'Session ID { sess_id } not found')
         #

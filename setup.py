@@ -4,8 +4,8 @@
 # Setup script for the LiminalInfo CLI utility
 #
 # Author: Dave Dittrich <dave.dittrich@gmail.com>
-# Copyright: 2018, Dave Dittrich. 2020,Liminal Information Corp.
-# URL: https://github.com/LiminalInfo/lim
+# Copyright: 2018-2020, Dave Dittrich. 2019-2020, Liminal Information Corp.
+# URL: https://github.com/davedittrich/lim
 
 import codecs
 import os
@@ -13,14 +13,22 @@ import re
 
 from setuptools import find_packages, setup
 
-
-PROJECT = 'lim'
+# Package meta-data.
+NAME = 'lim-cli'
+DESCRIPTION = 'LiminalInfo command line app.'
+URL = 'https://github.com/davedittrich/lim-cli'
+DOWNLOAD_URL = 'https://github.com/davedittrich/lim-cli/tarball/master'
+EMAIL = 'dave.dittrich@gmail.com'
+AUTHOR = 'Dave Dittrich'
+PYTHON_REQUIRES = '>=3.6.0'
 
 try:
     with open('README.rst') as readme_file:
         long_description = readme_file.read()
+        long_description_content_type = "text/x-rst"
 except IOError:
     long_description = ''
+    long_description_content_type = "text/plain"
 
 try:
     with open('HISTORY.rst') as history_file:
@@ -48,26 +56,23 @@ def get_absolute_path(*args):
 
 
 setup(
-    name='lim',
+    name=NAME,
     pbr=True,
-    # version=get_version('lim', '__init__.py'),
-    #
-    description="Python CLI for LiminalAI",
+    description=DESCRIPTION,
     long_description=long_description + "\n\n" + history,
 
-    author="Dave Dittrich",
-    author_email='dave.dittrich@gmail.com',
+    author=AUTHOR,
+    author_email=EMAIL,
 
-    url='https://github.com/davedittrich/lim',
-    download_url='https://github.com/davedittrich/lim/tarball/master',
+    url=URL,
+    download_url=DOWNLOAD_URL,
 
     namespace_packages=[],
-    packages=find_packages(),
+    packages=find_packages(exclude=['tests']),
     package_dir={'lim':
                  'lim'},
     include_package_data=True,
-
-    python_requires='>=3.6',
+    python_requires=PYTHON_REQUIRES,
     install_requires=get_contents('requirements.txt'),
 
     license="Apache Software License",
@@ -91,15 +96,17 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'lim = lim.main:main',
+            'lim = lim.__main__:main',
         ],
         'lim': [
             'about = lim.about:About',
             'ctu get = lim.ctu.get:CTUGet',
             'ctu list = lim.ctu.list:CTUList',
+            'ctu show = lim.ctu.show:CTUShow',
             'ctu stats = lim.ctu.stats:CTUStats',
             'ctu overview = lim.ctu.overview:CTUOverview',
             'cafe about = lim.packet_cafe.about:About',
+            'cafe admin delete = lim.packet_cafe.admin.delete:AdminDelete',
             'cafe admin endpoints = lim.packet_cafe.admin.endpoints:Endpoints',
             'cafe admin files = lim.packet_cafe.admin.files:Files',
             'cafe admin results = lim.packet_cafe.admin.results:Results',

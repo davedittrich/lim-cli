@@ -16,26 +16,36 @@ class CTUStats(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        cache_file = CTU_Dataset.get_cache_file()
         parser.add_argument(
             '--cache-file',
             action='store',
             dest='cache_file',
-            default=None,
-            help="Cache file path (default: None)."
+            default=cache_file,
+            help=('Cache file path '
+                  f'(default: { cache_file })')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)."
+            help="Ignore any cached results (default: False)"
         )
-        parser.epilog = textwrap.dedent("""\
-            Shows the groups and counts of members in each dataset group.
+        parser.add_argument(
+            'attribute',
+            nargs='?',
+            default='GROUP',
+            choices=CTU_Dataset.get_columns(),
+            help='Attribute to quantify (default: "GROUP")'
+        )
+        parser.epilog = textwrap.dedent(f"""\
+            Shows the selected dataset attribute and a count of unique
+            instances.
 
             To see more detailed descriptions of the CTU datasets as a whole,
-            or for specific groups, use ``lim ctu overview`` to go to the appropriate
-            web page.
+            or for specific groups, use ``lim ctu overview`` to view the
+            appropriate web page.
            """)  # noqa
         return parser
 
@@ -47,14 +57,22 @@ class CTUStats(Lister):
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
-        columns = ('GROUP', 'COUNT')
-        count = dict()
-        for k, v in self.ctu_metadata.scenarios.items():
+        columns = (parsed_args.attribute, 'COUNT')
+        count = {}
+        results = [item[0] for item in self.ctu_metadata.get_metadata(
+                      columns=[parsed_args.attribute],
+                      fullnames=True)]
+        for item in results:
+            # Handle null values vs. no key (either way, be consistent)
+            if item == '':
+                item = None
             try:
-                count[v['GROUP']] += 1
+                count[item] += 1
             except KeyError:
-                count[v['GROUP']] = 1
-        data = [(r, count[r]) for r in count]
+                count[item] = 1
+        data = [(r, count[r]) for r in sorted(count,
+                                              key=count.get,
+                                              reverse=True)]
         return columns, data
 
 

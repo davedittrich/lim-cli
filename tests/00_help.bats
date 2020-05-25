@@ -1,8 +1,5 @@
 load test_helper
 
-# See definition of LIM in test_helpers.bash for why "main" is used
-# in tests.
-
 setup() {
     true
 }
@@ -25,6 +22,7 @@ teardown() {
     run bash -c "$LIM cafe --help"
     assert_output 'Command "cafe" matches:
   cafe about
+  cafe admin delete
   cafe admin endpoints
   cafe admin files
   cafe admin info
@@ -48,6 +46,7 @@ teardown() {
   ctu get
   ctu list
   ctu overview
+  ctu show
   ctu stats'
 }
 
@@ -61,7 +60,7 @@ teardown() {
 
 @test "'lim --version' works" {
     run $LIM --version
-    assert_output --partial "main"
+    assert_output --partial "lim"
 }
 
 # vim: set ts=4 sw=4 tw=0 et :

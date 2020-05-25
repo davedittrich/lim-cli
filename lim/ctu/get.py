@@ -9,7 +9,7 @@ import sys
 
 from cliff.command import Command
 from lim.ctu import CTU_Dataset
-from lim.main import DEFAULT_PROTOCOLS
+from lim import DEFAULT_PROTOCOLS
 
 
 class CTUGet(Command):
@@ -25,7 +25,7 @@ class CTUGet(Command):
             action='store_true',
             dest='force',
             default=False,
-            help="Force over-writing files if they exist (default: False)."
+            help="Force over-writing files if they exist (default: False)"
         )
         parser.add_argument(
             '--no-subdir',
@@ -33,7 +33,7 @@ class CTUGet(Command):
             dest='no_subdir',
             default=False,
             help=('Do not maintain scenario name subdirectory '
-                  '(default: False).')
+                  '(default: False)')
         )
         _default_protocols = ",".join(DEFAULT_PROTOCOLS)
         parser.add_argument(
@@ -52,19 +52,22 @@ class CTUGet(Command):
             default=None,
             help="Maximum number of lines to get (default: None)"
         )
+        cache_file = CTU_Dataset.get_cache_file()
         parser.add_argument(
             '--cache-file',
             action='store',
             dest='cache_file',
-            default=None,
-            help="Cache file path (default: None)."
+            default=cache_file,
+            help=('Cache file path for CTU metadata '
+                  '(Env: ``LIM_CTU_CACHE``; '
+                  f'default: { cache_file })')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)."
+            help="Ignore any cached results (default: False)"
         )
         parser.add_argument(
             'name',
@@ -76,8 +79,23 @@ class CTUGet(Command):
             type=str.upper,
             choices=CTU_Dataset.get_attributes() + ['ALL'],
             default=None)
-        parser.epilog = textwrap.dedent("""\
-           \n""") + CTU_Dataset.get_disclaimer()
+        parser.epilog = textwrap.dedent(f"""\
+            Get one or more data components from a scenario. These
+            components are the raw PCAP file, Netflow file, and
+            other analytic products from intrusion detection system
+            processing, etc.
+
+            Use ``ALL`` to recursively download all scenario data, or
+            one of the attribute types: { ", ".join([f'``{ i }``' for i in CTU_Dataset.get_attributes()]) }
+
+            By default, or when using the ``ALL`` attribute identifier,
+            the file(s) are placed in a subdirectory with the full name
+            of the scenario to better organize data across multiple
+            scenarios. You can override this when getting specific files
+            (i.e., not using ``ALL``) with the ``--no-subdir``
+            option. Files will then be placed in the lace specified files in
+
+           \n""") + CTU_Dataset.get_disclaimer()  # noqa
         return parser
 
     def take_action(self, parsed_args):

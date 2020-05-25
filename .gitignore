@@ -1,8 +1,9 @@
 .eggs/
 *.egg-info/
+.packet_cafe_last_request_id
+.packet_cafe_last_session_id
 .tox/
 !.vscode/launch.json
 build/
 dist/
 __pycache__
-ctu-cache.json

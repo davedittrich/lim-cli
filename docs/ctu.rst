@@ -60,6 +60,11 @@ The first time you run a command that processes the CTU Dataset metadata, ``lim`
 will scrape their web pages to extract metadata and cache it for a period of time
 to minimize impact on their web site.
 
+By default, the cache will be stored in your ``HOME`` directory in a file named
+``.lim-ctu-cache.json`` to be shared across shells. If you need to maintain separate
+caches, override this path by setting the environment variable ``LIM_CTU_CACHE``
+with the path, or use the ``--cache-file`` option.
+
 .. code-block:: console
 
     $ lim ctu list -c SCENARIO -c GROUP -c PROBABLE_NAME --limit 10 --elapsed
@@ -100,18 +105,6 @@ to minimize impact on their web site.
 
 ..
 
-After running this command, a cache will be written out for later
-use:
-
-.. code-block:: console
-
-    $ tree
-    .
-    └── ctu-cache.json
-
-    0 directories, 1 file
-
-..
 
 Getting Scenario Data
 ---------------------
@@ -127,11 +120,10 @@ the scenarios, in this case ``CTU-Malware-Capture-Botnet-113-1``:
     [-] scenario "CTU-Malware-Capture-Botnet-113-1" does not have "LABELED" data: skipping
     $ tree
     .
-    ├── CTU-Malware-Capture-Botnet-113-1
-    │   └── 2015-03-12_capture-win6.pcap
-    └── ctu-cache.json
+    └── CTU-Malware-Capture-Botnet-113-1
+        └── 2015-03-12_capture-win6.pcap
 
-    1 directory, 2 files
+    1 directory, 1 file
 
 ..
 
@@ -154,9 +146,8 @@ Alternatively, you can just specify ``ALL`` when getting data:
     initialize_app
     prepare_to_run_command CTUGet
     [+] getting CTU data
-    [+] cache ctu-cache.json has not yet expired
-    [+] cache ctu-cache.json has not yet expired
-    [!] loaded metadata from cache: ctu-cache.json
+    [+] cache /home/dittrich/.lim-ctu-cache.json has not yet expired
+    [!] loaded metadata from cache: /home/dittrich/.lim-ctu-cache.json
     [!] downloading ZIP data for scenario CTU-Malware-Capture-Botnet-44
     [+] immediate_fetch(https://mcfp.felk.cvut.cz/publicDatasets/CTU-Malware-Capture-Botnet-44/rbot.exe.zip)
     Starting new HTTPS connection (1): mcfp.felk.cvut.cz:443
@@ -188,14 +179,13 @@ artifact in ZIP format.
     .
     ├── CTU-Malware-Capture-Botnet-113-1
     │   └── 2015-03-12_capture-win6.pcap
-    ├── CTU-Malware-Capture-Botnet-44
-    │   ├── botnet-capture-20110812-rbot.pcap
-    │   ├── capture20110812.binetflow
-    │   ├── capture20110812.pcap.netflow.labeled
-    │   └── rbot.exe.zip
-    └── ctu-cache.json
+    └── CTU-Malware-Capture-Botnet-44
+        ├── botnet-capture-20110812-rbot.pcap
+        ├── capture20110812.binetflow
+        ├── capture20110812.pcap.netflow.labeled
+        └── rbot.exe.zip
 
-    2 directories, 6 files
+    2 directories, 5 files
 
 ..
 
