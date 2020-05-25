@@ -2,11 +2,11 @@
 
 """LiminalInfo command line app."""
 
-# See COPYRIGHT variable below (also found in ``lim help`` output).
+# See the COPYRIGHT variable in lim/__init__.py (also found
+# in output of ``lim help``).
 
 # Standard library modules.
 import argparse
-import datetime
 import logging
 import os
 import sys
@@ -14,6 +14,8 @@ import textwrap
 
 from lim import __version__
 from lim import __release__
+from lim import copyright
+from lim import LIM_DATA_DIR
 from lim.utils import Timer
 
 # External dependencies.
@@ -26,31 +28,6 @@ if sys.version_info < (3, 6, 0):
           "prequires Python 3.6.0 or newer\n"
           "Found Python { sys.version }", file=sys.stderr)
     sys.exit(1)
-
-this_year = datetime.datetime.today().year
-COPYRIGHT = f"""
-Author:    Dave Dittrich <dave.dittrich@gmail.com>
-Copyright: 2018-{ this_year }, Dave Dittrich. 2019-{ this_year }, Liminal Information Corp.
-License:   Apache 2.0 License
-URL:       https://pypi.python.org/pypi/lim
-"""  # noqa
-
-
-def copyright():
-    """Copyright string"""
-    return COPYRIGHT
-
-
-BUFFER_SIZE = 128 * 1024
-DAY = os.environ.get('DAY', 5)
-DEFAULT_PROTOCOLS = ['icmp', 'tcp', 'udp']
-KEEPALIVE = 5.0
-LIM_DATA_DIR = os.environ.get('LIM_DATA_DIR', os.getcwd())
-MAX_LINES = None
-MAX_ITEMS = 10
-# Use syslog for logging?
-# TODO(dittrich): Make this configurable, since it can fail on Mac OS X
-SYSLOG = False
 
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
@@ -119,7 +96,7 @@ class LiminalApp(App):
                  "(0 means no limit; default: 0)"
         )
         parser.epilog = textwrap.dedent(f"""
-        { COPYRIGHT }""")
+        { copyright() }""")
         return parser
 
     def initialize_app(self, argv):
@@ -173,6 +150,9 @@ def main(argv=sys.argv[1:]):
 
 
 if __name__ == '__main__':
+    # Ensure "python -m lim" and just "lim" result in same argv.
+    if sys.argv[0].endswith('__main__.py'):
+        sys.argv[0] = os.path.dirname(sys.argv[0])
     sys.exit(main(sys.argv[1:]))
 
 # EOF

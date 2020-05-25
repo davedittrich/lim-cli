@@ -21,7 +21,7 @@ below will detail help output for each command.
 .. Can't just get --help output using autoprogram-cliff. :(
 ..
 .. .. autoprogram-cliff:: lim
-..    :application: lim.main
+..    :application: lim
 ..    :arguments: --help
 
 .. literalinclude:: lim-help.txt

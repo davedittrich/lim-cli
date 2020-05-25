@@ -143,9 +143,7 @@ docs-tests:
 docs-help:
 	(export LIM_DATA_DIR='/path/to/data'; \
 	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
-	 python -m lim.main help |\
-		sed 's/lim.main/lim/g' |\
-		sed 's/main.py/lim/g') > docs/lim-help.txt
+	 python -m lim help) > docs/lim-help.txt
 
 #HELP docs - build Sphinx docs (NOT INTEGRATED YET FROM OPENSTACK CODE BASE)
 .PHONY: docs

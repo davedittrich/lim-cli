@@ -90,7 +90,7 @@ setup(
 
     entry_points={
         'console_scripts': [
-            'lim = lim.main:main',
+            'lim = lim.__main__:main',
         ],
         'lim': [
             'about = lim.about:About',

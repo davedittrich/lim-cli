@@ -9,7 +9,7 @@ import sys
 
 from cliff.command import Command
 from lim.ctu import CTU_Dataset
-from lim.main import DEFAULT_PROTOCOLS
+from lim import DEFAULT_PROTOCOLS
 
 
 class CTUGet(Command):

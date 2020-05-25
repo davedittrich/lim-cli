@@ -1,6 +1,6 @@
 export OS=$(uname -s)
 export PYTHONPATH=$(pwd)
-export LIM="python3 -m lim.main --debug"
+export LIM="python3 -m lim --debug"
 
 load 'libs/bats-support/load'
 load 'libs/bats-assert/load'
