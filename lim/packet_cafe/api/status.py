@@ -36,6 +36,8 @@ class Status(Lister):
             .. code-block:: console
 
                 $ lim cafe status
+                [+] implicitly reusing last session id bae5d69c-7180-445d-a8db-22a5ef0872e8
+                [+] implicitly reusing last request id c33c56abe4c743a8b77e0b76d9548c06
                 +---------------+----------+----------------------------------+
                 | Tool          | State    | Timestamp                        |
                 +---------------+----------+----------------------------------+
