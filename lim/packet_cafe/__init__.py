@@ -12,6 +12,12 @@ import time
 import uuid
 
 
+from anytree.importer import DictImporter
+from anytree.importer import JsonImporter
+from anytree import Node
+from anytree import RenderTree
+
+
 # TODO(dittrich): https://github.com/Mckinsey666/bullet/issues/2
 # Workaround until bullet has Windows missing 'termios' fix.
 try:
@@ -37,6 +43,13 @@ logger = logging.getLogger(__name__)
 
 def add_packet_cafe_global_options(parser):
     """Add global packet_cafe options."""
+    parser.add_argument(
+        '--chose',
+        action='store_true',
+        dest='chose',
+        default=False,
+        help='Choose session and request (default: False)'
+    )
     parser.add_argument(
         '--cafe-host',
         action='store',
@@ -432,34 +445,24 @@ def check_remind_defaulting(arg=None, thing="argument"):
     return arg
 
 
-__all__ = [
-    CAFE_SERVER,
-    CAFE_ADMIN_PORT,
-    CAFE_UI_PORT,
-    CAFE_API_VERSION,
-    CAFE_ADMIN_URL,
-    CAFE_API_URL,
-    add_packet_cafe_global_options,
-    choose_wisely,
-    get_session_ids,
-    get_requests,
-    get_request_ids,
-    get_files,
-    get_results,
-    get_tools,
-    get_workers,
-    get_status,
-    get_raw,
-    upload,
-    stop,
-    delete,
-    track_progress,
-    get_last_session_id,
-    set_last_session_id,
-    get_last_request_id,
-    set_last_request_id,
-    check_remind_defaulting,
-]
+def report_tree_dict(data=None):
+    """Produce tree structured report of dictionary object."""
+    importer = DictImporter()
+    report = []
+    root = importer.import_(data)
+    # tree = RenderTree(root)
+    for pre, _, node in RenderTree(root):
+        report.append(f'{ pre }{ node.name }')
+        # for line in node.lines[1:]:
+        #     report.append(f'{ fill }{ line }')
+    return report
 
+
+def report_tree_json(json_data=None):
+    """Produce tree structured report of JSON object."""
+    importer = JsonImporter()
+    root = importer.import_(json_data)
+    tree = RenderTree(root)
+    return tree
 
 # vim: set ts=4 sw=4 tw=0 et :
