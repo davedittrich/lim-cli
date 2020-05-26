@@ -116,6 +116,7 @@ setup(
             'cafe raw = lim.packet_cafe.api.raw:Raw',
             'cafe requests = lim.packet_cafe.api.requests:Requests',
             'cafe results = lim.packet_cafe.api.results:Results',
+            'cafe report = lim.packet_cafe.extensions.report:Report',
             'cafe info = lim.packet_cafe.api.info:ApiInfo',
             'cafe status = lim.packet_cafe.api.status:Status',
             'cafe stop = lim.packet_cafe.api.stop:Stop',
