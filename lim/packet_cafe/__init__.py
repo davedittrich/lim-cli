@@ -44,9 +44,9 @@ logger = logging.getLogger(__name__)
 def add_packet_cafe_global_options(parser):
     """Add global packet_cafe options."""
     parser.add_argument(
-        '--chose',
+        '--choose',
         action='store_true',
-        dest='chose',
+        dest='choose',
         default=False,
         help='Choose session and request (default: False)'
     )
