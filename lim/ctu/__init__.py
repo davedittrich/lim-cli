@@ -391,8 +391,8 @@ class CTU_Dataset(object):
             except Exception as err:  # noqa
                 result = None
         else:
-            raise RuntimeError('[-] getting attribute "{}" '.format(attribute) +
-                               'is not supported')
+            raise RuntimeError(
+                f'[-] getting attribute "{ attribute }" is not supported')
         return result
 
     def fetch_scenario_content_byurl(self,

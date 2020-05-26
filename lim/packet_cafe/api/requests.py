@@ -7,7 +7,7 @@ import textwrap
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import check_remind_defaulting
-from lim.packet_cafe import chose_wisely
+from lim.packet_cafe import choose_wisely
 from lim.packet_cafe import get_requests
 from lim.packet_cafe import get_session_ids
 from lim.packet_cafe import get_last_session_id
@@ -52,11 +52,11 @@ class Requests(Lister):
         ids = get_session_ids()
         if len(ids) == 0:
             raise RuntimeError('[-] no sessions found')
-        if parsed_args.sess_id is not None:
+        if parsed_args.sess_id is not None and not parsed_args.choose:
             sess_id = check_remind_defaulting(
                 parsed_args.sess_id, 'last session id')
         else:
-            sess_id = chose_wisely(
+            sess_id = choose_wisely(
                 from_list=ids,
                 what="session",
                 cancel_throws_exception=True

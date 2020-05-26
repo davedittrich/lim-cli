@@ -36,10 +36,10 @@ class About(Command):
         parser.epilog = textwrap.dedent("""
             Opens up the packet-cafe documenation in a browser.
 
-            Use the ``--browser`` option to chose which browser from the
+            Use the ``--browser`` option to choose which browser from the
             set shown.  One systems that do not have any of those browsers
             available, or can't open them for some reason, the page may open
-            in the ``lynx`` text browser. If you wish to chose (a) different
+            in the ``lynx`` text browser. If you wish to choose (a) different
             browser(s), export the environment variable ``LIM_BROWSERS``
             with a comma separated list of options.
 

@@ -79,7 +79,7 @@ def _valid_counter(value):
     return n
 
 
-def chose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
+def choose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
     choices = ['<CANCEL>'] + from_list
     cli = Bullet(prompt=f'\nChose { what }:',
                  choices=choices,
@@ -440,7 +440,7 @@ __all__ = [
     CAFE_ADMIN_URL,
     CAFE_API_URL,
     add_packet_cafe_global_options,
-    chose_wisely,
+    choose_wisely,
     get_session_ids,
     get_requests,
     get_request_ids,

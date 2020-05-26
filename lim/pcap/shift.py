@@ -87,8 +87,8 @@ class PCAPShift(Command):
             if func is not None:
                 return func(ts, buf)
             else:
-                raise RuntimeError('[-] shifting "{}" '.format(this) +
-                                   'is not implemented')
+                raise RuntimeError(
+                    f'[-] shifting "{ this }" is not implemented')
 
     def take_action(self, parsed_args):
         this = self.cmd_name.split()[-1]
@@ -114,7 +114,7 @@ class PCAPShift(Command):
                                                    this)
             logger.debug('[+] new pcap file: {}'.format(newfname))
             if not os.path.exists(fname):
-                raise RuntimeError('[-] PCAP file {} does not exist'.format(fname))
+                raise RuntimeError(f'[-] PCAP file { fname } does not exist')
             with open(fname, 'rb') as f_in, open(newfname, 'wb') as f_out:
                 reader = dpkt.pcap.Reader(f_in)
                 writer = dpkt.pcap.Writer(f_out)
