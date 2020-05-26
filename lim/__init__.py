@@ -2,18 +2,27 @@
 
 import datetime
 import os
+import pathlib
 import pbr.version
 
-version_info = pbr.version.VersionInfo('lim')
-try:
-    __version__ = version_info.version_string()
-except AttributeError:
-    __version__ = '20.5.1'
+# PBR has a bug that produces incorrect version numbers
+# if you run ``psec --version`` in another Git repo.
+# This attempted workaround only uses PBR for getting
+# version and revision number if run in a directory
+# path that contains strings that appear to be
+# a python_secrets repo clone.
 
-try:
-    __release__ = version_info.release_string()
-except AttributeError:
-    __release__ = '20.5.1'
+p = pathlib.Path(os.getcwd())
+if 'lim-cli' in p.parts or 'lim' in p.parts:
+    try:
+        version_info = pbr.version.VersionInfo('lim')
+        __version__ = version_info.cached_version_string()
+        __release__ = version_info.release_string()
+    except Exception:
+        pass
+else:
+    __version__ = '20.5.1'
+    __release__ = __version__
 
 this_year = datetime.datetime.today().year
 COPYRIGHT = f"""
