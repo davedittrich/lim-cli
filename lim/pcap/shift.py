@@ -55,7 +55,7 @@ class PCAPShift(Command):
         return parser
 
     def networkshift(self, ts, buf):
-        raise RuntimeError('Not implemented')
+        raise RuntimeError('[-] not implemented')
         return ts, buf
 
     def timeshift(self, ts, buf):
@@ -87,7 +87,7 @@ class PCAPShift(Command):
             if func is not None:
                 return func(ts, buf)
             else:
-                raise RuntimeError('Shifting "{}" '.format(this) +
+                raise RuntimeError('[-] shifting "{}" '.format(this) +
                                    'is not implemented')
 
     def take_action(self, parsed_args):
@@ -114,7 +114,7 @@ class PCAPShift(Command):
                                                    this)
             logger.debug('[+] new pcap file: {}'.format(newfname))
             if not os.path.exists(fname):
-                raise RuntimeError('PCAP file {} does not exist'.format(fname))
+                raise RuntimeError('[-] PCAP file {} does not exist'.format(fname))
             with open(fname, 'rb') as f_in, open(newfname, 'wb') as f_out:
                 reader = dpkt.pcap.Reader(f_in)
                 writer = dpkt.pcap.Writer(f_out)

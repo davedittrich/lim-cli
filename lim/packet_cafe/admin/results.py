@@ -19,9 +19,9 @@ def match(line=None, contains=[]):
     specified strings between '/' characters.
     """
     if line is None:
-        raise RuntimeError('no line to search')
+        raise RuntimeError('[-] no line to search')
     if type(contains) is not list:
-        raise RuntimeError('kwarg "contains" must be a list')
+        raise RuntimeError('[-] kwarg "contains" must be a list')
     for s in contains:
         if not line.find(f'/{ s }/') >= 0:
             return False

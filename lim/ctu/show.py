@@ -60,7 +60,7 @@ class CTUShow(ShowOne):
         scenario = self.ctu_metadata.get_scenario(fullname)
         if scenario is None:
             raise RuntimeError(
-                f'scenario "{ parsed_args.scenario }" not found')
+                f'[-] scenario "{ parsed_args.scenario }" not found')
         scenario['SCENARIO'] = fullname
         scenario['SCENARIO_URL'] = self.ctu_metadata.get_scenario_attribute(
             name=fullname, attribute='URL')

@@ -92,7 +92,7 @@ def chose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
     choice = cli.launch()
     if choice == "<CANCEL>":
         if cancel_throws_exception:
-            raise RuntimeError(f'cancelled chosing { what }')
+            raise RuntimeError(f'[-] cancelled chosing { what }')
         else:
             return None
     return choice
@@ -169,11 +169,11 @@ def get_results():
 def get_worker_output(tool=None, counter=1, sess_id=None, req_id=None):
     """Get output from worker processing."""
     if tool is None:
-        raise RuntimeError('tool must not be None')
+        raise RuntimeError('[-] tool must not be None')
     if sess_id is None:
-        raise RuntimeError('sess_id must not be None')
+        raise RuntimeError('[-] sess_id must not be None')
     if req_id is None:
-        raise RuntimeError('req_id must not be None')
+        raise RuntimeError('[-] req_id must not be None')
     url = (
         f'{ CAFE_API_URL }/results/'
         f'{ tool }/{ counter }/{ sess_id }/{ req_id }'
@@ -209,12 +209,12 @@ def get_status(sess_id=None, req_id=None, raise_exception=True):
     """Get status for session ID + request ID."""
     if sess_id is None:
         if raise_exception:
-            raise RuntimeError('sess_id must not be None')
+            raise RuntimeError('[-] sess_id must not be None')
         else:
             return None
     if req_id is None:
         if raise_exception:
-            raise RuntimeError('req_id must not be None')
+            raise RuntimeError('[-] req_id must not be None')
         else:
             return None
     url = f'{ CAFE_API_URL }/status/{ sess_id }/{ req_id }'
@@ -223,7 +223,7 @@ def get_status(sess_id=None, req_id=None, raise_exception=True):
         return json.loads(response.text)
     elif raise_exception:
         raise RuntimeError(
-            'packet-cafe returned response: '
+            '[-] packet-cafe returned response: '
             f'{ response.status_code } { response.reason }'
         )
     else:
@@ -233,11 +233,11 @@ def get_status(sess_id=None, req_id=None, raise_exception=True):
 def get_raw(tool=None, counter=1, sess_id=None, req_id=None):
     """Get raw output from a specific tool, session, and request."""
     if tool is None:
-        raise RuntimeError('tool must not be None')
+        raise RuntimeError('[-] tool must not be None')
     if sess_id is None:
-        raise RuntimeError('sess_id must not be None')
+        raise RuntimeError('[-] sess_id must not be None')
     if req_id is None:
-        raise RuntimeError('req_id must not be None')
+        raise RuntimeError('[-] req_id must not be None')
     url = f'{ CAFE_API_URL }/raw/{ tool }/{ counter }/{ sess_id }/{ req_id }'
     response = requests.request("GET", url)
     if response.status_code == 200:
@@ -274,7 +274,7 @@ def upload(fpath=None, sessionId=None):
         return result
     else:
         raise RuntimeError(
-            'packet-cafe returned response: '
+            '[-] packet-cafe returned response: '
             f'{ response.status_code } { response.reason }'
         )
 
@@ -282,16 +282,16 @@ def upload(fpath=None, sessionId=None):
 def stop(sess_id=None, req_id=None, raise_exception=True):
     """Stop jobs of a request ID."""
     if sess_id is None:
-        raise RuntimeError('sess_id must not be None')
+        raise RuntimeError('[-] sess_id must not be None')
     if req_id is None:
-        raise RuntimeError('req_id must not be None')
+        raise RuntimeError('[-] req_id must not be None')
     url = f'{ CAFE_API_URL }/stop/{ sess_id }/{ req_id }'
     response = requests.request("GET", url)
     if response.status_code == 200:
         return json.loads(response.text)
     elif raise_exception:
         raise RuntimeError(
-            'packet-cafe returned response: '
+            '[-] packet-cafe returned response: '
             f'{ response.status_code } { response.reason }'
         )
     else:
@@ -301,14 +301,14 @@ def stop(sess_id=None, req_id=None, raise_exception=True):
 def delete(sess_id=None, raise_exception=True):
     """Delete data for a session."""
     if sess_id is None:
-        raise RuntimeError('sess_id must not be None')
+        raise RuntimeError('[-] sess_id must not be None')
     url = f'{ CAFE_ADMIN_URL }/id/delete/{ sess_id }'
     response = requests.request("GET", url)
     if response.status_code == 200:
         return json.loads(response.text)
     elif raise_exception:
         raise RuntimeError(
-            'packet-cafe returned response: '
+            '[-] packet-cafe returned response: '
             f'{ response.status_code } { response.reason }'
         )
     else:
@@ -318,9 +318,9 @@ def delete(sess_id=None, raise_exception=True):
 def track_progress(sess_id=None, req_id=None, debug=False):
     """Track the progress of workers similar to the web UI."""
     if sess_id is None:
-        raise RuntimeError('sess_id must not be None')
+        raise RuntimeError('[-] sess_id must not be None')
     if req_id is None:
-        raise RuntimeError('req_id must not be None')
+        raise RuntimeError('[-] req_id must not be None')
     workers = [worker['name'] for worker in get_workers()]  # noqa
     max_worker_len = max([len(i) for i in workers])
     reported = dict()

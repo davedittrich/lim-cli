@@ -110,7 +110,7 @@ class CTUGet(Command):
 
         name = CTU_Dataset.get_fullname(parsed_args.name[0])
         if not self.ctu_metadata.is_valid_scenario(name):
-            raise RuntimeError(f'Scenario "{ name }" does not exist')
+            raise RuntimeError(f'[-] scenario "{ name }" does not exist')
         if parsed_args.no_subdir is False:
             data_dir = name
         else:
@@ -141,9 +141,9 @@ class CTUGet(Command):
                     shell=shell
                 ).decode('UTF-8').splitlines()
         except Exception as err:
-            message = f'cannot run "wget": { err }'
+            message = f'[-] cannot run "wget": { err }'
         else:
-            message = 'cannot run "wget"'
+            message = '[-] cannot run "wget"'
         if len(result) > 1 and result[0].find(' Wget ') < 0:
             raise RuntimeError(message)
 

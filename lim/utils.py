@@ -25,7 +25,7 @@ def convert_type(t, v):
     """Convert value 'v' to type 't'"""
     _valid_type = ['int', 'float', 'long', 'complex', 'str']
     if t not in _valid_type:
-        raise RuntimeError('Unsupported type: must be one of: ' +
+        raise RuntimeError('[-] unsupported type: must be one of: ' +
                            ",".join([i for i in _valid_type]))
     try:
         return type(eval("{}()".format(t)))(v)   # nosec
@@ -37,9 +37,9 @@ def check_natural(value):
     try:
         i = int(value)
     except ValueError:
-        raise RuntimeError('"{}" is not a base-10 integer'.format(value))
+        raise RuntimeError('[-] "{}" is not a base-10 integer'.format(value))
     if not i > 0:
-        raise RuntimeError('{} is not a natural number (>0)'.format(value))
+        raise RuntimeError('[-] {} is not a natural number (>0)'.format(value))
     return i
 
 
@@ -47,9 +47,9 @@ def check_whole(value):
     try:
         i = int(value)
     except ValueError:
-        raise RuntimeError('"{}" is not a base-10 integer'.format(value))
+        raise RuntimeError('[-] "{}" is not a base-10 integer'.format(value))
     if not i >= 0:
-        raise RuntimeError('{} is not a whole number (>=0)'.format(value))
+        raise RuntimeError('[-] {} is not a whole number (>=0)'.format(value))
     return i
 
 
@@ -172,8 +172,8 @@ def safe_to_open(filename, overwrite=False):
     if os.path.exists(filename):
         statinfo = os.stat(filename)
         if statinfo.st_size > 0 and not overwrite:
-            raise RuntimeError('File "{}" exists. '.format(filename) +
-                               'Use --force to overwrite.')
+            raise RuntimeError('[-] file "{}" exists; '.format(filename) +
+                               'use --force to overwrite.')
     return True
 
 
@@ -204,7 +204,7 @@ class BZ2_LineReader(object):
                           stream=True,
                           verify=self.verify) as file:
             if file.status_code in [404]:
-                raise RuntimeError('file not found: {}'.format(self.url))
+                raise RuntimeError('[-] file not found: {}'.format(self.url))
             for row in self._line_reader(file, maxlines=maxlines):
                 yield row
 
@@ -259,7 +259,7 @@ class LineReader(object):
                           stream=True,
                           verify=self.verify) as file:
             if file.status_code in [404]:
-                raise RuntimeError('file not found: {}'.format(self.url))
+                raise RuntimeError('[-] file not found: {}'.format(self.url))
             for row in self._line_reader(file, maxlines=maxlines):
                 yield row
 

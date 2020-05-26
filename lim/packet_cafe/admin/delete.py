@@ -43,7 +43,7 @@ class AdminDelete(Command):
         logger.debug('[+] deleting session data')
         ids = get_session_ids()
         if ids is None or not len(ids):
-            raise RuntimeError('No sessions exist')
+            raise RuntimeError('[-] no sessions exist')
         if parsed_args.all:
             sess_ids = ids
         else:
@@ -55,12 +55,12 @@ class AdminDelete(Command):
                                        what="a session",
                                        cancel_throws_exception=True)
             if sess_id not in ids:
-                raise RuntimeError(f'Session ID { sess_id } not found')
+                raise RuntimeError(f'[-] session ID { sess_id } not found')
             sess_ids = [sess_id]
         for sess_id in sess_ids:
             result = delete(sess_id=sess_id)
             if result is None:
-                raise RuntimeError('failed to delete '
+                raise RuntimeError('[-] failed to delete '
                                    f'session { sess_id }')
             # Do state files need to be deleted?
             # (Granted, this relies on a side-effect, but

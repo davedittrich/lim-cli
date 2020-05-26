@@ -87,7 +87,7 @@ class Status(Lister):
                                    what="a session",
                                    cancel_throws_exception=True)
         if sess_id not in ids:
-            raise RuntimeError(f'Session ID { sess_id } not found')
+            raise RuntimeError(f'[-] session ID { sess_id } not found')
         if parsed_args.req_id is not None:
             req_id = check_remind_defaulting(
                 parsed_args.req_id, 'last request id')
@@ -101,7 +101,7 @@ class Status(Lister):
         data = []
         status = get_status(sess_id=sess_id, req_id=req_id)
         if status is None:
-            raise RuntimeError('failed to get status for '
+            raise RuntimeError('[-] failed to get status for '
                                f'session { sess_id }, '
                                f'request { req_id }')
         for k, v in status.items():

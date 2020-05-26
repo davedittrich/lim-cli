@@ -337,7 +337,7 @@ class CTU_Dataset(object):
         filename = url.split('/').pop()
         if filename in ['', None]:
             raise RuntimeError(
-                'cannot determine filename from url {}'.format(url))
+                '[-] cannot determine filename from url {}'.format(url))
         return filename
 
     def get_scenarios(self):
@@ -351,7 +351,7 @@ class CTU_Dataset(object):
     def is_valid_scenario(self, name):
         """Returns boolean indicating existence of scenario"""
         if type(name) is not str:
-            raise RuntimeError('"{}" must be type(str)'.format(name))
+            raise RuntimeError('[-] "{}" must be type(str)'.format(name))
         return name in self.scenarios
 
     def get_scenario(self, name):
@@ -391,7 +391,7 @@ class CTU_Dataset(object):
             except Exception as err:  # noqa
                 result = None
         else:
-            raise RuntimeError('getting attribute "{}" '.format(attribute) +
+            raise RuntimeError('[-] getting attribute "{}" '.format(attribute) +
                                'is not supported')
         return result
 
@@ -437,9 +437,9 @@ class CTU_Dataset(object):
 
     async def record_scenario_metadata(self, semaphore, group, url, session):
         if url is None:
-            raise RuntimeError('url must not be None')
+            raise RuntimeError('[-] url must not be None')
         if url.find('publicDatasets') == -1:
-            raise RuntimeError('url does not contain "publicDatasets"')
+            raise RuntimeError('[-] url does not contain "publicDatasets"')
         # The scenario name is the directory name in which the file
         # is located.
         name = os.path.basename(os.path.dirname(url))
@@ -628,7 +628,7 @@ class CTU_Dataset(object):
         #     category=InsecureRequestWarning)
 
         if group is None:
-            raise RuntimeError('No group name provided')
+            raise RuntimeError('[-] no group name provided')
         url = CTU_Dataset.get_url_for_group(group)
         logger.info('[+] identifying scenarios for ' +
                     'group {} from {}'.format(group, url))

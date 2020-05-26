@@ -124,7 +124,7 @@ class Upload(Command):
         if parsed_args.sessionId == "last":
             parsed_args.sessionId = get_last_session_id()
         if not os.path.exists(fpath):
-            raise RuntimeError(f'file { fpath } not found')
+            raise RuntimeError(f'[-] file { fpath } not found')
         result = upload(fpath=fpath, sessionId=parsed_args.sessionId)
         if self.app.options.verbose_level > 0:
             # NOTE(dittrich): Don't forget: 'req_id' is 'uuid' in result

@@ -51,7 +51,7 @@ class Requests(Lister):
         logger.debug('[+] listing request ids')
         ids = get_session_ids()
         if len(ids) == 0:
-            raise RuntimeError('no sessions found')
+            raise RuntimeError('[-] no sessions found')
         if parsed_args.sess_id is not None:
             sess_id = check_remind_defaulting(
                 parsed_args.sess_id, 'last session id')
@@ -62,7 +62,7 @@ class Requests(Lister):
                 cancel_throws_exception=True
             )
         if sess_id not in ids:
-            raise RuntimeError(f'Session ID { sess_id } not found')
+            raise RuntimeError(f'[-] session ID { sess_id } not found')
         #
         # NOTE(dittrich): The dictionary key "original_filename" differs
         # from other dictionaries that have "camel case" (e.g.,
