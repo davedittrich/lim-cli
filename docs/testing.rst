@@ -2,14 +2,26 @@
 Testing
 =======
 
-Test-driven development improves the ability to upgrade your code
+*Test-driven development* improves the ability to upgrade your code
 base to keep up with API changes, to refactor without incurring
 regression errors, or to validate when bugs in dependent libraries
 have been fixed.
 
-There are built-in unit tests for the Python ``lim`` application,
-as well as runtime ``bats`` tests that perform realtime integration
-or system tests.
+Testing in ``lim`` is driven by ``tox`` from the ``Makefile`` in the
+top level repo directory, using the `Bats: Bash Automated Testing System`_
+testing framework.  See `Testing Your Shell Scripts, with Bats`_ for
+information on setting up and using BATS.
+
+The ``tox`` tests are performed using the following configuration file:
+
+.. literalinclude:: ../tox.ini
+
+.. _Bats\: Bash Automated Testing System: https://github.com/sstephenson/bats
+.. _Testing Your Shell Scripts, with Bats: https://medium.com/@pimterry/testing-your-shell-scripts-with-bats-abfca9bdc5b9
+
+There are built-in unit tests and security tests for the Python ``lim``
+application, as well as runtime ``bats`` tests that perform realtime
+integration or system tests.
 
 .. note::
 
@@ -27,10 +39,6 @@ Invoke unit tests with the helper ``Makefile`` using the ``test``
 target (e.g., ``make test``). This target runs ``tox`` tests for the Python code
 (``make test-tox``), followed by some basic unit tests performed with
 ``bats`` (``make test-bats``).
-
-The ``tox`` tests are performed using the following configuration file:
-
-.. literalinclude:: ../tox.ini
 
 If successful, you will see the following:
 
