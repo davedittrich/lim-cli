@@ -84,7 +84,7 @@ class Report(Lister):
                 +------------+-------------------+------------+-------------------+----------+-------------+
                 | source_ip  | source_mac        | role       |        confidence | behavior | investigate |
                 +------------+-------------------+------------+-------------------+----------+-------------+
-                | 10.0.2.102 | 08:00:27:5b:df:e1 | GPU laptop | 99.99999999539332 | normal   | False       |
+                | 10.0.2.102 | 08:00:27:5b:df:e1 | GPU laptop | 99.99999999539332 | normal   | no          |
                 +------------+-------------------+------------+-------------------+----------+-------------+
 
             ..
@@ -224,7 +224,7 @@ class Report(Lister):
                             "\n".join(['{0:.5f}'.format(i)
                                        for i in result['classification']['confidences']]),  # noqa
                             result['decisions']['behavior'],
-                            result['decisions']['investigate'],
+                            "yes" if result['decisions']['investigate'] else "no",
                         ))
                     nodes[node] = True
         self.produce_output(self.parsed_args, columns, data)
