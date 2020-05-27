@@ -10,7 +10,6 @@ from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import track_progress
 from lim.packet_cafe import upload
 from lim.packet_cafe import get_last_session_id
-from lim.utils import Timer
 
 
 logger = logging.getLogger(__name__)
@@ -139,7 +138,6 @@ class Upload(Command):
     def take_action(self, parsed_args):
         logger.debug('[+] upload file')
         # Avoid the confusing double-negative if statement
-        timer = Timer()
         track_status = (self.app.options.verbose_level > 0
                         and parsed_args.no_track is not True)
         fpath = parsed_args.pcap[0]
