@@ -3,6 +3,7 @@
 import argparse
 import json
 import logging
+import os
 import requests
 import textwrap
 
@@ -11,6 +12,7 @@ from lim.packet_cafe import CAFE_ADMIN_URL
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import get_last_session_id
 from lim.packet_cafe import get_last_request_id
+from lim.packet_cafe import get_disk_use
 
 logger = logging.getLogger(__name__)
 
@@ -65,8 +67,25 @@ class AdminInfo(ShowOne):
         # Doing this manually here to include URL in output.
         url = f'{ CAFE_ADMIN_URL }/info'
         response = requests.request("GET", url)
-        columns = ['url', 'last_session', 'last_request']
-        data = [url, get_last_session_id(), get_last_request_id()]
+        (disk_total, disk_used, disk_free) = get_disk_use()
+        columns = [
+            'url',
+            'last_session',
+            'last_request',
+            'VOL_PREFIX',
+            'disk_total',
+            'disk_used',
+            'disk_free',
+        ]
+        data = [
+            url,
+            get_last_session_id(),
+            get_last_request_id(),
+            os.getenv('VOL_PREFIX', ''),
+            int(disk_total / 1024),
+            int(disk_used / 1024),
+            int(disk_free / 1024),
+        ]
         for k, v in json.loads(response.text).items():
             columns.append(k)
             data.append((v))
