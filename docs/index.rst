@@ -32,7 +32,7 @@ Contents:
    testing
    contributing
    authors
-   history
+   changes
 
 Indices and tables
 ==================
