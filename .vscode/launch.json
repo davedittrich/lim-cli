@@ -597,7 +597,7 @@
             }
         },
         {
-            "name": "lim cafe report --tool networkml",
+            "name": "lim cafe report --tool p0f",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -607,8 +607,27 @@
                 "--debug",
                 "cafe",
                 "report",
-		"--tool",
-		"networkml"
+                "--tool",
+                 "p0f"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim --debug -v cafe report",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "-v",
+                "cafe",
+                "report"
             ],
             "stopOnEntry": false,
             "env": {
