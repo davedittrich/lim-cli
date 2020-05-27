@@ -36,6 +36,21 @@ class AdminDelete(Command):
             Deletes all data and id directories for one or more
             sessions.
 
+            To select specific sessions, provide them as arguments.
+            You can select the desired session ID from a list of
+            available sessions with the ``--choose`` option, or
+            delete all sessions at once with ``--all``:
+
+            .. code-block:: console
+
+                $ lim cafe admin delete --all
+                [+] deleted session 531f8bad-1f01-4b10-926b-a72aa27bcdba
+                [+] deleted session e6129371-ab97-4225-940e-5b18cd761da7
+                [+] deleted session 46d4f9a9-d5db-487e-a261-91764c044b44
+                [+] deleted session f44dc0e5-2ad0-4cbd-aac9-98a6c8233dff
+                [+] deleted session 5382b1b3-39f2-4563-9486-8efb99b56243
+
+            ..
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

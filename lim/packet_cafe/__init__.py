@@ -12,10 +12,6 @@ import time
 import uuid
 
 
-from anytree.importer import DictImporter
-from anytree.importer import JsonImporter
-from anytree import Node
-from anytree import RenderTree
 from lim.utils import Timer
 
 
@@ -450,25 +446,5 @@ def check_remind_defaulting(arg=None, thing="argument"):
             logger.info(f'[+] implicitly reusing { thing } { arg }')
     return arg
 
-
-def report_tree_dict(data=None):
-    """Produce tree structured report of dictionary object."""
-    importer = DictImporter()
-    report = []
-    root = importer.import_(data)
-    # tree = RenderTree(root)
-    for pre, _, node in RenderTree(root):
-        report.append(f'{ pre }{ node.name }')
-        # for line in node.lines[1:]:
-        #     report.append(f'{ fill }{ line }')
-    return report
-
-
-def report_tree_json(json_data=None):
-    """Produce tree structured report of JSON object."""
-    importer = JsonImporter()
-    root = importer.import_(json_data)
-    tree = RenderTree(root)
-    return tree
 
 # vim: set ts=4 sw=4 tw=0 et :

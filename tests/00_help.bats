@@ -31,6 +31,7 @@ teardown() {
   cafe endpoints
   cafe info
   cafe raw
+  cafe report
   cafe requests
   cafe results
   cafe status
