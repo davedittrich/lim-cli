@@ -7,6 +7,7 @@ import logging
 import json
 import os
 import requests
+import shutil
 import sys
 import time
 import uuid
@@ -445,6 +446,15 @@ def check_remind_defaulting(arg=None, thing="argument"):
         if str(arg) not in sys.argv:
             logger.info(f'[+] implicitly reusing { thing } { arg }')
     return arg
+
+
+def get_disk_use():
+    """Return disk use for directory specified by $VOL_PREFIX."""
+    path = os.getenv('VOL_PREFIX', None)
+    if path is None:
+        raise RuntimeError('[-] VOL_PREFIX is not set')
+    (total, used, free) = shutil.disk_usage(path)
+    return (total, used, free)
 
 
 # vim: set ts=4 sw=4 tw=0 et :
