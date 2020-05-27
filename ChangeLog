@@ -1,6 +1,59 @@
 CHANGES
 =======
 
+* Update help test
+* Update "cafe admin delete" documentation
+* Remove unused code from feature branch
+* Finish functional "cafe report" subcommand
+* Add elapsed timing feedback to "cafe upload"
+* Add VS Code test launch configs
+* Missed "chose" vs. "choose" on merge
+* Temp save while developing networkml reporting
+* Add "cafe report" subcommand and debug config
+* Fix "chose" vs. "choose"
+* Normalize exception error messages
+* Work around pbr version determination bug
+
+20.5.1
+------
+
+* Bump version: 20.5.0 → 20.5.1
+* Clean up last request and session state on delete
+* Refine package creation and release
+* Don't tag on bumpversion (use hubflow instead)
+* Update usage and testing documentation
+* Make execute-as-module work properly
+* Fix bug related to last session id
+* Expand runtime tests
+* Update help documentation
+* Be more verbose if no sessions found
+* Clean up runtime feedback output
+* Add "cafe admin delete" subcommand
+* Flatten lists when outputting
+* Try to keep ChangeLog clean until release
+* Add reminder when reusing sess\_id or req\_id
+* Add interactive tool choice
+* Generalize "ctu stats" to quantify any attribute
+* Add 'ctu show' subcommand
+* Add debugging config
+* Fix bug in hash matching logic
+* Don't repeat tests
+* Clarify project description
+* Add long description type variable per error msg
+* Update feature list and introduction
+* Change package name in setup.cfg as well
+* Changed name and location of cache file out of cwd
+* Ignore ChangeLog changes
+* More documentation updates
+* Be transparent about columns, groups in help text
+* Move default path to CTU cache file to home dir
+* Rename project due to pypi name clash. :(
+* Only create sdist (no bdist, egg)
+* Trying to take control of rtd build for cliff sake
+* Fixing readthedocs (setup.py?)
+* Update ChangeLog
+* Fix regression bug re: where to get file
+* Update ChangeLog
 
 20.5.0
 ------
