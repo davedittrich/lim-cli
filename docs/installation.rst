@@ -18,6 +18,125 @@ the `python_secrets`_ package requires Python 3.6 or newer,
 while some operating systems come with Python 2.7 or Python
 3.4.
 
+There are two ways to handle this situation, one better for
+doing development and testing of the ``lim`` Python source
+code itself, and the other for simply running the ``lim``
+CLI on an analysis workstation. The former is more
+complicated, but better for development. The latter is
+much simpler and is the preferred method when you will
+not be doing development.  We'll look at the simpler
+way to use ``lim`` first.
+
+Non-development installation
+----------------------------
+
+The program ``pipx`` is the easiest way to install a Python package
+including command line scripts to run them as stand-alone commands
+in their own virtual environments (without having to know much about
+virtual environments). Programs installed by ``pipx`` are called
+*apps*.
+
+``pipx`` manages creating the virtual environment and creating links to a
+common runtime directory that you add to your ``$PATH`` to run them.
+
+On a Mac running Darwin, Homebrew is the easiest way to install
+``pipx``:
+
+.. code-block:: console
+
+    $ brew info pipx
+    pipx: stable 0.15.4.0 (bottled), HEAD
+    Execute binaries from Python packages in isolated environments
+    https://github.com/pipxproject/pipx
+    /usr/local/Cellar/pipx/0.15.4.0 (125 files, 660.3KB) *
+      Poured from bottle on 2020-05-27 at 10:21:20
+    From: https://github.com/Homebrew/homebrew-core/blob/master/Formula/pipx.rb
+    ==> Dependencies
+    Required: python@3.8 ✔
+    ==> Options
+    --HEAD
+        Install HEAD version
+    ==> Analytics
+    install: 2,090 (30 days), 4,963 (90 days), 8,568 (365 days)
+    install-on-request: 2,093 (30 days), 4,963 (90 days), 8,553 (365 days)
+    build-error: 0 (30 days)
+
+..
+
+Install ``pipx`` as follows:
+
+.. code-block:: console
+
+    $ brew install pipx
+    Updating Homebrew...
+    ==> Auto-updated Homebrew!
+    ==> Downloading https://homebrew.bintray.com/bottles/pipx-0.15.4.0.mojave.bottle.tar.gz
+    Already downloaded: /Users/dittrich/Library/Caches/Homebrew/downloads/6251803fbe228622581468fc08e6f781172e7083c958e424693b471cb1953d1c--pipx-0.15.4.0.mojave.bottle.tar.gz
+    ==> Pouring pipx-0.15.4.0.mojave.bottle.tar.gz
+    🍺  /usr/local/Cellar/pipx/0.15.4.0: 92 files, 530.9KB
+
+..
+
+Now install ``lim`` as an app using the package name ``lim-cli``.
+
+.. code-block:: console
+
+    $ pipx install lim-cli
+      installed package lim-cli 20.5.2, Python 3.8.2
+      These apps are now globally available
+        - lim
+    done! ✨ 🌟 ✨
+
+..
+
+You can get information about the path where apps are located,
+the parent package name and current release version,
+the version of Python the apps use, the apps (scripts)
+installed from the parent package name, etc.
+
+.. code-block:: console
+
+    $ pipx list
+    venvs are in /Users/dittrich/.local/pipx/venvs
+    apps are exposed on your $PATH at /Users/dittrich/.local/bin
+       package ansible 2.9.9, Python 3.8.2
+        - ansible
+        - ansible-config
+        - ansible-connection
+        - ansible-console
+        - ansible-doc
+        - ansible-galaxy
+        - ansible-inventory
+        - ansible-playbook
+        - ansible-pull
+        - ansible-test
+        - ansible-vault
+       package asciinema 2.0.2, Python 3.8.2
+        - asciinema
+       package blockdiag 2.0.1, Python 3.8.2
+        - blockdiag
+       package bump2version 1.0.0, Python 3.8.2
+        - bump2version
+        - bumpversion
+       package lim-cli 20.5.2, Python 3.8.2
+        - lim
+       package sphinx 3.0.4, Python 3.8.2
+        - sphinx-apidoc
+        - sphinx-autogen
+        - sphinx-build
+        - sphinx-quickstart
+       package twine 3.1.1, Python 3.8.2
+        - twine
+
+..
+
+For more information on capabilities of ``pipx``, see
+the project web site: https://github.com/pipxproject/pipx
+
+
+Development and testing installation
+------------------------------------
+
 Install a version of Python 3.6 (or higher) in your user
 account file system space, then from the ``lim`` directory
 run this version of Python with a full path, using the
