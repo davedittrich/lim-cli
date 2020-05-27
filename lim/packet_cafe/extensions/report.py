@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import json
+import arrow
 import logging
 import textwrap
 
-from cliff.command import Command
+from cliff.lister import Lister
+from collections import OrderedDict
 from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import check_remind_defaulting
@@ -16,92 +17,11 @@ from lim.packet_cafe import get_session_ids
 from lim.packet_cafe import get_tools
 from lim.packet_cafe import get_last_session_id
 from lim.packet_cafe import get_last_request_id
-from lim.packet_cafe import report_tree_dict
-from lim.packet_cafe import report_tree_json
 
 logger = logging.getLogger(__name__)
 
 
-def summarize(tool=None, results={}):
-    """Summarize output of workers."""
-    supported = tool_function.keys()
-    if tool not in supported:
-        logger.info(f'[-] Reporting for tool "{ tool }" is not yet supported.')
-        return []
-    return tool_function[tool](results)
-
-
-def summarize_pcap_stats(results={}):
-    """Report on pcap-stats output."""
-    report = [
-        ""
-        "Report for pcap-stats",
-        "=====================",
-        ""
-    ]
-    for item in results:
-        for key, subresults in item.items():
-            report.extend([
-                f'{ str(key) }',
-                '-' * len(str(key)),
-                ""
-            ])
-            if key in tool_function:
-                report.extend(tool_function[key](subresults))
-            else:
-                report.append(
-                    f'[-] Reporting for subtool "pcap-stats:{ key }" '
-                    'is not yet supported.'
-                )
-    return report
-
-
-def summarize_capinfos(results={}):
-    report = []
-    for k, v in results.items():
-        if type(v) is str:
-            report.append(f'{ k }: { v }')
-    report.append('')
-    return report
-
-
-def summarize_tshark(results={}):
-    report = []
-    for k, v in results.items():
-        if type(v) is str:
-            report.append(f'{ k }: { v }')
-        elif type(v) in [list, dict]:
-            report.append(f'{ k }: { len(v) }')
-        else:
-            report.append(f'{ k }: { str(v) }')
-    report.append('')
-    return report
-
-
-def summarize_networkml(results={}):
-    if not len(results):
-        raise RuntimeError('[-] no networkml results to report on')
-    report = []
-    nodes = dict()
-    for item in results:
-        report.extend(report_tree_dict(item))
-        # for row in results:
-        #     for pre, fill, node in report_tree_dict(row):
-        #         report.append(f'{ pre }{ node.lines[0] }')
-        #         for line in node.lines[1:]:
-        #             report.append(f'{ fill }{ line }')
-    return report
-
-
-tool_function = {
-    'pcap-stats': summarize_pcap_stats,
-    'tshark': summarize_tshark,
-    'capinfos': summarize_capinfos,
-    'networkml': summarize_networkml,
-}
-
-
-class Report(Command):
+class Report(Lister):
     """Produce a report on results of a session+request."""
 
     def get_parser(self, prog_name):
@@ -128,16 +48,53 @@ class Report(Command):
         parser.add_argument(
             'req_id', nargs='?', default=get_last_request_id())
         parser.epilog = textwrap.dedent("""
-            Produces a report summarizing the contents of a PCAP file.
+            Produces a report of the results from one or more workers (tools) to
+            summarize the contents of a PCAP file.
+
+            If no tool(s) are specified, reports from all supported tools will
+            be produced.
 
             This report is very high level and is intended to illustrate
-            how to get situational awareness about flows to guide further
-            detailed analysis.
+            how to get situational awareness about flows in a packet capture
+            to guide further more detailed analysis. It may not include all
+            details from a given tool. To see the full details from a worker,
+            use ``lim cafe raw --tool TOOL`` instead.
+
+            .. code-block:: console
+
+                $ lim cafe report --tool p0f,networkml
+                [+] implicitly reusing last session id 46d4f9a9-d5db-487e-a261-91764c044b44
+                [+] implicitly reusing last request id a93591b554fe420ebbcf14b67fc8d298
+
+                Worker results: p0f
+                ===================
+
+                +-----------------+----------------+----------+-------------------+---------+-------------------+
+                | source_ip       | full_os        | short_os | link              | raw_mtu | mac               |
+                +-----------------+----------------+----------+-------------------+---------+-------------------+
+                | 10.0.2.102      | Windows 7 or 8 | Windows  | Ethernet or modem | 1500    | 08:00:27:5b:df:e1 |
+                | 202.44.54.4     | Windows XP     | Windows  | Ethernet or modem | 1500    | 52:54:00:12:35:02 |
+                | 190.110.121.202 | Windows XP     | Windows  | Ethernet or modem | 1500    | 52:54:00:12:35:02 |
+                | 112.213.89.90   | Windows XP     | Windows  | Ethernet or modem | 1500    | 52:54:00:12:35:02 |
+                +-----------------+----------------+----------+-------------------+---------+-------------------+
+
+                Worker results: networkml
+                =========================
+
+                +------------+-------------------+------------+-------------------+----------+-------------+
+                | source_ip  | source_mac        | role       |        confidence | behavior | investigate |
+                +------------+-------------------+------------+-------------------+----------+-------------+
+                | 10.0.2.102 | 08:00:27:5b:df:e1 | GPU laptop | 99.99999999539332 | normal   | False       |
+                +------------+-------------------+------------+-------------------+----------+-------------+
+
+            ..
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] report on results from workers')
+        # Save for reporting methods
+        self.parsed_args = parsed_args
         ids = get_session_ids()
         if len(ids) == 0:
             raise RuntimeError('[-] no sessions found')
@@ -161,9 +118,21 @@ class Report(Command):
                 what="a request",
                 cancel_throws_exception=True
             )
+        # Report target details
+        logger.info(textwrap.dedent(f"""
+        ********************************************************************
+           Report for Session ID:    { sess_id }
+                      Request ID:    { req_id }
+                      Counter:       { parsed_args.counter }
+                      Date produced: { arrow.utcnow() }
+        ********************************************************************
+        """))
         all_tools = get_tools()
         if parsed_args.tool is None:
-            tools = all_tools
+            # Preserve report ordering. Because, CDO.
+            # (It's like OCD, but the letters are in alphabetic order.)
+            tools = [k for k in self.tool_function.keys()
+                     if k in all_tools]
         else:
             tools = parsed_args.tool.split(',')
         for tool in tools:
@@ -171,9 +140,138 @@ class Report(Command):
                               counter=parsed_args.counter,
                               sess_id=sess_id,
                               req_id=req_id)
-            tool_summary = summarize(tool=tool,
-                                     results=results)
-            print("\n".join(tool_summary))
+            self.summarize(tool=tool,
+                           results=results,
+                           sess_id=sess_id,
+                           req_id=req_id)
+        # Return nothing as we have already output report subcomponents
+        # directly. Kind of a hack, but what the hack?
+        return (), ()
+
+    def summarize(self, tool=None, results={}, sess_id=None, req_id=None):
+        """Summarize output of workers."""
+        supported = self.tool_function.keys()
+        if tool not in supported:
+            logger.debug(f'[-] Reporting for tool "{ tool }" '
+                         'is not yet supported.')
+        else:
+            header = textwrap.dedent(f"""
+                Worker results: { tool }
+                ================{ "=" * len(tool) }
+                """)
+            logger.info(header)
+            self.tool_function[tool](self,
+                                     results=results,
+                                     sess_id=sess_id,
+                                     req_id=req_id)
+
+    def summarize_pcap_stats(self, results={}, sess_id=None, req_id=None):
+        """Report on pcap-stats output."""
+        for item in results:
+            for key, subresults in item.items():
+                sub_report_header = textwrap.dedent(f"""\
+                    { str(key) }
+                    {'-' * len(str(key)) }
+                """)
+                if key in self.tool_function:
+                    logger.info(sub_report_header)
+                    self.tool_function[key](self,
+                                            results=subresults,
+                                            sess_id=sess_id,
+                                            req_id=req_id)
+                else:
+                    logger.info(
+                        f'[-] Reporting for subtool "pcap-stats:{ key }" '
+                        'is not yet supported.'
+                    )
+
+    def summarize_capinfos(self, results={}, sess_id=None, req_id=None):
+        columns = ('Field', 'Value')
+        data = []
+        for k, v in results.items():
+            if type(v) is str:
+                data.append((k, v))
+        self.produce_output(self.parsed_args, columns, data)
+
+    def summarize_tshark(self, results={}, sess_id=None, req_id=None):
+        columns = ('Field', 'Value')
+        data = []
+        for k, v in results.items():
+            if type(v) is str:
+                data.append((k, v))
+            elif type(v) in [list, dict]:
+                data.append((k, len(v)))
+            else:
+                data.append((k, str(v)))
+        self.produce_output(self.parsed_args, columns, data)
+
+    def summarize_networkml(self, results={}, sess_id=None, req_id=None):
+        if not len(results):
+            raise RuntimeError('[-] no networkml results to report on')
+        nodes = dict()
+        columns = ['source_ip', 'source_mac', 'role',
+                   'confidence', 'behavior', 'investigate']
+        data = []
+        for item in results:
+            for key, result in item.items():
+                if key == req_id:
+                    node = f"{ result['source_ip'] }-{ result['source_mac'] }"
+                    if node not in nodes:
+                        data.append((
+                            result['source_ip'],
+                            result['source_mac'],
+                            "\n".join(result['classification']['labels']),
+                            "\n".join(['{0:.5f}'.format(i)
+                                       for i in result['classification']['confidences']]),  # noqa
+                            result['decisions']['behavior'],
+                            result['decisions']['investigate'],
+                        ))
+                    nodes[node] = True
+        self.produce_output(self.parsed_args, columns, data)
+
+    def summarize_snort(self, results={}, sess_id=None, req_id=None):
+        columns = ('Field', 'Value')
+        data = []
+        for item in results:
+            for k, v in item.items():
+                if k.endswith(':'):
+                    k = k[:-1]
+                if type(v) is str:
+                    data.append((k, None if v == '' else v))
+                elif type(v) in [list, dict]:
+                    # Make sure something shows up for no results
+                    if not bool(len(v)) or len(v) == 1 and v[0] == '':
+                        data.append((k, None))
+                    else:
+                        data.append((k, "\n".join(v)))
+                else:
+                    data.append((k, str(v)))
+        self.produce_output(self.parsed_args, columns, data)
+
+    def summarize_p0f(self, results={}, sess_id=None, req_id=None):
+        if not len(results):
+            raise RuntimeError('[-] no p0f results to report on')
+        columns = ['source_ip', 'full_os', 'short_os',
+                   'link', 'raw_mtu', 'mac']
+        data = []
+        for item in results:
+            for source_ip, result in item.items():
+                data.append(
+                    [source_ip] + [result[k] if k in result else None
+                                   for k in columns[1:]]
+                )
+        self.produce_output(self.parsed_args, columns, data)
+
+    # Reports in order of detail (highest level detail to
+    # lowest level of detail.)
+    tool_function = OrderedDict({
+        'p0f': summarize_p0f,
+        'networkml': summarize_networkml,
+        'pcap-stats': summarize_pcap_stats,
+        'tshark': summarize_tshark,
+        'capinfos': summarize_capinfos,
+        'snort': summarize_snort,
+    })
 
 
 # vim: set ts=4 sw=4 tw=0 et :
