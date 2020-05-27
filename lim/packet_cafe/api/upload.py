@@ -10,6 +10,7 @@ from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import track_progress
 from lim.packet_cafe import upload
 from lim.packet_cafe import get_last_session_id
+from lim.utils import Timer
 
 
 logger = logging.getLogger(__name__)
@@ -72,7 +73,27 @@ class Upload(Command):
             ..
 
             If ``-v`` (or more) is given, even more information is produced and
-            tracking is performed as well.
+            tracking is performed as well.  Adding the ``--elapsed`` option includes
+            elapsed lap time (per worker) and total time for all workers.
+
+            .. code-block:: console
+
+                $ lim cafe upload CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap --elapsed
+                [+] Upload 2015-04-09_capture-win2.pcap: success
+                [+] Session ID (sess_id): 46d4f9a9-d5db-487e-a261-91764c044b44
+                [+] Request ID (req_id): a93591b554fe420ebbcf14b67fc8d298
+                [+] ncapture:      complete 2020-05-27T03:26:53.894222+00:00 (00:00:05.07)
+                [+] pcap-stats:    complete 2020-05-27T03:26:56.531330+00:00 (00:00:05.07)
+                [+] pcap-dot1q:    complete 2020-05-27T03:26:56.311676+00:00 (00:00:05.07)
+                [+] mercury:       complete 2020-05-27T03:26:59.670225+00:00 (00:00:07.10)
+                [+] snort:         complete 2020-05-27T03:27:03.241917+00:00 (00:00:11.16)
+                [+] pcap-splitter: complete 2020-05-27T03:27:03.122224+00:00 (00:00:11.16)
+                [+] p0f:           complete 2020-05-27T03:27:07.341062+00:00 (00:00:15.22)
+                [+] networkml:     complete 2020-05-27T03:27:08.732745+00:00 (00:00:17.25)
+                [+] pcapplot:      complete 2020-05-27T03:27:10.634384+00:00 (00:00:19.27)
+                [+] Elapsed time 00:00:22.86
+
+            ..
 
             If you do not wish to wait, use ``-q` for no output at all, or
             use ``--no-track`` to just get the status and IDs.  You can then get
@@ -118,6 +139,7 @@ class Upload(Command):
     def take_action(self, parsed_args):
         logger.debug('[+] upload file')
         # Avoid the confusing double-negative if statement
+        timer = Timer()
         track_status = (self.app.options.verbose_level > 0
                         and parsed_args.no_track is not True)
         fpath = parsed_args.pcap[0]
@@ -136,7 +158,8 @@ class Upload(Command):
         if track_status:
             track_progress(sess_id=result['sess_id'],
                            req_id=result['uuid'],
-                           debug=self.app.options.debug)
+                           debug=self.app.options.debug,
+                           elapsed=self.app.options.elapsed)
 
 
 # vim: set ts=4 sw=4 tw=0 et :

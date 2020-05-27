@@ -16,6 +16,7 @@ from anytree.importer import DictImporter
 from anytree.importer import JsonImporter
 from anytree import Node
 from anytree import RenderTree
+from lim.utils import Timer
 
 
 # TODO(dittrich): https://github.com/Mckinsey666/bullet/issues/2
@@ -328,7 +329,7 @@ def delete(sess_id=None, raise_exception=True):
         return None
 
 
-def track_progress(sess_id=None, req_id=None, debug=False):
+def track_progress(sess_id=None, req_id=None, debug=False, elapsed=False):
     """Track the progress of workers similar to the web UI."""
     if sess_id is None:
         raise RuntimeError('[-] sess_id must not be None')
@@ -336,6 +337,9 @@ def track_progress(sess_id=None, req_id=None, debug=False):
         raise RuntimeError('[-] req_id must not be None')
     workers = [worker['name'] for worker in get_workers()]  # noqa
     max_worker_len = max([len(i) for i in workers])
+    if elapsed:
+        timer = Timer()
+        timer.start()
     reported = dict()
     last_status = {}
     while True:
@@ -355,9 +359,11 @@ def track_progress(sess_id=None, req_id=None, debug=False):
                 status[worker]['state'] not in ["Queued", "In progress"]
                 and worker not in reported
             ):
+                timer.lap(lap='now')
                 print("[+] {0:{1}}".format(worker + ':', max_worker_len + 2) +
                       f"{ status[worker]['state'].lower() } " +
-                      f"{ status[worker]['timestamp'] }")
+                      f"{ status[worker]['timestamp'] }" +
+                      f" ({ timer.elapsed(end='now') })" if elapsed else "")
                 reported[worker] = True
         if len(reported) == len(workers):
             break
