@@ -1,3 +1,5 @@
+.. _ctu_datasets:
+
 ================
 The CTU Datasets
 ================
