@@ -134,10 +134,10 @@ teardown() {
     assert_output --partial "[-] packet-cafe server has no sessions"
 }
 
-@test "\"lim cafe upload ~/git/packet_cafe/notebooks/smallFlows.pcap\" works" {
+@test "\"lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap\" works" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     [ -f $HOME/git/packet_cafe/notebooks/smallFlows.pcap ] || skip "No packet-cafe smallFlows.pcap available"
-    run bash -c "$LIM cafe upload $HOME/git/packet_cafe/notebooks/smallFlows.pcap --session-id 00000000-9999-8888-7777-666666666666"
+    run bash -c "$LIM cafe upload --wait $HOME/git/packet_cafe/notebooks/smallFlows.pcap --session-id 00000000-9999-8888-7777-666666666666"
     assert_output --partial "[+] Upload smallFlows.pcap: success"
 }
 
@@ -153,9 +153,9 @@ teardown() {
     assert_output --partial "smallFlows.pcap"
 }
 
-@test "\"lim cafe upload CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap\" works" {
+@test "\"lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap\" works" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe upload --session-id 11111111-2222-3333-4444-555555555555 CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap"
+    run bash -c "$LIM cafe upload --wait --session-id 11111111-2222-3333-4444-555555555555 CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap"
     assert_output --partial "[+] Upload botnet-capture-20110816-sogou.pcap: success"
 }
 
