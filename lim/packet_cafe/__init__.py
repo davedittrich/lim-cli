@@ -366,8 +366,7 @@ def track_progress(
                                                max_worker_len + 2) +
                           f"{ status[worker]['state'].lower() } " +
                           f"{ status[worker]['timestamp'] }" +
-                          f" ({ timer.elapsed(end='now') })" if elapsed
-                                                             else "")
+                          f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
                 reported[worker] = True
         if len(reported) == len(workers):
             break

@@ -224,7 +224,7 @@ class Report(Lister):
                             "\n".join(['{0:.5f}'.format(i)
                                        for i in result['classification']['confidences']]),  # noqa
                             result['decisions']['behavior'],
-                            "yes" if result['decisions']['investigate'] else "no",
+                            "yes" if result['decisions']['investigate'] else "no",  # noqa
                         ))
                     nodes[node] = True
         self.produce_output(self.parsed_args, columns, data)
