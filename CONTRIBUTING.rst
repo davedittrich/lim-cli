@@ -107,7 +107,10 @@ Before you submit a pull request, check that it meets these guidelines:
 Tips
 ----
 
-To run a subset of tests, do something like this::
+To run all tests, simply do ``make test``.
+
+To run a subset of tests for more fine grained development testing,
+do something like this::
 
     $ workon lim
     $ python -m unittest tests.test_ctu
