@@ -1,0 +1,23 @@
+$ make test-bats-runtime
+bats --tap tests/runtime.bats
+1..20
+ok 1 "lim -q ctu list CTU-Malware-Capture-Botnet-48" works
+ok 2 "lim -q ctu list Botnet-48" works
+ok 3 "lim -q ctu get Botnet-48 pcap --no-subdir " gets PCAP file to cwd
+ok 4 "lim -q ctu get Botnet-48 pcap" gets PCAP file
+ok 5 "lim pcap extract ips CTU-Malware-Capture-Botnet-48/botnet-capture-20110816
+ok 6 "lim pcap extract ips --stdout CTU-Malware-Capture-Botnet-48/botnet-capture
+ok 7 "lim pcap shift time CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-
+ok 8 packet-cafe Docker containers are running
+ok 9 "lim cafe admin endpoints" includes "/v1/info"
+ok 10 "lim cafe tools" includes "cyberreboot/"
+ok 11 "lim cafe info" includes "hostname"
+ok 12 "lim cafe admin info" includes "hostname"
+ok 13 "lim cafe admin sessions" has no sessions
+ok 14 "lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap" works
+ok 15 "lim cafe admin results" contains "metadata.json" files
+ok 16 "lim cafe admin files" contains "smallFlows.pcap"
+ok 17 "lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110
+ok 18 "lim cafe admin sessions -f value" shows both sessions
+ok 19 "lim cafe admin delete --all" leaves storage directory empty
+ok 20 Cleaning up /tmp/packet_cafe_status
