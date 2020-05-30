@@ -44,6 +44,16 @@ documentation to get the Docker containers started.
 
 ..
 
+.. figure:: images/docker-dashboard-packet-cafe.png
+   :align: center
+   :alt: Docker Dashboard view of Packet Café containers
+   :width: 835px
+
+   Docker Dashboard view of Packet Café containers
+
+..
+
+
 Once all of the service containers are started and healthy, you should be able
 to communicate with the server using ``lim``.
 
