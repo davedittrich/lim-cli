@@ -103,7 +103,7 @@ twine-check: sdist
 .PHONY: clean
 clean:
 	find . -name '*.pyc' -delete
-	rm -rf docs/_build/*
+	rm -rf docs/_build/{html,doctrees}
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
 	rm -rf CTU-Malware-Capture-Botnet-48
