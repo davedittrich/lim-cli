@@ -33,8 +33,16 @@ class About(Command):
                  "(default: {}).".format(None)
         )
         # NOTE(dittrich): Not DRY. Similar text in lim/packet_cafe/ui.py
-        parser.epilog = textwrap.dedent("""
+        self.logmsg = '[+] opening browser for ' + CAFE_DOCS_URL
+        parser.epilog = textwrap.dedent(f"""
             Opens up the packet-cafe documenation in a browser.
+
+            .. code-block:: console
+
+                $ lim cafe about
+                { self.logmsg }
+
+            ..
 
             Use the ``--browser`` option to choose which browser from the
             set shown.  One systems that do not have any of those browsers
@@ -50,6 +58,7 @@ class About(Command):
     def take_action(self, parsed_args):
         self.log.debug('[+] opening packet-cafe documentation')
         page = CAFE_DOCS_URL
+        self.log.info(self.logmsg)
         if parsed_args.browser is not None:
             webbrowser.get(parsed_args.browser).open_new_tab(page)
         else:

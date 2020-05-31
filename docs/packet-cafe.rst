@@ -4,7 +4,7 @@ Controlling Packet Café
 
 The In-Q-Tel Labs `Packet Café`_ service provides a modular
 `PCAP`_ analysis service that runs from a set of Docker
-containers.  It is documented at https://cyberreboot.gitbook.io/packet-cafe/
+containers.
 
 .. epigraph::
 
@@ -27,6 +27,19 @@ command line interface (CLI).
     :ref:`usage` for full details of command usage.
 
 ..
+
+To get to the Packet Café web page, use ``lim cafe about``. This will
+show the URL and also open a browser to view it:
+
+.. figure:: images/packet-cafe-web-page.png
+   :align: center
+   :alt: Opening Packet Café web page
+   :width: 835px
+
+   Opening Packet Café web page
+
+..
+
 
 
 Starting the service
