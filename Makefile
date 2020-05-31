@@ -39,7 +39,7 @@ test: test-tox test-bats
 test-tox:
 	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
 	tox
-	-git checkout ChangeLog
+	@-git checkout ChangeLog
 
 .PHONY: test-bats
 test-bats: bats-libraries
