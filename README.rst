@@ -31,7 +31,7 @@ Features
 * Future features include plotting and graphing of output
   from PCAP processing.
 
-.. _openstack/cliff: https://github.com/openstack/clif 
+.. _openstack/cliff: https://github.com/openstack/cliff
 .. _CTU Malware Capture Facility Datasets: https://www.stratosphereips.org/datasets-overview
 .. _Packet Café: https://www.cyberreboot.org/projects/packet-cafe/
 .. _PCAP: https://www.tcpdump.org/pcap.html
