@@ -1,0 +1,40 @@
+# Config file for automatic testing at travis-ci.org
+# This file will be regenerated if you run travis_pypi_setup.py
+
+language: python
+
+#virtualenv:
+#    system_site_packages: true
+
+matrix:
+  include:
+    - python: 3.6
+      env: TOXENV=py36
+    - python: 3.7
+      dist: xenial
+      env: TOXENV=py37
+    - python: 3.8
+      dist: xenial
+      env: TOXENV=py38
+    - python: 3.7
+      env: TOXENV=pep8
+    - python: 3.8
+      dist: xenial
+      env: TOXENV=pep8
+    - python: 3.8
+      env: TOXENV=pypi
+
+
+branches:
+  only:
+    - master
+    - develop
+
+# command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
+install:
+  - pip install .
+  - pip install -r requirements.txt
+
+# command to run tests, e.g. python setup.py test
+script:
+  - make test
