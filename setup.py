@@ -60,6 +60,7 @@ setup(
     pbr=True,
     description=DESCRIPTION,
     long_description=long_description + "\n\n" + history,
+    long_description_content_type=long_description_content_type,
 
     author=AUTHOR,
     author_email=EMAIL,
@@ -88,6 +89,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Security',
         'Topic :: Utilities',
     ],
