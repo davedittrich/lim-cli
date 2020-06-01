@@ -2,15 +2,17 @@
 lim
 ===
 
-.. .. image:: https://img.shields.io/pypi/v/lim-cli.svg
-..         :target: https://pypi.python.org/pypi/lim-cli
-..
-.. .. image:: https://img.shields.io/travis/davedittrich/lim-cli.svg
-..         :target: https://travis-ci.org/davedittrich/lim-cli
-..
-.. .. image:: https://readthedocs.org/projects/lim-cli/badge/?version=latest
-..         :target: https://lim-cli.readthedocs.io/en/latest/?badge=latest
-..         :alt: Documentation Status
+.. image:: https://img.shields.io/pypi/v/lim-cli.svg
+       :target: https://pypi.python.org/pypi/lim-cli
+       :alt: PyPi Status
+
+.. image:: https://img.shields.io/travis/davedittrich/lim-cli.svg
+       :target: https://travis-ci.org/davedittrich/lim-cli
+       :alt: Travis.ci Status
+
+.. image:: https://readthedocs.org/projects/lim-cli/badge/?version=latest
+       :target: https://lim-cli.readthedocs.io/en/latest/?badge=latest
+       :alt: Documentation Status
 
 
 Python CLI for accessing, manipulating, and processing computer and network
