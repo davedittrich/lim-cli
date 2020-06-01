@@ -3,7 +3,7 @@ tox
 GLOB sdist-make: /Users/dittrich/git/LiminalInfo/lim-cli/setup.py
 py36 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
 py36 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
-py36 run-test-pre: PYTHONHASHSEED='926539443'
+py36 run-test-pre: PYTHONHASHSEED='1057393983'
 py36 run-test: commands[0] | python setup.py test
 running test
 running egg_info
@@ -51,12 +51,12 @@ test_is_valid_scenario_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
 test_is_valid_scenario_MATCH (tests.test_ctu.Test_CTU_Dataset) ... ok
 
 ----------------------------------------------------------------------
-Ran 24 tests in 0.635s
+Ran 24 tests in 1.094s
 
 OK
 py37 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
 py37 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
-py37 run-test-pre: PYTHONHASHSEED='926539443'
+py37 run-test-pre: PYTHONHASHSEED='1057393983'
 py37 run-test: commands[0] | python setup.py test
 running test
 running egg_info
@@ -104,12 +104,12 @@ test_is_valid_scenario_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
 test_is_valid_scenario_MATCH (tests.test_ctu.Test_CTU_Dataset) ... ok
 
 ----------------------------------------------------------------------
-Ran 24 tests in 0.554s
+Ran 24 tests in 0.764s
 
 OK
 py38 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
 py38 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
-py38 run-test-pre: PYTHONHASHSEED='926539443'
+py38 run-test-pre: PYTHONHASHSEED='1057393983'
 py38 run-test: commands[0] | python setup.py test
 running test
 running egg_info
@@ -157,16 +157,16 @@ test_is_valid_scenario_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
 test_is_valid_scenario_MATCH (tests.test_ctu.Test_CTU_Dataset) ... ok
 
 ----------------------------------------------------------------------
-Ran 24 tests in 0.648s
+Ran 24 tests in 0.999s
 
 OK
 pep8 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
 pep8 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
-pep8 run-test-pre: PYTHONHASHSEED='926539443'
+pep8 run-test-pre: PYTHONHASHSEED='1057393983'
 pep8 run-test: commands[0] | flake8 lim setup.py --exclude text.py
 bandit inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/
 bandit installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4
-bandit run-test-pre: PYTHONHASHSEED='926539443'
+bandit run-test-pre: PYTHONHASHSEED='1057393983'
 bandit run-test: commands[0] | bandit -c bandit.yaml -r lim -x tests -n5
 [main]	INFO	profile include tests: None
 [main]	INFO	profile exclude tests: B101,B110
@@ -174,13 +174,13 @@ bandit run-test: commands[0] | bandit -c bandit.yaml -r lim -x tests -n5
 [main]	INFO	cli exclude tests: None
 [main]	INFO	using config: bandit.yaml
 [main]	INFO	running on Python 3.6.6
-Run started:2020-05-28 03:26:03.729286
+Run started:2020-06-01 00:28:44.077020
 
 Test results:
 	No issues identified.
 
 Code scanned:
-	Total lines of code: 3390
+	Total lines of code: 3396
 	Total lines skipped (#nosec): 9
 
 Run metrics:
@@ -197,42 +197,51 @@ Run metrics:
 Files skipped (0):
 docs inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
 docs installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
-docs run-test-pre: PYTHONHASHSEED='926539443'
+docs run-test-pre: PYTHONHASHSEED='1057393983'
 docs run-test: commands[0] | sphinx-build -b html docs docs/_build
 Running Sphinx v3.0.4
 loading pickled environment... done
 building [mo]: targets for 0 po files that are out of date
-building [html]: targets for 0 source files that are out of date
+building [html]: targets for 10 source files that are out of date
 updating environment: 0 added, 4 changed, 0 removed
-reading sources... [ 25%] contributing
-reading sources... [ 50%] index
+reading sources... [ 25%] changes
+reading sources... [ 50%] readme
 reading sources... [ 75%] testing
 reading sources... [100%] usage
 
-/Users/dittrich/git/LiminalInfo/lim-cli/.tox/docs/lib/python3.6/site-packages/cl
-  option_string))
-/Users/dittrich/git/LiminalInfo/lim-cli/docs/index.rst:25: WARNING: toctree cont
 looking for now-outdated files... none found
 pickling environment... done
 checking consistency... done
 preparing documents... done
-writing output... [ 25%] contributing
+writing output... [ 10%] authors
+writing output... [ 20%] changes
+writing output... [ 30%] contributing
+writing output... [ 40%] ctu
 writing output... [ 50%] index
-writing output... [ 75%] testing
+writing output... [ 60%] installation
+writing output... [ 70%] packet-cafe
+writing output... [ 80%] readme
+writing output... [ 90%] testing
 writing output... [100%] usage
 
 generating indices...  genindexdone
 writing additional pages...  searchdone
+copying images... [ 33%] images/lim-ctu-list-fit-width.png
+copying images... [ 66%] images/packet-cafe-web-page.png
+copying images... [100%] images/docker-dashboard-packet-cafe.png
+
 copying static files... ... done
 copying extra files... done
 dumping search index in English (code: en)... done
 dumping object inventory... done
-build succeeded, 1 warning.
+build succeeded.
 
 The HTML pages are in docs/_build.
+/Users/dittrich/git/LiminalInfo/lim-cli/.tox/docs/lib/python3.6/site-packages/cl
+  option_string))
 pypi inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
 pypi installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
-pypi run-test-pre: PYTHONHASHSEED='926539443'
+pypi run-test-pre: PYTHONHASHSEED='1057393983'
 pypi run-test: commands[0] | python setup.py check --restructuredtext
 running check
 ___________________________________ summary ____________________________________
