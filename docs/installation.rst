@@ -4,8 +4,13 @@ Installation
 
 This section covers installation of ``lim``.
 
-Create a Python virtual environment
------------------------------------
+Production use of ``lim`` should take advantage of released
+versions on PyPi. Testing of development versions that have
+not yet been released can be installed from the GitHub
+repository's ``master`` or ``develop`` branch. Development
+use (e.g., for creating pull requests with bug fixes and
+new features) will generally install from a local clone of
+the GitHub repository. Each of these are described below.
 
 It is generally recommended to use a Python virtual environment
 to isolate installation of third-party open source packages
@@ -18,17 +23,24 @@ the `python_secrets`_ package requires Python 3.6 or newer,
 while some operating systems come with Python 2.7 or Python
 3.4.
 
-There are two ways to handle this situation, one better for
-doing development and testing of the ``lim`` Python source
-code itself, and the other for simply running the ``lim``
-CLI on an analysis workstation. The former is more
-complicated, but better for development. The latter is
-much simpler and is the preferred method when you will
-not be doing development.  We'll look at the simpler
-way to use ``lim`` first.
+There are two ways to handle this situation.
 
-Non-development installation
-----------------------------
+1. If you intend on doing development and testing of the
+   ``lim`` Python source code itself, it is best to use
+   a Python virtual environment that you maintain manually.
+   This is a little more complicated, but you will find it
+   better suited for development.
+
+2. If you simply need to run the ``lim`` CLI on an analysis
+   workstation in a "production" sense, there is an
+   easier way to manage the virtual environment and package
+   installation more like you would with an operating system
+   package manager.
+
+The second, simpler method, will be covered first.
+
+Production (non-development) installation
+-----------------------------------------
 
 The program ``pipx`` is the easiest way to install a Python package
 including command line scripts to run them as stand-alone commands
@@ -137,121 +149,16 @@ the project web site: https://github.com/pipxproject/pipx
 Development and testing installation
 ------------------------------------
 
-Install a version of Python 3.6 (or higher) in your user
-account file system space, then from the ``lim`` directory
-run this version of Python with a full path, using the
-following command line arguments:
+Source directory setup
+~~~~~~~~~~~~~~~~~~~~~~
+
+Start by cloning the ``lim`` code repository into your Git base
+directory.
 
 .. code-block:: console
 
-    $ /home/dittrich/miniconda3/bin/python3.6 -m venv env
-    $ tree -L 1 env
-    env
-    ├ bin
-    ├ include
-    ├ lib
-    ├ lib64 -> lib
-    └ pyvenv.cfg
-
-    4 directories, 1 file
-
-..
-
-To activate the virtual environment, source the activation script.
-Many Linux shell prompts will immediately show the active
-Python virtual environment as part of the shell prompt, as
-seen here:
-
-.. code-block:: console
-
-    $ type python3
-    python3 is /home/dittrich/miniconda3/bin/python3
-    $ source env/bin/activate
-    (env) $ type python3
-    python3 is /home/dittrich/git/lim/env/bin/python3
-    (env) $
-
-..
-
-.. note::
-
-
-    It is a good idea to immediately update ``pip`` in the new
-    virtual environment, just in case it was out of date.
-
-    .. code-block:: console
-
-        $ python3 -m pip install -U pip
-        Cache entry deserialization failed, entry ignored
-        Collecting pip
-          Cache entry deserialization failed, entry ignored
-          Downloading https://files.pythonhosted.org/packages/.../pip-20.1-py2.py3-none-any.whl (1.5 MB)
-            100% |████████████████████████████████| 1.3MB 306kB/s
-        Installing collected packages: pip
-          Attempting uninstall: pip
-            Found existing installation: pip 19.3.1
-            Uninstalling pip-19.3.1:
-              Successfully uninstalled pip-19.3.1
-        Successfully installed pip-20.1
-
-    ..
-
-..
-
-Installing ``lim``
--------------------
-
-Production use of ``lim`` should take advantage of released
-versions on PyPi. Testing of development versions that have
-not yet been released can be installed from the GitHub
-repository's ``master`` or ``develop`` branch. Development
-use (e.g., for creating pull requests with bug fixes and
-new features) will generally install from a local clone of
-the GitHub repository. Each of these are described below.
-
-Production
-~~~~~~~~~~
-
-The released version of ``lim`` can be installed
-using ``pip``.
-
-.. code-block:: console
-
-    (env) $ python -m pip install -U lim
-
-..
-
-Testing
-~~~~~~~
-
-Installation from the ``master`` or ``develop`` branches of
-the GitHub repo can be done using ``pip``:
-
-.. code-block:: console
-
-    (env) $ python -m pip install -U https://github.com/LiminalAI/lim/archive/master.zip
-
-..
-
-... or:
-
-.. code-block:: console
-
-
-    (env) $ python -m pip install -U https://github.com/LiminalAI/lim/archive/develop.zip
-
-..
-
-
-Development
-~~~~~~~~~~~
-
-Clone the ``lim`` code repository into your Git base directory.
-
-.. code-block:: console
-
-    $ git clone https://github.com/LiminalAI/lim.git ~/git/lim
-    Cloning into '/home/dittrich/git/lim'...
+    $ git clone https://github.com/davedittrich/lim-cli.git ~/git/lim-cli
+    Cloning into '/home/dittrich/git/lim-cli'...
     remote: Enumerating objects: 174, done.
     remote: Counting objects: 100% (174/174), done.
     remote: Compressing objects: 100% (95/95), done.
@@ -259,7 +166,7 @@ Clone the ``lim`` code repository into your Git base directory.
     Receiving objects: 100% (1397/1397), 264.53 KiB | 0 bytes/s, done.
     Resolving deltas: 100% (920/920), done.
     Checking connectivity... done.
-    $ cd ~/git/lim
+    $ cd ~/git/lim-cli
     $ tree -L 1
     .
     ├── AUTHORS
@@ -289,10 +196,69 @@ Clone the ``lim`` code repository into your Git base directory.
 .. note::
 
    There is a subdirectory with the same name as the top level directory.
-   The directory ``lim`` is the source directory for the Cliff ``lim`` CLI
+   The directory ``lim-cli`` is the source directory for the Cliff ``lim`` CLI
    application.  Unless otherwise specified, the current working directory for
    example commands will be the top level of the cloned directory,
-   ``/home/dittrich/git/lim`` in this case.
+   ``/home/dittrich/git/lim-cli`` in this case.
+
+..
+
+Within this source directory, you can then create a virtual environment
+using a version of Python 3.6 (or higher):
+
+.. code-block:: console
+
+    $ /home/dittrich/miniconda3/bin/python3.6 -m venv env
+    $ tree -L 1 env
+    env
+    ├ bin
+    ├ include
+    ├ lib
+    ├ lib64 -> lib
+    └ pyvenv.cfg
+
+    4 directories, 1 file
+
+..
+
+To activate this virtual environment, source the activation script.
+Many Linux shell prompts will immediately show the active
+Python virtual environment as part of the shell prompt, as
+seen here:
+
+.. code-block:: console
+
+    $ type python3
+    python3 is /home/dittrich/miniconda3/bin/python3
+    $ source env/bin/activate
+    (env) $ type python3
+    python3 is /home/dittrich/git/lim-cli/env/bin/python3
+    (env) $
+
+..
+
+.. note::
+
+
+    It is a good idea to immediately update ``pip`` in the new
+    virtual environment, just in case it was out of date.
+
+    .. code-block:: console
+
+        $ python3 -m pip install -U pip
+        Cache entry deserialization failed, entry ignored
+        Collecting pip
+          Cache entry deserialization failed, entry ignored
+          Downloading https://files.pythonhosted.org/packages/.../pip-20.1-py2.py3-none-any.whl (1.5 MB)
+            100% |████████████████████████████████| 1.3MB 306kB/s
+        Installing collected packages: pip
+          Attempting uninstall: pip
+            Found existing installation: pip 19.3.1
+            Uninstalling pip-19.3.1:
+              Successfully uninstalled pip-19.3.1
+        Successfully installed pip-20.1
+
+    ..
 
 ..
 
@@ -352,7 +318,7 @@ in the Git source repository.
 .. code-block:: console
 
     $ pwd
-    $ /home/dittrich/git/lim
+    $ /home/dittrich/git/lim-cli
     $ psec environments default lim
     default environment set to "lim"
 
@@ -409,19 +375,8 @@ can do it manually with ``make docs``.
 ..
 
 If you are on a Mac, you can then open the document in your default browser with
-``open -a docs/_build/html/index.html``.
+``open docs/_build/html/index.html``.
 
-
-Tests
------
-
-Testing is done using the `Bats: Bash Automated Testing System`_
-testing framework.  See `Testing Your Shell Scripts, with Bats`_ for
-information on setting up and using BATS.
-
-
-.. _Bats\: Bash Automated Testing System: https://github.com/sstephenson/bats
-.. _Testing Your Shell Scripts, with Bats: https://medium.com/@pimterry/testing-your-shell-scripts-with-bats-abfca9bdc5b9
 
 .. _python_secrets: https://github.com/davedittrich/python_secrets
 .. _python_secrets environment: https://github.com/davedittrich/python_secrets#environments

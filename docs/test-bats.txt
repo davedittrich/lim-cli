@@ -1,0 +1,8 @@
+[+] Running bats tests: 00_help.bats
+1..6
+ok 1 "lim about" contains "version"
+ok 2 'lim help' can load all entry points
+ok 3 "lim cafe --help" properly lists subcommands
+ok 4 "lim ctu --help" properly lists subcommands
+ok 5 "lim pcap --help" properly lists subcommands
+ok 6 'lim --version' works

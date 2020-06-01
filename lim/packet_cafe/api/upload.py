@@ -36,6 +36,13 @@ class Upload(Command):
             help="Do not track worker status in real time (default: False)"
         )
         parser.add_argument(
+            '--wait',
+            action='store_true',
+            dest='wait',
+            default=False,
+            help="Wait for processing to finish (default: False)"
+        )
+        parser.add_argument(
             'pcap',
             nargs=1,
             default=None,
@@ -131,6 +138,10 @@ class Upload(Command):
 
             ..
 
+            When running ``lim`` from a script, there are some cases in which you
+            must wait until processing is completed before continuing. Use the
+            ``--wait`` flag to do this.
+
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-upload
             """)  # noqa
         return add_packet_cafe_global_options(parser)
@@ -153,10 +164,11 @@ class Upload(Command):
                 f"[+] Session ID (sess_id): { result['sess_id'] }\n"
                 f"[+] Request ID (req_id): { result['uuid'] }")
             logger.info(readable_result)
-        if track_status:
+        if track_status or parsed_args.wait:
             track_progress(sess_id=result['sess_id'],
                            req_id=result['uuid'],
                            debug=self.app.options.debug,
+                           wait_only=parsed_args.wait,
                            elapsed=self.app.options.elapsed)
 
 

@@ -325,7 +325,13 @@ def delete(sess_id=None, raise_exception=True):
         return None
 
 
-def track_progress(sess_id=None, req_id=None, debug=False, elapsed=False):
+def track_progress(
+    sess_id=None,
+    req_id=None,
+    debug=False,
+    wait_only=False,
+    elapsed=False
+):
     """Track the progress of workers similar to the web UI."""
     if sess_id is None:
         raise RuntimeError('[-] sess_id must not be None')
@@ -333,9 +339,8 @@ def track_progress(sess_id=None, req_id=None, debug=False, elapsed=False):
         raise RuntimeError('[-] req_id must not be None')
     workers = [worker['name'] for worker in get_workers()]  # noqa
     max_worker_len = max([len(i) for i in workers])
-    if elapsed:
-        timer = Timer()
-        timer.start()
+    timer = Timer()
+    timer.start()
     reported = dict()
     last_status = {}
     while True:
@@ -356,10 +361,12 @@ def track_progress(sess_id=None, req_id=None, debug=False, elapsed=False):
                 and worker not in reported
             ):
                 timer.lap(lap='now')
-                print("[+] {0:{1}}".format(worker + ':', max_worker_len + 2) +
-                      f"{ status[worker]['state'].lower() } " +
-                      f"{ status[worker]['timestamp'] }" +
-                      f" ({ timer.elapsed(end='now') })" if elapsed else "")
+                if not wait_only:
+                    print("[+] {0:{1}}".format(worker + ':',
+                                               max_worker_len + 2) +
+                          f"{ status[worker]['state'].lower() } " +
+                          f"{ status[worker]['timestamp'] }" +
+                          f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
                 reported[worker] = True
         if len(reported) == len(workers):
             break

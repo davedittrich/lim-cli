@@ -78,7 +78,7 @@ setup(
     license="Apache Software License",
     keywords='lim',
     classifiers=[
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 4 - Beta',
         'Intended Audience :: Information Technology',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Other Audience',

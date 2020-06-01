@@ -1,0 +1,255 @@
+$ make test-tox
+tox
+GLOB sdist-make: /Users/dittrich/git/LiminalInfo/lim-cli/setup.py
+py36 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
+py36 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
+py36 run-test-pre: PYTHONHASHSEED='1057393983'
+py36 run-test: commands[0] | python setup.py test
+running test
+running egg_info
+writing lim_cli.egg-info/PKG-INFO
+writing dependency_links to lim_cli.egg-info/dependency_links.txt
+writing entry points to lim_cli.egg-info/entry_points.txt
+writing namespace_packages to lim_cli.egg-info/namespace_packages.txt
+writing requirements to lim_cli.egg-info/requires.txt
+writing top-level names to lim_cli.egg-info/top_level.txt
+writing pbr to lim_cli.egg-info/pbr.json
+[pbr] Processing SOURCES.txt
+[pbr] In git context, generating filelist from git
+warning: no previously-included files found matching '.gitreview'
+warning: no previously-included files matching '*.pyc' found anywhere in distrib
+reading manifest template 'MANIFEST.in'
+warning: no files found matching 'HISTORY.rst'
+warning: no previously-included files matching '__pycache__' found under directo
+warning: no previously-included files matching '*.py[co]' found under directory 
+writing manifest file 'lim_cli.egg-info/SOURCES.txt'
+running build_ext
+[pbr] Generating ChangeLog
+test_cache_exists (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_filename_from_url (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_attributes (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_attributes_lower (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_columns (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_default_group (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_disclaimer (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_fullname_short (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_fullname_typo (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_group_INVALID (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_group_VALID (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_groups (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_pcap (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_url_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_url_SUCCESS (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_names (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_page (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenarios (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_shortname_match (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_shortname_nomatch (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_url_for_group_invalid (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_url_for_group_valid (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_is_valid_scenario_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_is_valid_scenario_MATCH (tests.test_ctu.Test_CTU_Dataset) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 1.094s
+
+OK
+py37 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
+py37 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
+py37 run-test-pre: PYTHONHASHSEED='1057393983'
+py37 run-test: commands[0] | python setup.py test
+running test
+running egg_info
+writing lim_cli.egg-info/PKG-INFO
+writing dependency_links to lim_cli.egg-info/dependency_links.txt
+writing entry points to lim_cli.egg-info/entry_points.txt
+writing namespace_packages to lim_cli.egg-info/namespace_packages.txt
+writing requirements to lim_cli.egg-info/requires.txt
+writing top-level names to lim_cli.egg-info/top_level.txt
+writing pbr to lim_cli.egg-info/pbr.json
+[pbr] Processing SOURCES.txt
+[pbr] In git context, generating filelist from git
+warning: no previously-included files found matching '.gitreview'
+warning: no previously-included files matching '*.pyc' found anywhere in distrib
+reading manifest template 'MANIFEST.in'
+warning: no files found matching 'HISTORY.rst'
+warning: no previously-included files matching '__pycache__' found under directo
+warning: no previously-included files matching '*.py[co]' found under directory 
+writing manifest file 'lim_cli.egg-info/SOURCES.txt'
+running build_ext
+[pbr] Generating ChangeLog
+test_cache_exists (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_filename_from_url (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_attributes (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_attributes_lower (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_columns (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_default_group (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_disclaimer (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_fullname_short (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_fullname_typo (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_group_INVALID (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_group_VALID (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_groups (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_pcap (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_url_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_url_SUCCESS (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_names (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_page (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenarios (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_shortname_match (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_shortname_nomatch (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_url_for_group_invalid (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_url_for_group_valid (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_is_valid_scenario_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_is_valid_scenario_MATCH (tests.test_ctu.Test_CTU_Dataset) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.764s
+
+OK
+py38 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
+py38 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
+py38 run-test-pre: PYTHONHASHSEED='1057393983'
+py38 run-test: commands[0] | python setup.py test
+running test
+running egg_info
+writing lim_cli.egg-info/PKG-INFO
+writing dependency_links to lim_cli.egg-info/dependency_links.txt
+writing entry points to lim_cli.egg-info/entry_points.txt
+writing namespace_packages to lim_cli.egg-info/namespace_packages.txt
+writing requirements to lim_cli.egg-info/requires.txt
+writing top-level names to lim_cli.egg-info/top_level.txt
+writing pbr to lim_cli.egg-info/pbr.json
+[pbr] Processing SOURCES.txt
+[pbr] In git context, generating filelist from git
+warning: no previously-included files found matching '.gitreview'
+warning: no previously-included files matching '*.pyc' found anywhere in distrib
+reading manifest template 'MANIFEST.in'
+warning: no files found matching 'HISTORY.rst'
+warning: no previously-included files matching '__pycache__' found under directo
+warning: no previously-included files matching '*.py[co]' found under directory 
+writing manifest file 'lim_cli.egg-info/SOURCES.txt'
+running build_ext
+[pbr] Generating ChangeLog
+test_cache_exists (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_filename_from_url (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_attributes (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_attributes_lower (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_columns (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_default_group (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_disclaimer (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_fullname_short (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_fullname_typo (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_group_INVALID (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_group_VALID (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_groups (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_pcap (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_url_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_attribute_url_SUCCESS (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_names (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenario_page (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_scenarios (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_shortname_match (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_shortname_nomatch (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_url_for_group_invalid (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_get_url_for_group_valid (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_is_valid_scenario_FAIL (tests.test_ctu.Test_CTU_Dataset) ... ok
+test_is_valid_scenario_MATCH (tests.test_ctu.Test_CTU_Dataset) ... ok
+
+----------------------------------------------------------------------
+Ran 24 tests in 0.999s
+
+OK
+pep8 inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
+pep8 installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
+pep8 run-test-pre: PYTHONHASHSEED='1057393983'
+pep8 run-test: commands[0] | flake8 lim setup.py --exclude text.py
+bandit inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/
+bandit installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4
+bandit run-test-pre: PYTHONHASHSEED='1057393983'
+bandit run-test: commands[0] | bandit -c bandit.yaml -r lim -x tests -n5
+[main]	INFO	profile include tests: None
+[main]	INFO	profile exclude tests: B101,B110
+[main]	INFO	cli include tests: None
+[main]	INFO	cli exclude tests: None
+[main]	INFO	using config: bandit.yaml
+[main]	INFO	running on Python 3.6.6
+Run started:2020-06-01 00:28:44.077020
+
+Test results:
+	No issues identified.
+
+Code scanned:
+	Total lines of code: 3396
+	Total lines skipped (#nosec): 9
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0.0
+		Low: 0.0
+		Medium: 0.0
+		High: 0.0
+	Total issues (by confidence):
+		Undefined: 0.0
+		Low: 0.0
+		Medium: 0.0
+		High: 0.0
+Files skipped (0):
+docs inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
+docs installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
+docs run-test-pre: PYTHONHASHSEED='1057393983'
+docs run-test: commands[0] | sphinx-build -b html docs docs/_build
+Running Sphinx v3.0.4
+loading pickled environment... done
+building [mo]: targets for 0 po files that are out of date
+building [html]: targets for 10 source files that are out of date
+updating environment: 0 added, 4 changed, 0 removed
+reading sources... [ 25%] changes
+reading sources... [ 50%] readme
+reading sources... [ 75%] testing
+reading sources... [100%] usage
+
+looking for now-outdated files... none found
+pickling environment... done
+checking consistency... done
+preparing documents... done
+writing output... [ 10%] authors
+writing output... [ 20%] changes
+writing output... [ 30%] contributing
+writing output... [ 40%] ctu
+writing output... [ 50%] index
+writing output... [ 60%] installation
+writing output... [ 70%] packet-cafe
+writing output... [ 80%] readme
+writing output... [ 90%] testing
+writing output... [100%] usage
+
+generating indices...  genindexdone
+writing additional pages...  searchdone
+copying images... [ 33%] images/lim-ctu-list-fit-width.png
+copying images... [ 66%] images/packet-cafe-web-page.png
+copying images... [100%] images/docker-dashboard-packet-cafe.png
+
+copying static files... ... done
+copying extra files... done
+dumping search index in English (code: en)... done
+dumping object inventory... done
+build succeeded.
+
+The HTML pages are in docs/_build.
+/Users/dittrich/git/LiminalInfo/lim-cli/.tox/docs/lib/python3.6/site-packages/cl
+  option_string))
+pypi inst-nodeps: /Users/dittrich/git/LiminalInfo/lim-cli/.tox/.tmp/package/1/li
+pypi installed: aiohttp==3.6.2,alabaster==0.7.12,anytree==2.8.0,appdirs==1.4.4,a
+pypi run-test-pre: PYTHONHASHSEED='1057393983'
+pypi run-test: commands[0] | python setup.py check --restructuredtext
+running check
+___________________________________ summary ____________________________________
+  py36: commands succeeded
+  py37: commands succeeded
+  py38: commands succeeded
+  pep8: commands succeeded
+  bandit: commands succeeded
+  docs: commands succeeded
+  pypi: commands succeeded
+  congratulations :)

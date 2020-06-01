@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.5.2
+VERSION:=20.6.0
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -20,6 +20,7 @@ help:
 	@echo 'test-bats-runtime - run Bats runtime integration/system tests'
 	@echo 'release - produce a pypi production release'
 	@echo 'release-test - produce a pypi test release'
+	@echo 'release-prep - final documentation preparations for release'
 	@echo 'sdist - run "python setup.py sdist"'
 	@echo 'twine-check - run "twine check"'
 	@echo 'install - install pip package'
@@ -38,7 +39,7 @@ test: test-tox test-bats
 test-tox:
 	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
 	tox
-	-git checkout ChangeLog
+	@-git checkout ChangeLog
 
 .PHONY: test-bats
 test-bats: bats-libraries
@@ -58,18 +59,22 @@ test-bats-runtime: bats-libraries
 .PHONY: no-diffs
 no-diffs:
 	@echo 'Checking Git for uncommitted changes'
-	git checkout ChangeLog
 	git diff --quiet HEAD
 
 #HELP release - package and upload a release to pypi
 .PHONY: release
-release: clean docs-tests docs-help docs sdist bdist_wheel twine-check
+release: clean docs sdist bdist_wheel twine-check
 	$(MAKE) no-diffs
 	twine upload dist/* -r pypi
 
+#HELP release-prep - final documentation preparations for release
+.PHONY: release-prep
+release-prep: install-active clean sdist docs-help docs-tests
+	@echo 'Check in help text docs and ChangeLog?'
+
 #HELP release-test - upload to "testpypi"
 .PHONY: release-test
-release-test: clean docs-tests docs-help docs sdist bdist_wheel twine-check
+release-test: clean docs sdist bdist_wheel twine-check
 	$(MAKE) no-diffs
 	twine upload dist/* -r testpypi
 
@@ -98,7 +103,7 @@ twine-check: sdist
 .PHONY: clean
 clean:
 	find . -name '*.pyc' -delete
-	rm -rf docs/_build/*
+	rm -rf docs/_build/{html,doctrees}
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
 	rm -rf CTU-Malware-Capture-Botnet-48
@@ -127,7 +132,6 @@ install:
 		$(VENV_DIR)/bin/pip uninstall -y $(PROJECT); \
 		$(VENV_DIR)/bin/python setup.py install; \
 	fi
-	$(MAKE) docs-help
 
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
@@ -139,9 +143,18 @@ i install-active: bdist_wheel
 .PHONY: docs-tests
 PR=pr --omit-header --omit-pagination --page-width 80
 docs-tests:
+	$(MAKE) -B docs/test-tox.txt
+	$(MAKE) -B docs/test-bats.txt
+	$(MAKE) -B docs/test-bats-runtime.txt
+
+docs/test-tox.txt:
 	(echo '$$ make test-tox' && $(MAKE) test-tox) |\
 	       $(PR) | tee docs/test-tox.txt
+
+docs/test-bats.txt:
 	$(MAKE) test-bats | $(PR) | tee docs/test-bats.txt
+
+docs/test-bats-runtime.txt:
 	(echo '$$ make test-bats-runtime' && $(MAKE) test-bats-runtime) |\
 	       $(PR) | tee docs/test-bats-runtime.txt
 
@@ -159,7 +172,6 @@ docs:
 	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
 	 cd docs && \
 	 make clean html)
-	-git checkout ChangeLog
 
 #HELP examples - produce some example output for docs
 .PHONY: examples

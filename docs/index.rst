@@ -29,6 +29,7 @@ Contents:
    installation
    usage
    ctu
+   packet-cafe
    testing
    contributing
    authors
