@@ -1,6 +1,32 @@
 CHANGES
 =======
 
+* Update doc example
+* Update release status to "4 - Beta"
+* Add status badges back in
+* Update OS versions
+* Add travis-ci config
+* Fix broken link
+* Hide output
+* Add URL feedback, screenshot, for "lim cafe about"
+* Narrow clean target actions in docs/
+* Add Docker dashboard packet-cafe image
+* Oops on file name
+* Note "test" Makefile target
+* Resolve pep8 findings
+* Update help and test related docs
+* Fix asynchronous processing bug in testing
+* Add packet-cafe section to docs
+* Update README.rst
+* Convert boolean to "yes" or "no"
+* Update docs installation and testing sections
+* Fix changes section
+* Update installation instructions to include pipx
+
+20.5.2
+------
+
+* Bump version
 * Update help test
 * Update "cafe admin delete" documentation
 * Remove unused code from feature branch
