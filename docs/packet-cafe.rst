@@ -220,6 +220,22 @@ arrow keys and return key.
 
 ..
 
+Opening the web UI
+------------------
+
+As a convenience, there is a command that brings up a browser with
+the Packet Café UI. It is (suprise!) ``lim cafe ui``.
+
+.. figure:: images/packet-cafe-ui.png
+   :align: center
+   :alt: Opening Packet Café User Interface
+   :width: 835px
+
+   Opening Packet Café User Interface
+
+..
+
+
 Getting worker results
 ----------------------
 
