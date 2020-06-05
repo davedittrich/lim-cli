@@ -85,6 +85,12 @@ teardown() {
     assert_output --partial "045434a0acfbe01544ea62c610a42357"
 }
 
+@test "\"lim cafe results --tool networkml\" works" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe raw --tool networkml"
+    assert_output --partial "<title>Results Viewer</title>"
+}
+
 @test "\"lim cafe admin sessions -f value\" shows both sessions" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe admin sessions -f value | sort"
@@ -105,6 +111,30 @@ teardown() {
     └── appendonly.aof
 
 4 directories, 2 files"
+}
+
+@test "\"lim cafe raw --tool p0f\" fails" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe raw --tool p0f"
+    assert_output --partial "[-] session ID not provided"
+}
+
+@test "\"lim cafe raw --tool p0f --choose\" fails" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe raw --tool p0f"
+    assert_output --partial "[-] session ID not provided"
+}
+
+@test "\"lim cafe results --tool p0f\" fails" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe raw --tool p0f"
+    assert_output --partial "[-] session ID not provided"
+}
+
+@test "\"lim cafe results --choose\" fails" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe results --choose"
+    assert_output --partial "[-] no sessions available"
 }
 
 @test "Cleaning up /tmp/packet_cafe_status" {
