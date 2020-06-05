@@ -51,10 +51,6 @@ class Requests(Lister):
         sess_id = packet_cafe.get_session_id(
                 sess_id=parsed_args.sess_id,
                 choose=parsed_args.choose)
-        # TODO(dittrich): Add this to get_session_id()?
-        if sess_id is None:
-            raise RuntimeError(
-                "[-] session ID not provided - use '--choose'?")
         if sess_id not in packet_cafe.get_session_ids():
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')

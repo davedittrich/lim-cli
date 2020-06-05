@@ -7,6 +7,7 @@ import textwrap
 from cliff.command import Command
 from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import add_packet_cafe_global_options
+from lim.packet_cafe import choose_wisely
 from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
@@ -51,27 +52,22 @@ class Results(Command):
     def take_action(self, parsed_args):
         logger.debug('[+] get tool output')
         packet_cafe = get_packet_cafe(self.app, parsed_args)
+        ids = packet_cafe.get_session_ids()
+        if not len(ids):
+            raise RuntimeError('[-] no sessions available')
         sess_id = packet_cafe.get_session_id(
                 sess_id=parsed_args.sess_id,
                 choose=parsed_args.choose)
-        # TODO(dittrich): Add this to get_session_id()?
-        if sess_id is None:
-            raise RuntimeError(
-                "[-] session ID not provided - use '--choose'?")
-        if sess_id not in packet_cafe.get_session_ids():
+        if sess_id not in ids:
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
         req_id = packet_cafe.get_request_id(
                 req_id=parsed_args.req_id,
                 choose=parsed_args.choose)
-        # TODO(dittrich): Add this to get_request_id()?
-        if req_id is None:
-            raise RuntimeError(
-                "[-] request ID not provided - use '--choose'?")
         tool = parsed_args.tool
         if tool is None:
             tools = packet_cafe.get_tools()
-            tool = packet_cafe.choose_wisely(
+            tool = choose_wisely(
                 from_list=tools,
                 what="a tool",
                 cancel_throws_exception=True

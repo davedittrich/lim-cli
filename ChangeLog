@@ -1,6 +1,18 @@
 CHANGES
 =======
 
+* Refactor API calls to be more class-y :)
+* Split runtime tests into better parts
+* Fixed tox (setup.py -> pytest upgrade)
+* Resolve syntax error
+* Add "cafe ui" subcommand to documentation
+* Add images for documentation
+* Add Python 3.8 to pypi metadata
+
+20.6.0
+------
+
+* Bump version
 * Update doc example
 * Update release status to "4 - Beta"
 * Add status badges back in

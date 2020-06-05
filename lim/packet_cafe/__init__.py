@@ -505,14 +505,20 @@ class Packet_Cafe(object):
             if len(reported) == len(workers):
                 break
 
-    def get_session_id(self, sess_id=None, reuse_session=True, choose=False):
+    def get_session_id(
+        self,
+        sess_id=None,
+        reuse_session=True,
+        choose=False,
+        generate=False,
+    ):
         """Ensure a session_id is available.
 
         Priority for obtaining the session ID is:
         1. Specified on the command line (i.e., passed as "sess_id");
-        2. Defaulting to the last used session ID;
+        2. Defaulting to the last-used session ID;
         3. Chosen from existing sessions (if requested to choose);
-        4. Generating a new session ID.
+        4. Generating a new session ID (if requested).
         """
         last_sess_id = self.get_last_session_id()
         _id = None
@@ -529,8 +535,11 @@ class Packet_Cafe(object):
                 what="session",
                 cancel_throws_exception=True
             )
-        else:
+        elif generate:
             _id = uuid.uuid4()
+        if sess_id is None and _id is None:
+            raise RuntimeError(
+                "[-] session ID not provided - use '--choose'?")
         return _id
 
     def get_last_session_id(self):
@@ -587,8 +596,9 @@ class Packet_Cafe(object):
             logger.info('[+] implicitly reusing last '
                         f'request ID { last_req_id }')
             _id = last_req_id
-        else:
-            raise RuntimeError('gah!')
+        if req_id is None and _id is None:
+            raise RuntimeError(
+                "[-] request ID not provided - use '--choose'?")
         return _id
 
     def get_last_request_id(self):

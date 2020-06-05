@@ -160,7 +160,8 @@ class Upload(Command):
         sess_id = packet_cafe.get_session_id(
                 sess_id=parsed_args.sess_id,
                 reuse_session=parsed_args.reuse_session,
-                choose=parsed_args.choose)
+                choose=parsed_args.choose,
+                generate=True)
         if not os.path.exists(fpath):
             raise RuntimeError(f'[-] file { fpath } not found')
         result = packet_cafe.upload(fpath=fpath, sess_id=sess_id)
