@@ -6,7 +6,7 @@ import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import get_files
+from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,9 @@ class Files(Lister):
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing files')
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
         columns = ['File']
-        data = [[row] for row in get_files()]
+        data = [[row] for row in packet_cafe.get_files()]
         return (columns, data)
 
 

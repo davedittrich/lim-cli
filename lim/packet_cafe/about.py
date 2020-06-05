@@ -8,7 +8,7 @@ import textwrap
 import webbrowser
 
 from cliff.command import Command
-from lim.packet_cafe import CAFE_DOCS_URL
+from lim.packet_cafe import Packet_Cafe
 from lim.packet_cafe import __BROWSERS__
 
 # Initialize a logger for this module.
@@ -33,7 +33,8 @@ class About(Command):
                  "(default: {}).".format(None)
         )
         # NOTE(dittrich): Not DRY. Similar text in lim/packet_cafe/ui.py
-        self.logmsg = '[+] opening browser for ' + CAFE_DOCS_URL
+        self.logmsg = ('[+] opening browser for ' +
+                       Packet_Cafe.get_default_docs_url())
         parser.epilog = textwrap.dedent(f"""
             Opens up the packet-cafe documenation in a browser.
 
@@ -57,7 +58,7 @@ class About(Command):
 
     def take_action(self, parsed_args):
         self.log.debug('[+] opening packet-cafe documentation')
-        page = CAFE_DOCS_URL
+        page = Packet_Cafe.get_default_docs_url()
         self.log.info(self.logmsg)
         if parsed_args.browser is not None:
             webbrowser.get(parsed_args.browser).open_new_tab(page)

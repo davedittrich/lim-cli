@@ -6,7 +6,7 @@ import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import get_workers
+from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
 
@@ -49,9 +49,10 @@ class Tools(Lister):
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing tools')
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
         columns = ['Name', 'Image', 'Version', 'Labels',
                    'Stage', 'ViewableOutput', 'Outputs', 'Inputs']
-        workers = get_workers()
+        workers = packet_cafe.get_workers()
         data = []
         for worker in workers:
             data.append(

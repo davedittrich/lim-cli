@@ -52,6 +52,7 @@ class LiminalApp(App):
             )
         self.environment = None
         self.timer = Timer()
+        self.packet_cafe = None
 
     def build_option_parser(self, description, version):
         parser = super().build_option_parser(
@@ -108,6 +109,9 @@ class LiminalApp(App):
             self.LOG.info('[+] command line: {}'.format(
                 " ".join([arg for arg in sys.argv])
             ))
+        # if cmd.cmd_name.startswith('cafe') and self.packet_cafe is None:
+        #     from lim.packet_cafe import Packet_Cafe
+        #     self.packet_cafe = Packet_Cafe()
         self.LOG.debug('prepare_to_run_command %s', cmd.__class__.__name__)
         if self.options.elapsed:
             self.timer.start()

@@ -6,9 +6,7 @@ import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import get_results
-from lim.packet_cafe import get_last_session_id
-from lim.packet_cafe import get_last_request_id
+from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
 
@@ -34,10 +32,8 @@ class Results(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
-            'sess_id', nargs='?', default=get_last_session_id())
-        parser.add_argument(
-            'req_id', nargs='?', default=get_last_request_id())
+        parser.add_argument('sess_id', nargs='?', default=None)
+        parser.add_argument('req_id', nargs='?', default=None)
         parser.add_argument(
             '-t', '--tool',
             metavar='<tool>',
@@ -78,6 +74,7 @@ class Results(Lister):
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing results')
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
         columns = ['Results']
         data = []
         # Create a set of filters from args and options.
@@ -88,7 +85,7 @@ class Results(Lister):
         ]
         # Only select items that match all filters
         data = [
-            [row] for row in get_results()
+            [row] for row in packet_cafe.get_results()
             if match(line=row, contains=contains)
          ]
         return (columns, data)

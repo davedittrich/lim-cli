@@ -6,7 +6,7 @@ import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import get_session_ids
+from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
 
@@ -43,8 +43,9 @@ class Sessions(Lister):
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing session ids')
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
         columns = ['SessionId']
-        data = [[row] for row in get_session_ids()]
+        data = [[row] for row in packet_cafe.get_session_ids()]
         if not bool(len(data)):
             logger.info('[-] packet-cafe server has no sessions')
         return (columns, data)

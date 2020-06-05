@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import json
 import logging
-import requests
 import textwrap
 
 from cliff.lister import Lister
-from lim.packet_cafe import CAFE_API_URL
 from lim.packet_cafe import add_packet_cafe_global_options
+from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
 
@@ -48,9 +46,9 @@ class Endpoints(Lister):
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing endpoints (api)')
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
         columns = ['Endpoint']
-        response = requests.request("GET", CAFE_API_URL)
-        data = [[row] for row in json.loads(response.text)]
+        data = [[row] for row in packet_cafe.get_api_endpoints()]
         return (columns, data)
 
 
