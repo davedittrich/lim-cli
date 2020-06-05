@@ -156,7 +156,8 @@ def main(argv=sys.argv[1:]):
 if __name__ == '__main__':
     # Ensure "python -m lim" and just "lim" result in same argv.
     if sys.argv[0].endswith('__main__.py'):
-        sys.argv[0] = os.path.dirname(sys.argv[0])
+        sys.argv[0] = os.path.basename(
+            os.path.dirname(sys.argv[0]).replace('lim-cli', 'lim'))
     sys.exit(main(sys.argv[1:]))
 
 # EOF
