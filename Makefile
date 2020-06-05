@@ -54,7 +54,8 @@ test-bats: bats-libraries
 
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
-	bats --tap tests/runtime.bats
+	@echo "[+] Running bats runtime tests: $(shell cd tests && echo runtime_[0-9][0-9]*.bats)"; \
+	bats --tap tests/runtime_[0-9][0-9]*.bats
 
 .PHONY: no-diffs
 no-diffs:
