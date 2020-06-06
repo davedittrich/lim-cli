@@ -655,6 +655,23 @@
             }
         },
         {
+            "name": "lim cafe containers",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "cafe",
+                "containers"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },        {
             "name": "lim cafe admin info",
             "type": "python",
             "request": "launch",
