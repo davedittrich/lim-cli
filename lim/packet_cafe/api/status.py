@@ -71,6 +71,8 @@ class Status(Lister):
     def take_action(self, parsed_args):
         logger.debug('[+] showing status for request')
         packet_cafe = get_packet_cafe(self.app, parsed_args)
+        if packet_cafe.get_session_ids() is None:
+            raise RuntimeError('[-] no sessions available')
         sess_id = packet_cafe.get_session_id(
                 sess_id=parsed_args.sess_id,
                 choose=parsed_args.choose)
