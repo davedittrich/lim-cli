@@ -1,6 +1,7 @@
 aiohttp
 arrow>=0.15.6
 bullet
+docker
 dpkt
 beautifulsoup4
 cliff

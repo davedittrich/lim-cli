@@ -3,6 +3,7 @@
 # See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-tools
 
 import argparse
+import docker
 import logging
 import json
 import os
@@ -144,6 +145,56 @@ def get_packet_cafe(app, parsed_args):
     return app.packet_cafe
 
 
+def containers_are_running():
+    """Return boolean indicating running status of packet_cafe containers.
+
+    NOTE(dittrich): By blindly checking the status of whatever set of
+    containers are returned by Docker, there is a *small* possibility
+    of a false positive here as docker-compose may still be bringing up
+    containers when you check.
+    """
+    # TODO(dittrich): identify a way to tell how many containers *should* exist.
+    status = {}
+    containers = get_containers(columns=['status'])
+    if not len(containers):
+        return False
+    for container in containers:
+        try:
+            status[container[0]] = True
+        except IndexError:
+            pass
+    return len(status) == 1 and status.get('running', False)
+
+
+def get_containers(columns=['name', 'status']):
+    """Get normalized metadata for packet_cafe Docker container."""
+    client = docker.from_env()
+    container_ids = [getattr(c, 'id') for c in client.containers.list()]
+    containers = []
+    for container_id in container_ids:
+        container = client.containers.get(container_id)
+        containers.append([get_container_metadata(
+                             getattr(container, attr, None)
+                           )
+                           for attr in columns
+                           if container.labels.get(
+                               'com.docker.compose.project', '')
+                           == 'packet_cafe'
+                           ])
+    return containers
+
+
+def get_container_metadata(item):
+    """Extract desired metadata from Docker container object."""
+    if type(item) is str:
+        return item
+    tags = getattr(item, 'tags', None)
+    if tags is not None:
+        return tags[0]
+    else:
+        return str(item)
+
+
 class Packet_Cafe(object):
     """Class for interactive with a Packet Cafe server."""
 
@@ -163,6 +214,11 @@ class Packet_Cafe(object):
         cafe_admin_port=None,
         cafe_ui_port=None,
     ):
+        if not containers_are_running():
+            raise RuntimeError(
+                '[-] the packet-cafe Docker containers do not appear to'
+                'all be running\n[-] try "lim cafe containers" command?'
+            )
         self.sess_id = sess_id
         self.cafe_server = self.CAFE_SERVER if cafe_server is None else cafe_server  # noqa
         self.cafe_admin_port = self.CAFE_ADMIN_PORT if cafe_admin_port is None else cafe_admin_port  # noqa
