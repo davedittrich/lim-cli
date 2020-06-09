@@ -1,6 +1,14 @@
 CHANGES
 =======
 
+* Add missing requirements for generating docs
+* Finish "cafe containers" subcommand
+* Add check for all containers in 'running' state
+* Raise exception if no sessions available at all
+* Add initial "cafe containters" subcommand
+* Make error handling more DRY
+* Extend packet-cafe runtime tests
+* Improve argv[0] correction
 * Refactor API calls to be more class-y :)
 * Split runtime tests into better parts
 * Fixed tox (setup.py -> pytest upgrade)
