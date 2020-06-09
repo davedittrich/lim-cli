@@ -4,6 +4,7 @@ import datetime
 import os
 import pathlib
 import pbr.version
+import textwrap
 
 # PBR has a bug that produces incorrect version numbers
 # if you run ``psec --version`` in another Git repo.
@@ -21,16 +22,8 @@ if 'lim-cli' in p.parts or 'lim' in p.parts:
     except Exception:
         pass
 else:
-    __version__ = '20.6.0'
+    __version__ = '20.6.1'
     __release__ = __version__
-
-this_year = datetime.datetime.today().year
-COPYRIGHT = f"""
-Author:    Dave Dittrich <dave.dittrich@gmail.com>
-Copyright: 2018-{ this_year }, Dave Dittrich. 2019-{ this_year }, Liminal Information Corp.
-License:   Apache 2.0 License
-URL:       https://pypi.python.org/pypi/lim-cli
-"""  # noqa
 
 BUFFER_SIZE = 128 * 1024
 DAY = os.environ.get('DAY', 5)
@@ -49,7 +42,13 @@ __email__ = 'dave.dittrich@gmail.com'
 
 def copyright():
     """Copyright string"""
-    return COPYRIGHT
+    this_year = datetime.datetime.today().year
+    return textwrap.dedent(f"""
+        Author:    Dave Dittrich <dave.dittrich@gmail.com>
+        Copyright: 2018-{ this_year }, Dave Dittrich. 2019-{ this_year }, Liminal Information Corp.
+        License:   Apache 2.0 License
+        URL:       https://pypi.python.org/pypi/lim-cli
+        """)  # noqa
 
 
 # vim: set ts=4 sw=4 tw=0 et :

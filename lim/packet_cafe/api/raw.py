@@ -11,13 +11,7 @@ from cliff.command import Command
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import choose_wisely
-from lim.packet_cafe import get_request_ids
-from lim.packet_cafe import get_session_ids
-from lim.packet_cafe import get_tools
-from lim.packet_cafe import get_raw
-from lim.packet_cafe import get_last_session_id
-from lim.packet_cafe import get_last_request_id
-from lim.packet_cafe import check_remind_defaulting
+from lim.packet_cafe import get_packet_cafe
 from pygments import formatters
 from pygments import highlight
 from pygments import lexers
@@ -31,10 +25,8 @@ class Raw(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
-            'sess_id', nargs='?', default=get_last_session_id())
-        parser.add_argument(
-            'req_id', nargs='?', default=get_last_request_id())
+        parser.add_argument('sess_id', nargs='?', default=None)
+        parser.add_argument('req_id', nargs='?', default=None)
         parser.add_argument(
             '-t', '--tool',
             metavar='<tool>',
@@ -108,39 +100,31 @@ class Raw(Command):
 
     def take_action(self, parsed_args):
         logger.debug('[+] get raw results')
-        ids = get_session_ids()
-        if parsed_args.sess_id is not None and not parsed_args.choose:
-            sess_id = check_remind_defaulting(
-                parsed_args.sess_id, 'last session id')
-        else:
-            sess_id = choose_wisely(
-                from_list=ids,
-                what="session",
-                cancel_throws_exception=True
-            )
-        if sess_id not in ids:
-            raise RuntimeError(f'[-] session ID { sess_id } not found')
-        if parsed_args.req_id is not None and not parsed_args.choose:
-            req_id = check_remind_defaulting(
-                parsed_args.req_id, 'last request id')
-        else:
-            req_id = choose_wisely(
-                from_list=get_request_ids(sess_id=sess_id),
-                what="a request",
-                cancel_throws_exception=True
-            )
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
+        sess_id = packet_cafe.get_session_id(
+                sess_id=parsed_args.sess_id,
+                choose=parsed_args.choose)
+        if sess_id not in packet_cafe.get_session_ids():
+            raise RuntimeError(
+                f'[-] session ID { sess_id } not found')
+        req_id = packet_cafe.get_request_id(
+                sess_id=parsed_args.sess_id,
+                req_id=parsed_args.req_id,
+                choose=parsed_args.choose)
         tool = parsed_args.tool
         if tool is None:
-            tools = get_tools()
+            tools = packet_cafe.get_tools()
             tool = choose_wisely(
                 from_list=tools,
                 what="a tool",
                 cancel_throws_exception=True
             )
-        results = get_raw(tool=tool,
-                          counter=parsed_args.counter,
-                          sess_id=sess_id,
-                          req_id=req_id)
+        results = packet_cafe.get_raw(
+            tool=tool,
+            counter=parsed_args.counter,
+            sess_id=sess_id,
+            req_id=req_id
+        )
         if results is not None:
             if parsed_args.pprint:
                 # pp = pprint.PrettyPrinter(indent=parsed_args.indent)

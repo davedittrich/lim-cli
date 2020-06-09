@@ -8,7 +8,7 @@ import textwrap
 import webbrowser
 
 from cliff.command import Command
-from lim.packet_cafe import CAFE_UI_URL
+from lim.packet_cafe import Packet_Cafe
 from lim.packet_cafe import __BROWSERS__
 
 # Initialize a logger for this module.
@@ -49,7 +49,7 @@ class UI(Command):
 
     def take_action(self, parsed_args):
         self.log.debug('[+] opening packet-cafe UI')
-        page = CAFE_UI_URL
+        page = Packet_Cafe.get_default_ui_url()
         if parsed_args.browser is not None:
             webbrowser.get(parsed_args.browser).open_new_tab(page)
         else:

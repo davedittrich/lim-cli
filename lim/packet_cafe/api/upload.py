@@ -7,9 +7,7 @@ import textwrap
 
 from cliff.command import Command
 from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import track_progress
-from lim.packet_cafe import upload
-from lim.packet_cafe import get_last_session_id
+from lim.packet_cafe import get_packet_cafe
 
 
 logger = logging.getLogger(__name__)
@@ -22,18 +20,11 @@ class Upload(Command):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
-            '--session-id',
-            metavar='<uuid>',
-            dest='sessionId',
-            default=None,
-            help='Session ID (default: generate at runtime)'
-        )
-        parser.add_argument(
             '--no-track',
             action='store_true',
             dest='no_track',
             default=False,
-            help="Do not track worker status in real time (default: False)"
+            help='Do not track worker status in real time (default: False)'
         )
         parser.add_argument(
             '--wait',
@@ -46,14 +37,27 @@ class Upload(Command):
             'pcap',
             nargs=1,
             default=None,
-            help="PCAP file to upload"
+            help='PCAP file to upload'
+        )
+        session = parser.add_mutually_exclusive_group(required=False)
+        session.add_argument('sess_id', nargs='?', default=None)
+        session.add_argument(
+            '--reuse-session',
+            action='store_true',
+            dest='reuse_session',
+            default=False,
+            help='Reuse the last session ID (default: False)'
         )
         parser.epilog = textwrap.dedent("""
             Upload a file to the packet-cafe service for processing.
 
-            You can attempt to re-use the last session ID by using
-            ``--session-id last``.  If that session does not exist, a new
-            session ID will be generated.
+            By default, the file is added to a new session. To instead
+            add this file to an existing session, you can (a) specify the
+            session ID as an argument on the command line, (b) add the
+            ``--choose`` flag to interactively select the session ID from
+            existing sessions, (c) add the ``--reuse-session`` flag to
+            associate this file with the last session ID, or allow the
+            default behavior of generating a new session.
 
             By default, basic status information is returned (including whether
             the call succeeded and the session ID + request ID for this request)
@@ -101,7 +105,7 @@ class Upload(Command):
 
             ..
 
-            If you do not wish to wait, use ``-q` for no output at all, or
+            If you do not wish to wait, use ``-q`` for no output at all, or
             use ``--no-track`` to just get the status and IDs.  You can then get
             status using ``lim cafe status``:
 
@@ -148,15 +152,19 @@ class Upload(Command):
 
     def take_action(self, parsed_args):
         logger.debug('[+] upload file')
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
         # Avoid the confusing double-negative if statement
         track_status = (self.app.options.verbose_level > 0
                         and parsed_args.no_track is not True)
         fpath = parsed_args.pcap[0]
-        if parsed_args.sessionId == "last":
-            parsed_args.sessionId = get_last_session_id()
+        sess_id = packet_cafe.get_session_id(
+                sess_id=parsed_args.sess_id,
+                reuse_session=parsed_args.reuse_session,
+                choose=parsed_args.choose,
+                generate=True)
         if not os.path.exists(fpath):
             raise RuntimeError(f'[-] file { fpath } not found')
-        result = upload(fpath=fpath, sessionId=parsed_args.sessionId)
+        result = packet_cafe.upload(fpath=fpath, sess_id=sess_id)
         if self.app.options.verbose_level > 0:
             # NOTE(dittrich): Don't forget: 'req_id' is 'uuid' in result
             readable_result = (
@@ -165,11 +173,13 @@ class Upload(Command):
                 f"[+] Request ID (req_id): { result['uuid'] }")
             logger.info(readable_result)
         if track_status or parsed_args.wait:
-            track_progress(sess_id=result['sess_id'],
-                           req_id=result['uuid'],
-                           debug=self.app.options.debug,
-                           wait_only=parsed_args.wait,
-                           elapsed=self.app.options.elapsed)
+            packet_cafe.track_progress(
+                sess_id=result['sess_id'],
+                req_id=result['uuid'],
+                debug=self.app.options.debug,
+                wait_only=parsed_args.wait,
+                elapsed=self.app.options.elapsed
+            )
 
 
 # vim: set ts=4 sw=4 tw=0 et :

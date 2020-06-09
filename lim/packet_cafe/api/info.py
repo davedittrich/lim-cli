@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import argparse
-import json
 import logging
-import requests
 import textwrap
 
 from cliff.show import ShowOne
-from lim.packet_cafe import CAFE_API_URL
 from lim.packet_cafe import add_packet_cafe_global_options
+from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
 
@@ -44,12 +42,11 @@ class ApiInfo(ShowOne):
 
     def take_action(self, parsed_args):
         logger.debug('[+] showing info (api)')
-        # Doing this manually here to include URL in output.
-        url = f'{ CAFE_API_URL }/info'
-        response = requests.request("GET", url)
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
+        response = packet_cafe.get_api_info()
         columns = ['url']
-        data = [(url)]
-        for k, v in json.loads(response.text).items():
+        data = [(getattr(packet_cafe, 'cafe_api_url'))]
+        for k, v in response.items():
             columns.append(k)
             data.append((v))
         return (columns, data)

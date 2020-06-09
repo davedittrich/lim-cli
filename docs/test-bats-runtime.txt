@@ -1,6 +1,6 @@
 $ make test-bats-runtime
-bats --tap tests/runtime.bats
-1..20
+[+] Running bats runtime tests: runtime_10_ctu.bats runtime_20_pcap.bats runtime
+1..28
 ok 1 "lim -q ctu list CTU-Malware-Capture-Botnet-48" works
 ok 2 "lim -q ctu list Botnet-48" works
 ok 3 "lim -q ctu get Botnet-48 pcap --no-subdir " gets PCAP file to cwd
@@ -8,16 +8,24 @@ ok 4 "lim -q ctu get Botnet-48 pcap" gets PCAP file
 ok 5 "lim pcap extract ips CTU-Malware-Capture-Botnet-48/botnet-capture-20110816
 ok 6 "lim pcap extract ips --stdout CTU-Malware-Capture-Botnet-48/botnet-capture
 ok 7 "lim pcap shift time CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-
-ok 8 packet-cafe Docker containers are running
-ok 9 "lim cafe admin endpoints" includes "/v1/info"
-ok 10 "lim cafe tools" includes "cyberreboot/"
-ok 11 "lim cafe info" includes "hostname"
-ok 12 "lim cafe admin info" includes "hostname"
-ok 13 "lim cafe admin sessions" has no sessions
-ok 14 "lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap" works
-ok 15 "lim cafe admin results" contains "metadata.json" files
-ok 16 "lim cafe admin files" contains "smallFlows.pcap"
-ok 17 "lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110
-ok 18 "lim cafe admin sessions -f value" shows both sessions
-ok 19 "lim cafe admin delete --all" leaves storage directory empty
-ok 20 Cleaning up /tmp/packet_cafe_status
+ok 8 packet-cafe Docker containers are running (via "docker ps")
+ok 9 "lim cafe containers --check-running" reports Docker containers are running
+ok 10 "lim cafe endpoints" includes "/api/v1/info"
+ok 11 "lim cafe admin endpoints" includes "/v1/info"
+ok 12 "lim cafe tools" includes "cyberreboot/"
+ok 13 "lim cafe info" includes "hostname"
+ok 14 "lim cafe admin info" includes "hostname"
+ok 15 "lim cafe admin sessions" has no sessions
+ok 16 "lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap" works
+ok 17 "lim cafe admin results" contains "metadata.json" files
+ok 18 "lim cafe admin files" contains "smallFlows.pcap"
+ok 19 "lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110
+ok 20 "lim -q cafe report --tool p0f" works
+ok 21 "lim cafe results --tool networkml" works
+ok 22 "lim cafe admin sessions -f value" shows both sessions
+ok 23 "lim cafe admin delete --all" leaves storage directory empty
+ok 24 "lim cafe raw --tool p0f" fails
+ok 25 "lim cafe raw --tool p0f --choose" fails
+ok 26 "lim cafe results --tool p0f" fails
+ok 27 "lim cafe results --choose" fails
+ok 28 Cleaning up /tmp/packet_cafe_status

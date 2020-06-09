@@ -60,6 +60,7 @@ setup(
     pbr=True,
     description=DESCRIPTION,
     long_description=long_description + "\n\n" + history,
+    long_description_content_type=long_description_content_type,
 
     author=AUTHOR,
     author_email=EMAIL,
@@ -88,6 +89,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
         'Topic :: Security',
         'Topic :: Utilities',
     ],
@@ -112,6 +114,7 @@ setup(
             'cafe admin results = lim.packet_cafe.admin.results:Results',
             'cafe admin sessions = lim.packet_cafe.admin.sessions:Sessions',
             'cafe admin info = lim.packet_cafe.admin.info:AdminInfo',
+            'cafe containers = lim.packet_cafe.extensions.containers:Containers',  # noqa
             'cafe endpoints = lim.packet_cafe.api.endpoints:Endpoints',
             'cafe raw = lim.packet_cafe.api.raw:Raw',
             'cafe requests = lim.packet_cafe.api.requests:Requests',

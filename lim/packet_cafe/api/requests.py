@@ -6,11 +6,7 @@ import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import check_remind_defaulting
-from lim.packet_cafe import choose_wisely
-from lim.packet_cafe import get_requests
-from lim.packet_cafe import get_session_ids
-from lim.packet_cafe import get_last_session_id
+from lim.packet_cafe import get_packet_cafe
 
 logger = logging.getLogger(__name__)
 
@@ -21,8 +17,7 @@ class Requests(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
-            'sess_id', nargs='?', default=get_last_session_id())
+        parser.add_argument('sess_id', nargs='?', default=None)
         parser.epilog = textwrap.dedent("""
             List current request IDs for a specific packet-cafe session ID. By default,
             the last used session ID will be the default. Otherwise, specify the session ID
@@ -49,20 +44,16 @@ class Requests(Lister):
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing request ids')
-        ids = get_session_ids()
+        packet_cafe = get_packet_cafe(self.app, parsed_args)
+        ids = packet_cafe.get_session_ids()
         if len(ids) == 0:
             raise RuntimeError('[-] no sessions found')
-        if parsed_args.sess_id is not None and not parsed_args.choose:
-            sess_id = check_remind_defaulting(
-                parsed_args.sess_id, 'last session id')
-        else:
-            sess_id = choose_wisely(
-                from_list=ids,
-                what="session",
-                cancel_throws_exception=True
-            )
-        if sess_id not in ids:
-            raise RuntimeError(f'[-] session ID { sess_id } not found')
+        sess_id = packet_cafe.get_session_id(
+                sess_id=parsed_args.sess_id,
+                choose=parsed_args.choose)
+        if sess_id not in packet_cafe.get_session_ids():
+            raise RuntimeError(
+                f'[-] session ID { sess_id } not found')
         #
         # NOTE(dittrich): The dictionary key "original_filename" differs
         # from other dictionaries that have "camel case" (e.g.,
@@ -70,7 +61,7 @@ class Requests(Lister):
         # capitalization of column headers. :(
         columns = ['Id', 'Filename', 'Original_Filename', 'Tools']
         data = []
-        for row in get_requests(sess_id=sess_id):
+        for row in packet_cafe.get_requests(sess_id=sess_id):
             data.append(
                 ([row[c.lower()] for c in columns])
             )
