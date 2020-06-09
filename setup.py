@@ -114,7 +114,7 @@ setup(
             'cafe admin results = lim.packet_cafe.admin.results:Results',
             'cafe admin sessions = lim.packet_cafe.admin.sessions:Sessions',
             'cafe admin info = lim.packet_cafe.admin.info:AdminInfo',
-            'cafe containers = lim.packet_cafe.extensions.containers:Containers',
+            'cafe containers = lim.packet_cafe.extensions.containers:Containers',  # noqa
             'cafe endpoints = lim.packet_cafe.api.endpoints:Endpoints',
             'cafe raw = lim.packet_cafe.api.raw:Raw',
             'cafe requests = lim.packet_cafe.api.requests:Requests',

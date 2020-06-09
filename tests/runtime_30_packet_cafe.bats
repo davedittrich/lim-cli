@@ -12,10 +12,15 @@ teardown() {
     true
 }
 
-@test "packet-cafe Docker containers are running" {
+@test "packet-cafe Docker containers are running (via \"docker ps\")" {
     bash -c "([ $(docker ps | grep cyberreboot | grep healthy | wc -l) -ge 7 ] && echo UP || echo DOWN) | tee /tmp/packet_cafe_status"
     [ -f /tmp/packet_cafe_status ]
     [ "$(cat /tmp/packet_cafe_status)" == "UP" ]
+}
+
+@test "\"lim cafe containers --check-running\" reports Docker containers are running" {
+    run bash -c "$LIM cafe containers --check-running"
+    assert_success
 }
 
 @test "\"lim cafe endpoints\" includes \"/api/v1/info\"" {
@@ -88,7 +93,7 @@ teardown() {
 @test "\"lim cafe results --tool networkml\" works" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe raw --tool networkml"
-    assert_output --partial "<title>Results Viewer</title>"
+    assert_output --partial '"source_ip": "147.32.84.79"'
 }
 
 @test "\"lim cafe admin sessions -f value\" shows both sessions" {

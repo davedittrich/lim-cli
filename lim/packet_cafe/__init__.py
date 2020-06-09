@@ -153,7 +153,7 @@ def containers_are_running():
     of a false positive here as docker-compose may still be bringing up
     containers when you check.
     """
-    # TODO(dittrich): identify a way to tell how many containers *should* exist.
+    # TODO(dittrich): identify a way to tell how many containers *should* exist.  # noqa
     status = {}
     containers = get_containers(columns=['status'])
     if not len(containers):

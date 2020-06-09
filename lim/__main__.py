@@ -39,7 +39,7 @@ def default_environment(default=None):
 
 
 class LiminalApp(App):
-    """LiminalAI CLI application"""
+    """LiminalInfo CLI application"""
 
     def __init__(self):
         super(LiminalApp, self).__init__(

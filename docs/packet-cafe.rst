@@ -19,17 +19,8 @@ Packet Café has both a Javascript-based web user interface (UI) and a REST API
 that ``lim`` uses to communicate with the Packet Café service to provide a
 command line interface (CLI).
 
-.. note::
-
-    Not all commands, nor all command line options, are shown in
-    this section.  Just enough to show end-to-end use of ``lim``
-    as a CLI for Packet Café is included here. See the section
-    :ref:`usage` for full details of command usage.
-
-..
-
-To get to the Packet Café web page, use ``lim cafe about``. This will
-show the URL and also open a browser to view it:
+To view the Packet Café web page, use ``lim cafe about``. This will
+show the URL and also attempt to open a browser to the web page:
 
 .. figure:: images/packet-cafe-web-page.png
    :align: center
@@ -40,19 +31,29 @@ show the URL and also open a browser to view it:
 
 ..
 
+.. note::
 
+    Not all commands, nor all command line options, are shown in
+    this section.  Just enough to show end-to-end use of ``lim``
+    as a CLI for Packet Café is included here. See the section
+    :ref:`usage` for full details of command usage.
+
+..
 
 Starting the service
 --------------------
 
-Follow the instructions in the `Deployment`_ section of the Packet Café
-documentation to get the Docker containers started.
+`Packet Café`_ runs all of its service workers and user interfaces
+as Docker containers on the local host.  To start the containers using
+``docker-compose``, follow the instructions in the `Deployment`_ section
+of the Packet Café documentation.
 
 .. note::
 
    The Docker containers require the environment variable ``VOL_PREFIX`` be
-   set to point to the directory where state is mounted to be available from
-   outside the containers. For this example, it is set to
+   set to point to the directory tree that will contain worker output and
+   related state is mounted so these files are available from outside the
+   containers. For this example, this variable is set to
    ``$HOME/packet_cafe_data``.
 
 ..
@@ -66,9 +67,41 @@ documentation to get the Docker containers started.
 
 ..
 
+You can always use ``docker ps`` to see all Docker containers and their
+status, but there is a more direct way to see the running status of only
+the Packet Café Docker containers. A table is produced by the command ``lim
+cafe containers``, while adding the ``--check-running`` flag will just check to
+see if all containers with the ``com.docker.compose.project`` label set to
+``packet_cafe`` and return a standard Unix exit code of ``0`` (success) or
+``1`` (failure).
+
+.. # Copied from lim/packet_cafe/extensions/containers.py
+
+.. code-block:: console
+
+    $ lim cafe containers
+    +-------------------------+------------+------------------------------------------+---------+
+    | name                    | short_id   | image                                    | status  |
+    +-------------------------+------------+------------------------------------------+---------+
+    | packet_cafe_messenger_1 | ce4eed9e01 | cyberreboot/packet_cafe_messenger:latest | running |
+    | packet_cafe_workers_1   | 43fff494f6 | cyberreboot/packet_cafe_workers:latest   | running |
+    | packet_cafe_ui_1        | 794eb87ed6 | cyberreboot/packet_cafe_ui:latest        | running |
+    | packet_cafe_web_1       | a1f8f5f7cc | cyberreboot/packet_cafe_web:latest       | running |
+    | packet_cafe_mercury_1   | 882b12e31f | cyberreboot/mercury:v0.11.10             | running |
+    | packet_cafe_ncapture_1  | 5b1b10f3e0 | cyberreboot/ncapture:v0.11.10            | running |
+    | packet_cafe_admin_1     | 73304f16cf | cyberreboot/packet_cafe_admin:latest     | running |
+    | packet_cafe_redis_1     | c893c408b5 | cyberreboot/packet_cafe_redis:latest     | running |
+    | packet_cafe_lb_1        | 4530125e8e | cyberreboot/packet_cafe_lb:latest        | running |
+    +-------------------------+------------+------------------------------------------+---------+
+    $ lim cafe containers --check-running
+    $ echo $?
+    0
+
+..
 
 Once all of the service containers are started and healthy, you should be able
-to communicate with the server using ``lim``.
+to communicate with the server using ``lim``.  If they are not running, ``lim``
+will let you know.
 
 .. # Copied from lim/packet_cafe/api/info.py
 
@@ -106,10 +139,15 @@ The *admin* interface also has an ``info`` function.
 
 .. note::
 
-    Note that ``lim`` keeps track of the last *session ID* and
-    *request ID* as a convenience when running multiple commands
-    in sequence. Otherwise, you have to cut/paste these long UUIDs
-    every command, which is quite tedious and error prone.
+    As a convenience when running multiple commands in sequence,
+    ``lim`` keeps track of the last *session ID* and *request ID*
+    and will reuse them by default. The values show up in the
+    output of ``lim cafe admin info``. Otherwise, you would have to
+    type or cut+paste these long UUIDs for every command, which
+    is both a bit tedious and error prone. You can override this
+    behavior and interactively select from existing session
+    and request IDs by using the ``--choose`` flag on commands
+    that require these IDs.
 
 ..
 
@@ -120,7 +158,7 @@ The workflow pipeline is triggered by uploading a PCAP file.
 
 .. note::
 
-    The :ref:`ctu_datasets` section describes how to use ``lim`` to search for
+    The section :ref:`ctu_datasets` describes how to use ``lim`` to search for
     and download PCAP files associated with malware and malicious activity
     captured in a sandbox.
 
