@@ -19,7 +19,7 @@ Python CLI for accessing, manipulating, and processing computer and network
 security information (e.g., PCAP, Netflow, etc.)
 
 * License: Apache 2.0 License
-* Documentation: https://lim.readthedocs.io/en/latest/
+* Documentation: https://lim-cli.readthedocs.io/en/latest/
 
 
 Features
