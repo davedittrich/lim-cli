@@ -535,7 +535,7 @@
             }
         },
         {
-            "name": "lim cafe raw bd976556-fbc3-4e2e-a808-7024c0c0f69b 9e74cc6f818c47ea9cd8c8ab94ce93db --tool p0f",
+            "name": "lim cafe raw --tool p0f --choose",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -545,10 +545,9 @@
                 "--debug",
                 "cafe",
                 "raw",
-                "bd976556-fbc3-4e2e-a808-7024c0c0f69b",
-                "9e74cc6f818c47ea9cd8c8ab94ce93db",
                 "--tool",
-                "p0f"
+                "p0f",
+                "--choose"
             ],
             "stopOnEntry": false,
             "env": {
@@ -597,7 +596,7 @@
             }
         },
         {
-            "name": "lim cafe report --tool p0f",
+            "name": "lim cafe report --tool p0f --choose",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -608,7 +607,8 @@
                 "cafe",
                 "report",
                 "--tool",
-                 "p0f"
+                 "p0f",
+                 "--choose"
             ],
             "stopOnEntry": false,
             "env": {
@@ -839,6 +839,23 @@
             }
         },
         {
+            "name": "lim cafe ui",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "cafe",
+                "ui"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },        {
             "name": "lim cafe upload test.pcap",
             "type": "python",
             "request": "launch",
