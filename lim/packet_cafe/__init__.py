@@ -94,8 +94,12 @@ def _valid_counter(value):
 
 
 def choose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
+    if not len(from_list):
+        raise RuntimeError('[-] nothing provided from which to choose')
+    if not sys.stdout.isatty():
+        raise RuntimeError('[-] no tty available')
     choices = ['<CANCEL>'] + from_list
-    cli = Bullet(prompt=f'\nChose { what }:',
+    cli = Bullet(prompt=f'\nChoose { what }:',
                  choices=choices,
                  indent=0,
                  align=2,
@@ -106,7 +110,7 @@ def choose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
     choice = cli.launch()
     if choice == "<CANCEL>":
         if cancel_throws_exception:
-            raise RuntimeError(f'[-] cancelled chosing { what }')
+            raise RuntimeError(f'[-] cancelled choosing { what }')
         else:
             return None
     return choice
