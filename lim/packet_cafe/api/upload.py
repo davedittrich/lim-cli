@@ -37,10 +37,15 @@ class Upload(Command):
             'pcap',
             nargs=1,
             default=None,
-            help='PCAP file to upload'
+            help='Path to PCAP file to upload'
         )
         session = parser.add_mutually_exclusive_group(required=False)
-        session.add_argument('sess_id', nargs='?', default=None)
+        session.add_argument(
+            'sess_id',
+            nargs='?',
+            default=None,
+            help='Optional session ID (default is to generate)'
+        )
         session.add_argument(
             '--reuse-session',
             action='store_true',
