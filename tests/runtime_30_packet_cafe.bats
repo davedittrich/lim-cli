@@ -136,10 +136,22 @@ teardown() {
     assert_output --partial "[-] session ID not provided"
 }
 
-@test "\"lim cafe results --choose\" fails" {
+@test "\"lim cafe results --choose\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe results --choose"
     assert_output --partial "[-] no sessions available"
+}
+
+@test "\"lim cafe about\" fails (no tty)" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe about"
+    assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
+}
+
+@test "\"lim cafe ui\" fails (no tty)" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe ui"
+    assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
 }
 
 @test "Cleaning up /tmp/packet_cafe_status" {

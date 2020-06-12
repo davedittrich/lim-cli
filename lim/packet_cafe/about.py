@@ -4,6 +4,7 @@ from __future__ import print_function
 
 import argparse
 import logging
+import sys
 import textwrap
 import webbrowser
 
@@ -32,9 +33,17 @@ class About(Command):
             help="Browser to use for viewing " +
                  "(default: {}).".format(None)
         )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            dest='force',
+            default=False,
+            help=("Open the browser even if process has no TTY "
+                  "(default: False)")
+        )
         # NOTE(dittrich): Not DRY. Similar text in lim/packet_cafe/ui.py
-        self.logmsg = ('[+] opening browser for ' +
-                       Packet_Cafe.get_default_docs_url())
+        self.logmsg = (
+            f'[+] opening browser for { Packet_Cafe.CAFE_DOCS_URL }')
         parser.epilog = textwrap.dedent(f"""
             Opens up the packet-cafe documenation in a browser.
 
@@ -44,6 +53,10 @@ class About(Command):
                 { self.logmsg }
 
             ..
+
+            An exception is thrown if the process has no TTY. Use the ``--force``
+            option to bypass this behavior and attempt to open the browser
+            anyway.
 
             Use the ``--browser`` option to choose which browser from the
             set shown.  One systems that do not have any of those browsers
@@ -58,7 +71,10 @@ class About(Command):
 
     def take_action(self, parsed_args):
         self.log.debug('[+] opening packet-cafe documentation')
-        page = Packet_Cafe.get_default_docs_url()
+        if not sys.stdin.isatty() and not parsed_args.force:
+            raise RuntimeError(
+                "[-] use --force to open browser when stdin is not a TTY")
+        page = Packet_Cafe.CAFE_DOCS_URL
         self.log.info(self.logmsg)
         if parsed_args.browser is not None:
             webbrowser.get(parsed_args.browser).open_new_tab(page)
