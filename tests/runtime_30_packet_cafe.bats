@@ -12,6 +12,27 @@ teardown() {
     true
 }
 
+# Command test coverage (i.e., one or more tests exist):
+# cafe about             Yes
+# cafe admin delete      Yes
+# cafe admin endpoints   Yes
+# cafe admin files       Yes
+# cafe admin info        Yes
+# cafe admin results     Yes
+# cafe admin sessions    Yes
+# cafe containers        Yes
+# cafe endpoints         Yes
+# cafe info              Yes
+# cafe raw               Yes
+# cafe report            Yes
+# cafe requests          Yes
+# cafe results           Yes
+# cafe status            Yes
+# cafe stop              No (API call not implemented yet)
+# cafe tools             Yes
+# cafe ui                Yes
+# cafe upload            Yes
+
 @test "packet-cafe Docker containers are running (via \"docker ps\")" {
     bash -c "([ $(docker ps | grep cyberreboot | grep healthy | wc -l) -ge 7 ] && echo UP || echo DOWN) | tee /tmp/packet_cafe_status"
     [ -f /tmp/packet_cafe_status ]
@@ -66,6 +87,12 @@ teardown() {
     assert_output --partial "[+] Upload smallFlows.pcap: success"
 }
 
+@test "\"lim cafe status\" contains \"Complete\"" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe status -f value"
+    assert_output --partial "Complete"
+}
+
 @test "\"lim cafe admin results\" contains \"metadata.json\" files" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe admin results -f value | grep 11111111-1111-1111-1111-111111111111"
@@ -103,6 +130,12 @@ teardown() {
 22222222-2222-2222-2222-222222222222"
 }
 
+@test "\"lim cafe admin delete 22222222-2222-2222-2222-222222222222\" removes session/request state" {
+    run bash -c "$LIM cafe admin delete 22222222-2222-2222-2222-222222222222"
+    [ ! -f .packet_cafe_last_session_id ]
+    [ ! -f .packet_cafe_last_request_id ]
+}
+
 @test "\"lim cafe admin delete --all\" leaves storage directory empty" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe admin delete --all"
@@ -124,10 +157,10 @@ teardown() {
     assert_output --partial "[-] session ID not provided"
 }
 
-@test "\"lim cafe raw --tool p0f --choose\" fails" {
+@test "\"lim cafe raw --tool p0f --choose\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe raw --tool p0f"
-    assert_output --partial "[-] session ID not provided"
+    run bash -c "$LIM cafe raw --tool p0f --choose"
+    assert_output --partial "[-] caller did not provide a session from which to choose"
 }
 
 @test "\"lim cafe results --tool p0f\" fails" {
@@ -144,13 +177,13 @@ teardown() {
 
 @test "\"lim cafe about\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe about"
+    run bash -c "$LIM cafe about < /dev/null"
     assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
 }
 
 @test "\"lim cafe ui\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe ui"
+    run bash -c "$LIM cafe ui < /dev/null"
     assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
 }
 
