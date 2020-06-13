@@ -32,6 +32,10 @@ class AdminDelete(Command):
             Deletes all data and id directories for one or more
             sessions.
 
+            As a safety feature, you must provide a session ID
+            on the command line or choose interactively. This command
+            will not default like other commands.
+
             To select specific sessions, provide them as arguments.
             You can select the desired session ID from a list of
             available sessions with the ``--choose`` option, or
