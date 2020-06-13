@@ -29,7 +29,7 @@ class Results(Command):
             help='Only show results for specified tool (default: None)'
         )
         parser.add_argument(
-            '-c', '--counter',
+            '-C', '--counter',
             metavar='<counter>',
             type=_valid_counter,
             dest='counter',
