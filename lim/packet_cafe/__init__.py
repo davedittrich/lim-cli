@@ -154,6 +154,8 @@ def containers_are_running():
     See: https://cyberreboot.gitbook.io/packet-cafe/design/api
     """
     # TODO(dittrich): identify a way to tell how many containers *should* exist.  # noqa
+    # Check out https://github.com/CyberReboot/packet_cafe/blob/master/workers/workers.json  # noqa
+    #
     # NOTE(dittrich): Names may change?
     # This would be more robust if done via an API call.
     min_containers = [
@@ -162,7 +164,7 @@ def containers_are_running():
     status = list(set([
                       c[1]
                       for c in get_containers(columns=['name', 'status'])
-                      if c[0] in min_containers
+                      if len(c) == 2 and c[0] in min_containers
                       ]))
     return len(status) == 1 and 'running' in status
 
