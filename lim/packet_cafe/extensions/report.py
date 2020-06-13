@@ -7,7 +7,6 @@ import textwrap
 
 from cliff.lister import Lister
 from collections import OrderedDict
-from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import get_packet_cafe
 
