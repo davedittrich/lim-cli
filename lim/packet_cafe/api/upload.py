@@ -88,8 +88,10 @@ class Upload(Command):
             ..
 
             If ``-v`` (or more) is given, even more information is produced and
-            tracking is performed as well.  Adding the ``--elapsed`` option includes
-            elapsed lap time (per worker) and total time for all workers.
+            tracking is performed as well.
+
+            Adding the ``--elapsed`` option includes elapsed lap time (per worker)
+            and total time for all workers.
 
             .. code-block:: console
 
@@ -110,9 +112,9 @@ class Upload(Command):
 
             ..
 
-            If you do not wish to wait, use ``-q`` for no output at all, or
-            use ``--no-track`` to just get the status and IDs.  You can then get
-            status using ``lim cafe status``:
+            Adding the ``--no-track`` option will return the upload status and both
+            session and request IDs.  You can then check on the status as needed
+            using ``lim cafe status``:
 
             .. code-block:: console
 
@@ -147,8 +149,10 @@ class Upload(Command):
 
             ..
 
-            When running ``lim`` from a script, there are some cases in which you
-            must wait until processing is completed before continuing. Use the
+            Using the ``-q`` flag will no produce any output and will also return
+            immediately without tracking processing.  In circumstances where you are
+            performing lots of uploads, it may be better to wait until all processing
+            for each file is done is done before uploading the next file.  Use the
             ``--wait`` flag to do this.
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-upload
