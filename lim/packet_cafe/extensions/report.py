@@ -92,6 +92,7 @@ class Report(Lister):
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
         req_id = packet_cafe.get_request_id(
+                sess_id=sess_id,
                 req_id=parsed_args.req_id,
                 choose=parsed_args.choose)
         # Save for reporting methods
