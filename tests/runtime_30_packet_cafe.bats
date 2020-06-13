@@ -111,6 +111,13 @@ teardown() {
     assert_output --partial "[+] Upload botnet-capture-20110816-sogou.pcap: success"
 }
 
+@test "\"lim -q cafe report --tool poof\" fails" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM -q cafe report --tool poof | md5sum -"
+    assert_failure
+    assert_output --partial "[-] no reportable output for tool 'poof'"
+}
+
 @test "\"lim -q cafe report --tool p0f\" works" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM -q cafe report --tool p0f | md5sum -"
