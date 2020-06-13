@@ -21,7 +21,7 @@ class Report(Lister):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
-            '-c', '--counter',
+            '-C', '--counter',
             metavar='<counter>',
             type=_valid_counter,
             dest='counter',

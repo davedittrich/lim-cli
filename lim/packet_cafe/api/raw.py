@@ -56,7 +56,7 @@ class Raw(Command):
             help='Print without terminal coloring (default: False)'
         )
         parser.add_argument(
-            '-c', '--counter',
+            '-C', '--counter',
             metavar='<counter>',
             type=_valid_counter,
             dest='counter',
