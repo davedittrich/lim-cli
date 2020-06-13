@@ -63,7 +63,11 @@ class AdminDelete(Command):
         if parsed_args.all:
             sess_ids = ids
         else:
-            if parsed_args.sess_id[0] is not None and not parsed_args.choose:
+            if (
+                len(parsed_args.sess_id)
+                and parsed_args.sess_id[0] is not None
+                and not parsed_args.choose
+            ):
                 sess_id = check_remind_defaulting(
                     parsed_args.sess_id[0], 'last session id')
             else:
