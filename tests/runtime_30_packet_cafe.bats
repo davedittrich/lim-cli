@@ -161,36 +161,42 @@ teardown() {
 @test "\"lim cafe raw --tool p0f\" fails" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe raw --tool p0f"
+    assert_failure
     assert_output --partial "[-] session ID not provided"
 }
 
 @test "\"lim cafe raw --tool p0f --choose\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe raw --tool p0f --choose"
+    assert_failure
     assert_output --partial "[-] caller did not provide a session from which to choose"
 }
 
 @test "\"lim cafe results --tool p0f\" fails" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe raw --tool p0f"
+    assert_failure
     assert_output --partial "[-] session ID not provided"
 }
 
 @test "\"lim cafe results --choose\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe results --choose"
+    assert_failure
     assert_output --partial "[-] no sessions available"
 }
 
 @test "\"lim cafe about\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe about < /dev/null"
+    assert_failure
     assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
 }
 
 @test "\"lim cafe ui\" fails (no tty)" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe ui < /dev/null"
+    assert_failure
     assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
 }
 
