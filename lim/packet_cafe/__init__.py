@@ -321,6 +321,30 @@ class Packet_Cafe(object):
         else:
             return None
 
+    def get_sessions_requests_from_files(self):
+        """Get all session and request IDs from /files API.
+
+        Returns a dictionary keyed by session IDs with
+        values being lists of associated request IDs.
+        """
+        response = requests.request("GET",
+                                    f'{ self.get_admin_url() }/id/files')
+        if response.status_code == 200:
+            results = json.loads(response.text)
+            ret_dict = dict()
+            for r in results:
+                # A line in /files output looks like this:
+                # /files/{ sess_id }/{ req_id }/2015-06-07_capture-win2.pcap
+                #
+                sess_id, req_id = r.split('/')[2:4]
+                if sess_id not in ret_dict:
+                    ret_dict[sess_id] = []
+                if req_id not in ret_dict[sess_id]:
+                    ret_dict[sess_id].append(req_id)
+            return ret_dict
+        else:
+            return None
+
     def get_files(self):
         """Get all files from packet-cafe admin service."""
         response = requests.request("GET", f'{ self.get_admin_url() }/id/files')
