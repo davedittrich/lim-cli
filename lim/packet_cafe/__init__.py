@@ -25,14 +25,6 @@ except ModuleNotFoundError:
 
 
 __BROWSERS__ = os.getenv('LIM_BROWSERS', 'firefox,chrome,safari').split(',')
-# CAFE_SERVER = os.getenv('LIM_CAFE_SERVER', '127.0.0.1')
-# CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
-# CAFE_ADMIN_PORT = os.getenv('LIM_CAFE_ADMIN_PORT', 5001)
-# CAFE_API_VERSION = 'v1'
-# CAFE_ADMIN_URL = f'http://{ CAFE_SERVER }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
-# CAFE_API_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
-# CAFE_UI_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/'
-# CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
 LAST_SESSION_STATE = '.packet_cafe_last_session_id'
 LAST_REQUEST_STATE = '.packet_cafe_last_request_id'
 
@@ -54,10 +46,10 @@ def add_packet_cafe_global_options(parser):
         type=str,
         metavar='<cafe_host_ip>',
         dest='cafe_host_ip',
-        default=Packet_Cafe.get_default_server(),
+        default=Packet_Cafe.CAFE_HOST_IP,
         help=('IP address for packet_cafe server '
               '(Env: ``LIM_CAFE_HOST``; '
-              f'default: \'{ Packet_Cafe.get_default_server() }\')')
+              f'default: \'{ Packet_Cafe.CAFE_HOST_IP }\')')
     )
     parser.add_argument(
         '--cafe-ui-port',
@@ -65,10 +57,10 @@ def add_packet_cafe_global_options(parser):
         type=int,
         metavar='<cafe_ui_port>',
         dest='cafe_ui_port',
-        default=Packet_Cafe.get_default_ui_port(),
+        default=Packet_Cafe.CAFE_UI_PORT,
         help=('TCP port for packet_cafe UI service '
               '(Env: ``LIM_CAFE_UI_PORT``; '
-              f'default: { Packet_Cafe.get_default_ui_port() })')
+              f'default: { Packet_Cafe.CAFE_UI_PORT })')
     )
     parser.add_argument(
         '--cafe-admin-port',
@@ -76,10 +68,10 @@ def add_packet_cafe_global_options(parser):
         type=int,
         metavar='<cafe_admin_port>',
         dest='cafe_admin_port',
-        default=Packet_Cafe.get_default_admin_port(),
+        default=Packet_Cafe.CAFE_ADMIN_PORT,
         help=('TCP port for packet_cafe admin service '
               '(Env: ``LIM_CAFE_ADMIN_PORT``; '
-              f'default: { Packet_Cafe.get_default_admin_port() })')
+              f'default: { Packet_Cafe.CAFE_ADMIN_PORT })')
     )
     return parser
 
@@ -95,7 +87,8 @@ def _valid_counter(value):
 
 def choose_wisely(from_list=[], what='an item', cancel_throws_exception=False):
     if not len(from_list):
-        raise RuntimeError('[-] nothing provided from which to choose')
+        raise RuntimeError(
+            f'[-] caller did not provide { what } from which to choose')
     if not sys.stdout.isatty():
         raise RuntimeError('[-] no tty available')
     choices = ['<CANCEL>'] + from_list
@@ -142,7 +135,7 @@ def get_packet_cafe(app, parsed_args):
     if app.packet_cafe is None:
         app.packet_cafe = Packet_Cafe(
             sess_id=getattr(parsed_args, 'sess_id', None),
-            cafe_server=getattr(parsed_args, 'cafe_server', None),
+            cafe_host_ip=getattr(parsed_args, 'cafe_host_ip', None),
             cafe_admin_port=getattr(parsed_args, 'cafe_admin_port', None),
             cafe_ui_port=getattr(parsed_args, 'cafe_ui_port', None),
         )
@@ -206,19 +199,19 @@ def get_container_metadata(item):
 class Packet_Cafe(object):
     """Class for interactive with a Packet Cafe server."""
 
-    CAFE_SERVER = os.getenv('LIM_CAFE_SERVER', '127.0.0.1')
+    CAFE_HOST_IP = os.getenv('LIM_CAFE_HOST_IP', '127.0.0.1')
     CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
     CAFE_ADMIN_PORT = os.getenv('LIM_CAFE_ADMIN_PORT', 5001)
     CAFE_API_VERSION = 'v1'
-    CAFE_ADMIN_URL = f'http://{ CAFE_SERVER }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
-    CAFE_API_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
-    CAFE_UI_URL = f'http://{ CAFE_SERVER }:{ CAFE_UI_PORT }/'
+    CAFE_ADMIN_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
+    CAFE_API_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
+    CAFE_UI_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/'
     CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
 
     def __init__(
         self,
         sess_id=None,
-        cafe_server=None,
+        cafe_host_ip=None,
         cafe_admin_port=None,
         cafe_ui_port=None,
     ):
@@ -228,45 +221,36 @@ class Packet_Cafe(object):
                 'all be running\n[-] try "lim cafe containers" command?'
             )
         self.sess_id = sess_id
-        self.cafe_server = self.CAFE_SERVER if cafe_server is None else cafe_server  # noqa
-        self.cafe_admin_port = self.CAFE_ADMIN_PORT if cafe_admin_port is None else cafe_admin_port  # noqa
-        self.cafe_ui_port = self.CAFE_UI_PORT if cafe_ui_port is None else cafe_ui_port  # noqa
-        self.cafe_admin_url = f'http://{ self.cafe_server }:{ self.cafe_admin_port }/{ self.CAFE_API_VERSION }'  # noqa
-        self.cafe_api_url = f'http://{ self.cafe_server }:{ self.cafe_ui_port }/api/{ self.CAFE_API_VERSION }'  # noqa
-        self.cafe_ui_url = f'http://{ self.cafe_server }:{ self.cafe_ui_port }/'  # noqa
-        self.cafe_docs_url = self.CAFE_DOCS_URL
+        self.last_session_id = self.get_last_session_id()
+        self.last_request_id = self.get_last_request_id()
+        self.cafe_host_ip = cafe_host_ip
+        self.cafe_admin_port = cafe_admin_port
+        self.cafe_ui_port = cafe_ui_port
 
-    @classmethod
-    def get_default_server(cls):
-        return cls.CAFE_SERVER
+    def get_host_ip(self):
+        return self.cafe_host_ip
 
-    @classmethod
-    def get_default_admin_port(cls):
-        return cls.CAFE_ADMIN_PORT
+    def get_admin_port(self):
+        return self.cafe_admin_port
 
-    @classmethod
-    def get_default_ui_port(cls):
-        return cls. CAFE_UI_PORT
+    def get_ui_port(self):
+        return self.cafe_ui_port
 
-    @classmethod
-    def get_default_admin_url(cls):
-        return cls.CAFE_ADMIN_URL
+    def get_docs_url(self):
+        return self.CAFE_DOCS_URL
 
-    @classmethod
-    def get_default_api_url(cls):
-        return cls.CAFE_API_URL
+    def get_admin_url(self):
+        return f'http://{ self.get_host_ip() }:{ self.get_admin_port() }/{ self.CAFE_API_VERSION }'  # noqa
 
-    @classmethod
-    def get_default_ui_url(cls):
-        return cls.CAFE_UI_URL
+    def get_api_url(self):
+        return f'http://{ self.get_host_ip() }:{ self.get_ui_port() }/api/{ self.CAFE_API_VERSION }'  # noqa
 
-    @classmethod
-    def get_default_docs_url(cls):
-        return cls.CAFE_DOCS_URL
+    def get_ui_url(self):
+        return f'http://{ self.get_host_ip() }:{ self.get_ui_port() }/'  # noqa
 
     def get_api_endpoints(self):
         """Get endpoints for packet-cafe API."""
-        response = requests.request("GET", self.cafe_api_url)
+        response = requests.request("GET", self.get_api_url())
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -274,7 +258,7 @@ class Packet_Cafe(object):
 
     def get_admin_endpoints(self):
         """Get endpoints for packet-cafe admin API."""
-        response = requests.request("GET", self.cafe_admin_url)
+        response = requests.request("GET", self.get_admin_url())
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -282,7 +266,7 @@ class Packet_Cafe(object):
 
     def get_admin_info(self):
         """Get info for packet-cafe admin API."""
-        response = requests.request("GET", f'{ self.cafe_admin_url }/info')
+        response = requests.request("GET", f'{ self.get_admin_url() }/info')
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -290,7 +274,7 @@ class Packet_Cafe(object):
 
     def get_api_info(self):
         """Get info for packet-cafe API."""
-        response = requests.request("GET", f'{ self.cafe_api_url }/info')
+        response = requests.request("GET", f'{ self.get_api_url() }/info')
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -298,7 +282,7 @@ class Packet_Cafe(object):
 
     def get_session_ids(self):
         """Get IDs from packet-cafe admin service."""
-        url = f'{ self.cafe_admin_url }/ids'
+        url = f'{ self.get_admin_url() }/ids'
         response = requests.request("GET", url)
         if response.status_code == 200:
             return json.loads(response.text)
@@ -319,7 +303,7 @@ class Packet_Cafe(object):
         #         }
         #     ]
 
-        url = f'{ self.cafe_api_url }/ids/{ sess_id }'
+        url = f'{ self.get_api_url() }/ids/{ sess_id }'
         response = requests.request("GET", url)
         if response.status_code == 200:
             results = json.loads(response.text)
@@ -337,7 +321,7 @@ class Packet_Cafe(object):
 
     def get_files(self):
         """Get all files from packet-cafe admin service."""
-        response = requests.request("GET", f'{ self.cafe_admin_url }/id/files')
+        response = requests.request("GET", f'{ self.get_admin_url() }/id/files')
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -345,7 +329,7 @@ class Packet_Cafe(object):
 
     def get_results(self):
         """Get all results from packet-cafe admin service."""
-        response = requests.request("GET", f'{ self.cafe_admin_url }/id/results')  # noqa
+        response = requests.request("GET", f'{ self.get_admin_url() }/id/results')  # noqa
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -366,7 +350,7 @@ class Packet_Cafe(object):
         if req_id is None:
             raise RuntimeError('[-] req_id must not be None')
         url = (
-            f'{ self.cafe_api_url }/results/'
+            f'{ self.get_api_url() }/results/'
             f'{ tool }/{ counter }/{ sess_id }/{ req_id }'
         )
         response = requests.request("GET", url)
@@ -386,7 +370,7 @@ class Packet_Cafe(object):
 
     def get_workers(self):
         """Get details about workers."""
-        response = requests.request("GET", f'{ self.cafe_api_url }/tools')
+        response = requests.request("GET", f'{ self.get_api_url() }/tools')
         if response.status_code == 200:
             return [flatten(worker) for worker in
                     json.loads(response.text)['workers']]
@@ -410,7 +394,7 @@ class Packet_Cafe(object):
                 raise RuntimeError('[-] req_id must not be None')
             else:
                 return None
-        url = f'{ self.cafe_api_url }/status/{ sess_id }/{ req_id }'
+        url = f'{ self.get_api_url() }/status/{ sess_id }/{ req_id }'
         response = requests.request("GET", url)
         if response.status_code == 200:
             return json.loads(response.text)
@@ -437,7 +421,7 @@ class Packet_Cafe(object):
         if req_id is None:
             raise RuntimeError('[-] req_id must not be None')
         url = (
-            f'{ self.cafe_api_url }/raw/{ tool }/'
+            f'{ self.get_api_url() }/raw/{ tool }/'
             f'{ counter }/{ sess_id }/{ req_id }'
         )
         response = requests.request("GET", url)
@@ -462,7 +446,7 @@ class Packet_Cafe(object):
             files = {'file': (fname, f.read())}
             # NOTE(dittrich): Beware: "sess_id" vis "sessionId".
             data = {'sessionId': str(sess_id)}
-            response = requests.post(f'{ self.cafe_api_url }/upload',
+            response = requests.post(f'{ self.get_api_url() }/upload',
                                      files=files,
                                      data=data)
         if response.status_code == 201:
@@ -491,7 +475,7 @@ class Packet_Cafe(object):
             raise RuntimeError('[-] sess_id must not be None')
         if req_id is None:
             raise RuntimeError('[-] req_id must not be None')
-        url = f'{ self.cafe_api_url }/stop/{ sess_id }/{ req_id }'
+        url = f'{ self.get_api_url() }/stop/{ sess_id }/{ req_id }'
         response = requests.request("GET", url)
         if response.status_code == 200:
             return json.loads(response.text)
@@ -507,9 +491,13 @@ class Packet_Cafe(object):
         """Delete data for a session."""
         if sess_id is None:
             raise RuntimeError('[-] sess_id must not be None')
-        url = f'{ self.cafe_admin_url }/id/delete/{ sess_id }'
+        url = f'{ self.get_admin_url() }/id/delete/{ sess_id }'
         response = requests.request("GET", url)
         if response.status_code == 200:
+            if sess_id == self.last_session_id:
+                # Fuhgeddaboudit  (https://www.oed.com/view/Entry/51390667?)
+                self.set_last_session_id(sess_id=None)
+                self.set_last_request_id(req_id=None)
             return json.loads(response.text)
         elif raise_exception:
             raise RuntimeError(
@@ -584,123 +572,160 @@ class Packet_Cafe(object):
         3. Chosen from existing sessions (if requested to choose);
         4. Generating a new session ID (if requested).
         """
-        last_sess_id = self.get_last_session_id()
-        _id = None
+        _sess_id = None
+        if self.last_session_id is None:
+            self.last_session_id = self.get_last_session_id()
         if sess_id is not None:
-            _id = sess_id
-        elif last_sess_id is not None and reuse_session:
+            _sess_id = sess_id
+        elif (
+            self.last_session_id is not None
+            and reuse_session
+            and not choose
+        ):
             logger.info('[+] implicitly reusing last '
-                        f'session ID { last_sess_id }')
-            _id = last_sess_id
-        elif choose:
+                        f'session ID { self.last_session_id }')
+            _sess_id = self.last_session_id
+        if _sess_id is None and choose:
             ids = self.get_session_ids()
-            _id = choose_wisely(
+            _sess_id = choose_wisely(
                 from_list=ids,
-                what="session",
+                what="a session",
                 cancel_throws_exception=True
             )
-        elif generate:
-            _id = uuid.uuid4()
-        if sess_id is None and _id is None:
+        if _sess_id is None and generate:
+            _sess_id = uuid.uuid4()
+        if sess_id is None and _sess_id is None:
             raise RuntimeError(
-                "[-] session ID not provided - use '--choose'?")
-        return _id
+                "[-] session ID not provided" +
+                (" - use '--choose'?" if sys.stdout.isatty() else "")
+            )
+        self.set_last_session_id(sess_id=_sess_id)
+        return _sess_id
 
     def get_last_session_id(self):
-        """Return the last session ID if one is saved, else None.
+        """Return the last session ID if one is saved, else None."""
+        sess_id = None
+        if os.path.exists(LAST_SESSION_STATE):
+            try:
+                with open(LAST_SESSION_STATE, 'r') as sf:
+                    sess_id = sf.read().strip()
+            except Exception:  # noqa
+                pass
+        return sess_id
 
-        If the session does not exist in the server, deletes the
-        state file and returns None.
-        """
-        if not os.path.exists(LAST_SESSION_STATE):
-            return None
+    def is_active_session_id(self, sess_id=None):
         sess_ids = self.get_session_ids()
-        if sess_ids is None:
-            return None
-        with open(LAST_SESSION_STATE, 'r') as sf:
-            sess_id = sf.read().strip()
-            if sess_id in sess_ids:
-                return sess_id
-        os.remove(LAST_SESSION_STATE)
-        return None
+        return sess_id in sess_ids
 
     def set_last_session_id(self, sess_id=None):
         """
         Save the last session ID for later use.
+
+        If sess_id is None, remove the saved state.
+
+        Return True if successful, else False
         """
         if sess_id is None:
-            return False
-        try:
-            with open(LAST_SESSION_STATE, 'w') as sf:
-                sf.write(str(sess_id) + '\n')
-        except:  # noqa
-            return False
+            self.last_session_id = None
+            os.remove(LAST_SESSION_STATE)
+            return True
+        if sess_id != self.last_session_id:
+            try:
+                with open(LAST_SESSION_STATE, 'w') as sf:
+                    sf.write(str(sess_id) + '\n')
+            except:  # noqa
+                return False
+            self.last_session_id = sess_id
         return True
 
-    def get_request_id(self, sess_id=None, req_id=None, choose=False):
+    def get_request_id(
+        self,
+        sess_id=None,
+        req_id=None,
+        choose=False
+    ):
         """Get a request ID from a session.
 
         Priority for obtaining the request ID is:
         1. Specified on the command line (i.e., passed as "req_id");
         2. Defaulting to the last used request ID (if not asked to choose);
         3. Selected by the user interactively (if asked to choose);
-        4. return None.
+        4. Return None.
         """
-        last_req_id = self.get_last_request_id()
-        _id = None
-        if req_id is not None:
-            _id = req_id
-        if choose:
-            _id = choose_wisely(
-                from_list=self.get_request_ids(sess_id=sess_id),
-                what="a request",
-                cancel_throws_exception=True
-            )
-        elif last_req_id is not None:
-            logger.info('[+] implicitly reusing last '
-                        f'request ID { last_req_id }')
-            _id = last_req_id
-        if req_id is None and _id is None:
+        if req_id is not None and choose:
             raise RuntimeError(
-                "[-] request ID not provided - use '--choose'?")
-        return _id
+                '[-] a req_id was passed and --choose selected; '
+                'do one or the other')
+        _req_id = None
+        if self.last_request_id is None:
+            self.last_request_id = self.get_last_request_id()
+        if req_id is None:
+            if not choose:
+                logger.info('[+] implicitly reusing last '
+                            f'request ID { self.last_request_id }')
+                _req_id = self.last_request_id
+            else:
+                if sess_id is None:
+                    if self.last_session_id is None:
+                        raise RuntimeError(
+                            '[-] sess_id required to identify req_id choices')
+                    sess_id = self.last_session_id
+                request_ids = self.get_request_ids(sess_id=sess_id)
+                _req_id = choose_wisely(
+                    from_list=request_ids,
+                    what="a request",
+                    cancel_throws_exception=True
+                )
+        if req_id is None and _req_id is None:
+            raise RuntimeError(
+                "[-] request ID not provided" +
+                (" - use '--choose'?" if sys.stdout.isatty() else "")
+            )
+        return _req_id
 
     def get_last_request_id(self):
         """
         Return the last request ID if one is saved and it exists
         in the last session, else None.
-
-        If the request does not exist in the server, deletes the
-        state file and returns None.
         """
+        _req_id = None
         try:
-            sess_id = self.get_last_session_id()
-        except RuntimeError:
-            return None
-        if not os.path.exists(LAST_REQUEST_STATE):
-            return None
-        with open(LAST_REQUEST_STATE, 'r') as sf:
-            req_id = sf.read().strip()
-        if self.get_status(
+            with open(LAST_REQUEST_STATE, 'r') as sf:
+                _req_id = sf.read().strip()
+        except FileNotFoundError:
+            pass
+        return _req_id
+
+    def is_valid_request_id(self, sess_id=None, req_id=None):
+        """Return True if req_id is found in Session sess_id."""
+        if sess_id is None or req_id is None:
+            return False
+        return self.get_status(
             sess_id=sess_id,
             req_id=req_id,
             raise_exception=False
-        ) is not None:
-            return req_id
-        os.remove(LAST_REQUEST_STATE)
-        return None
+        ) is not None
 
     def set_last_request_id(self, req_id=None):
         """
         Save the last request ID for later use.
+
+        If req_id is None, remove the saved state.
+
+        Return True if successful, else False
         """
         if req_id is None:
-            return False
-        try:
-            with open(LAST_REQUEST_STATE, 'w') as sf:
-                sf.write(str(req_id) + '\n')
-        except:  # noqa
-            return False
+            self.last_request_id = None
+            os.remove(LAST_REQUEST_STATE)
+            return True
+        if req_id != self.last_request_id:
+            try:
+                with open(LAST_REQUEST_STATE, 'w') as sf:
+                    sf.write(str(req_id) + '\n')
+                self.last_request_id = req_id
+            except:  # noqa
+                return False
+            self.last_request_id = req_id
         return True
 
 
