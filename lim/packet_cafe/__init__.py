@@ -366,7 +366,10 @@ class Packet_Cafe(object):
         workers = self.get_workers()
         tools = [
             worker['name'] for worker in workers
-            if worker['viewableOutput']
+            if (worker['viewableOutput']
+                and 'contentType' in worker
+                and worker['contentType'] == 'application/json'
+                )
         ]
         return tools
 

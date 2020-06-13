@@ -21,15 +21,6 @@ class Report(Lister):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
-            '-C', '--counter',
-            metavar='<counter>',
-            type=_valid_counter,
-            dest='counter',
-            default=1,
-            help=('Counter for selecting a specific file '
-                  'from a set (default: 1)')
-        )
-        parser.add_argument(
             '-t', '--tool',
             metavar='<tool>',
             dest='tool',
@@ -85,6 +76,13 @@ class Report(Lister):
     def take_action(self, parsed_args):
         logger.debug('[+] report on results from workers')
         packet_cafe = get_packet_cafe(self.app, parsed_args)
+        all_tools = packet_cafe.get_tools()
+        if parsed_args.tool is not None:
+            for tool in parsed_args.tool.split(','):
+                if tool not in all_tools:
+                    raise RuntimeError(
+                        f"[-] no reportable output for tool '{ tool }'\n"
+                        f'[-] use one or more of: { ",".join(all_tools) }')
         sess_id = packet_cafe.get_session_id(
                 sess_id=parsed_args.sess_id,
                 choose=parsed_args.choose)
@@ -95,18 +93,27 @@ class Report(Lister):
                 sess_id=sess_id,
                 req_id=parsed_args.req_id,
                 choose=parsed_args.choose)
+        try:
+            request = [r for r in packet_cafe.get_requests(sess_id=sess_id)
+                       if r['id'] == req_id][0]
+        except IndexError:
+            raise RuntimeError('[-] failed to get request details')
         # Save for reporting methods
         self.parsed_args = parsed_args
-        # Report target details
-        logger.info(textwrap.dedent(f"""
-        ********************************************************************
-           Report for Session ID:    { sess_id }
-                      Request ID:    { req_id }
-                      Counter:       { parsed_args.counter }
-                      Date produced: { arrow.utcnow() }
-        ********************************************************************
-        """))
-        all_tools = packet_cafe.get_tools()
+        if self.app_args.verbose_level >= 1:
+            header_decorator = "*" * (len(request['filename']) + 21)
+            print(textwrap.dedent(f"""
+                { header_decorator }
+                { " " * (int(len(header_decorator) / 2) - 8) }Packet Cafe Report
+
+                   Date produced: { arrow.utcnow() }
+                   Session ID:    { sess_id }
+                   Request ID:    { req_id }
+                   File:          { request['filename']}
+                   Original File: { request['original_filename']}
+
+                { header_decorator }
+                """))  # noqa
         if parsed_args.tool is None:
             # Preserve report ordering. Because, CDO.
             # (It's like OCD, but the letters are in alphabetic order.)
@@ -116,7 +123,6 @@ class Report(Lister):
             tools = parsed_args.tool.split(',')
         for tool in tools:
             results = packet_cafe.get_raw(tool=tool,
-                                          counter=parsed_args.counter,
                                           sess_id=sess_id,
                                           req_id=req_id)
             self.summarize(tool=tool,
