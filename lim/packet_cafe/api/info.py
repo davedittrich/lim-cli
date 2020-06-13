@@ -45,7 +45,7 @@ class ApiInfo(ShowOne):
         packet_cafe = get_packet_cafe(self.app, parsed_args)
         response = packet_cafe.get_api_info()
         columns = ['url']
-        data = [(getattr(packet_cafe, 'cafe_api_url'))]
+        data = [(packet_cafe.get_api_url())]
         for k, v in response.items():
             columns.append(k)
             data.append((v))

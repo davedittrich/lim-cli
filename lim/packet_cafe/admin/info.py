@@ -62,7 +62,7 @@ class AdminInfo(ShowOne):
         response = packet_cafe.get_admin_info()
         columns = ['url', 'last_session', 'last_request']
         data = [
-            packet_cafe.cafe_admin_url,
+            packet_cafe.get_admin_url(),
             packet_cafe.get_last_session_id(),
             packet_cafe.get_last_request_id()
         ]
