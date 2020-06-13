@@ -155,19 +155,23 @@ def containers_are_running():
     NOTE(dittrich): By blindly checking the status of whatever set of
     containers are returned by Docker, there is a *small* possibility
     of a false positive here as docker-compose may still be bringing up
-    containers when you check.
+    containers when you check. To be safe, ensure that at minimum the
+    ``ui``, ``web``, and ``admin`` containers are all running.
+
+    See: https://cyberreboot.gitbook.io/packet-cafe/design/api
     """
     # TODO(dittrich): identify a way to tell how many containers *should* exist.  # noqa
-    status = {}
-    containers = get_containers(columns=['status'])
-    if not len(containers):
-        return False
-    for container in containers:
-        try:
-            status[container[0]] = True
-        except IndexError:
-            pass
-    return len(status) == 1 and status.get('running', False)
+    # NOTE(dittrich): Names may change?
+    # This would be more robust if done via an API call.
+    min_containers = [
+        'packet_cafe_ui_1', 'packet_cafe_web_1', 'packet_cafe_admin_1'
+    ]
+    status = list(set([
+                      c[1]
+                      for c in get_containers(columns=['name', 'status'])
+                      if c[0] in min_containers
+                      ]))
+    return len(status) == 1 and 'running' in status
 
 
 def get_containers(columns=['name', 'status']):
