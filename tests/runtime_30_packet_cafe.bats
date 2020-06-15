@@ -113,7 +113,7 @@ teardown() {
 
 @test "\"lim -q cafe report --tool poof\" fails" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM -q cafe report --tool poof | md5sum -"
+    run bash -c "$LIM -q cafe report --tool poof"
     assert_failure
     assert_output --partial "[-] no reportable output for tool 'poof'"
 }
