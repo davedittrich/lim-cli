@@ -347,7 +347,8 @@ class Packet_Cafe(object):
 
     def get_files(self):
         """Get all files from packet-cafe admin service."""
-        response = requests.request("GET", f'{ self.get_admin_url() }/id/files')
+        response = requests.request("GET",
+                                    f'{ self.get_admin_url() }/id/files')
         if response.status_code == 200:
             return json.loads(response.text)
         else:
@@ -355,7 +356,8 @@ class Packet_Cafe(object):
 
     def get_results(self):
         """Get all results from packet-cafe admin service."""
-        response = requests.request("GET", f'{ self.get_admin_url() }/id/results')  # noqa
+        response = requests.request("GET",
+                                    f'{ self.get_admin_url() }/id/results')
         if response.status_code == 200:
             return json.loads(response.text)
         else:
