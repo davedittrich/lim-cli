@@ -1,6 +1,31 @@
 CHANGES
 =======
 
+* Fix test
+* Resolve pep8 findings
+* Add method to get dict of session+request IDs
+* Improve reporting
+* Fix bug in containers check
+* Add failure assertions to other failure tests
+* Add failure test for wrong tool
+* Resolve option '-c' conflict
+* Clarify how the options work
+* Fix bugs in class methods, logic, and use
+* Fix bug in logic
+* Improve help text
+* Improve container status checking
+* Add missing kwarg parameter
+* Update VSCode test configuration
+* Improve test coverage
+* Add tty enforcement for opening browser
+* Fix logic and grammar
+* Improve help output
+* Fix documentation link
+
+20.6.1
+------
+
+* Bump version
 * Add missing requirements for generating docs
 * Finish "cafe containers" subcommand
 * Add check for all containers in 'running' state
