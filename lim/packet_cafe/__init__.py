@@ -219,7 +219,7 @@ class Packet_Cafe(object):
     ):
         if not containers_are_running():
             raise RuntimeError(
-                '[-] the packet-cafe Docker containers do not appear to'
+                '[-] the packet-cafe Docker containers do not appear to '
                 'all be running\n[-] try "lim cafe containers" command?'
             )
         self.sess_id = sess_id
