@@ -566,7 +566,10 @@ class Packet_Cafe(object):
             workers_reporting = [k for k in status.keys() if k != 'cleaned']
             states = dict()
             if debug and status != last_status:
-                print(json.dumps(status), file=sys.stderr)
+                try:
+                    print(json.dumps(status), file=sys.stderr)
+                except BrokenPipeError:
+                    pass
                 last_status = status
             for worker in workers_reporting:
                 states[status[worker]['state']] = True
@@ -583,7 +586,10 @@ class Packet_Cafe(object):
                             f"{ status[worker]['timestamp'] }" +
                             (f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
                         )
-                        print(status_line)
+                        try:
+                            print(status_line)
+                        except BrokenPipeError:
+                            pass
                     reported[worker] = True
             if len(reported) == len(workers):
                 break
