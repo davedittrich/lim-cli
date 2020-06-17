@@ -65,7 +65,6 @@ no-diffs:
 #HELP release - package and upload a release to pypi
 .PHONY: release
 release: clean docs sdist bdist_wheel twine-check
-	$(MAKE) no-diffs
 	twine upload dist/* -r pypi
 
 #HELP release-prep - final documentation preparations for release
