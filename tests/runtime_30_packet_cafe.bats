@@ -127,7 +127,7 @@ teardown() {
 @test "\"lim cafe results --tool networkml\" works" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe raw --tool networkml"
-    assert_output --partial '"source_ip": "147.32.84.79"'
+    assert_output --partial ' "decisions": {'
 }
 
 @test "\"lim cafe admin sessions -f value\" shows both sessions" {
