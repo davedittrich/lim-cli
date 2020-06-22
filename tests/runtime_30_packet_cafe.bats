@@ -4,7 +4,6 @@ load test_helper
 # in tests.
 
 setup() {
-    export VOL_PREFIX=$HOME/packet_cafe_data
     export PACKET_CAFE_STATUS=$(cat /tmp/packet_cafe_status 2>/dev/null || echo DOWN)
 }
 
@@ -32,6 +31,10 @@ teardown() {
 # cafe tools             Yes
 # cafe ui                Yes
 # cafe upload            Yes
+
+@test "VOL_PREFIX is exported" {
+    [ ! -z "$VOL_PREFIX" ]
+}
 
 @test "packet-cafe Docker containers are running (via \"docker ps\")" {
     bash -c "([ $(docker ps | grep cyberreboot | grep healthy | wc -l) -ge 7 ] && echo UP || echo DOWN) | tee /tmp/packet_cafe_status"
