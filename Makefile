@@ -138,6 +138,7 @@ install:
 .PHONY: install
 i install-active: bdist_wheel
 	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
+	git checkout ChangeLog
 
 #HELP docs-tests - generate bats test output for documentation
 .PHONY: docs-tests
