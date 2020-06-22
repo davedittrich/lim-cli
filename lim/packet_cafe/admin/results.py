@@ -2,8 +2,11 @@
 
 import argparse
 import logging
+import os
 import textwrap
 
+from anytree import Node
+from anytree import RenderTree
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import get_packet_cafe
@@ -32,6 +35,13 @@ class Results(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        parser.add_argument(
+            '--tree',
+            action='store_true',
+            dest='tree',
+            default=False,
+            help='Produce tree output rather than table (default: False)'
+        )
         parser.add_argument('sess_id', nargs='?', default=None)
         parser.add_argument('req_id', nargs='?', default=None)
         parser.add_argument(
@@ -72,23 +82,52 @@ class Results(Lister):
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 
+    # TODO(dittrich): Not DRY. Repeated in lim/packet_cafe/admin/files.py
+    def add_node(self, parts, nodes):
+        """Recursively add nodes to branch based on parts of file paths."""
+        branch, node = parts
+        branch_parts = os.path.split(branch)
+        # When the path is down to something like "/id", return
+        # values will be ('/', 'id'). Stop recursion.
+        if branch == '/':
+            return True
+        else:
+            branch = branch.lstrip('/')
+        if branch_parts[1] not in nodes:
+            self.add_node(branch_parts, nodes)
+        nodes[node] = Node(node, parent=nodes[branch_parts[1]])
+
     def take_action(self, parsed_args):
         logger.debug('[+] listing results')
         packet_cafe = get_packet_cafe(self.app, parsed_args)
-        columns = ['Results']
-        data = []
-        # Create a set of filters from args and options.
-        contains = [
-            item for item
-            in [parsed_args.tool, parsed_args.sess_id, parsed_args.req_id]
-            if item is not None
-        ]
-        # Only select items that match all filters
-        data = [
-            [row] for row in packet_cafe.get_results()
-            if match(line=row, contains=contains)
-         ]
-        return (columns, data)
+        results = packet_cafe.get_results()
+        if not len(results):
+            raise RuntimeError('no results in packet_cafe server')
+        if parsed_args.tree:
+            root = Node(results[0].split("/")[1])
+            nodes = {}
+            nodes[root.name] = root
+            for file_path in sorted(results):
+                parts = os.path.split(file_path)
+                self.add_node(parts, nodes)
+            for pre, _, node in RenderTree(root):
+                print("%s%s" % (pre, node.name))
+            return ((), ())
+        else:
+            columns = ['Results']
+            data = []
+            # Create a set of filters from args and options.
+            contains = [
+                item for item
+                in [parsed_args.tool, parsed_args.sess_id, parsed_args.req_id]
+                if item is not None
+            ]
+            # Only select items that match all filters
+            data = [
+                [row] for row in results
+                if match(line=row, contains=contains)
+             ]
+            return (columns, data)
 
 
 # vim: set ts=4 sw=4 tw=0 et :
