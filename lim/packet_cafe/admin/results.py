@@ -111,7 +111,10 @@ class Results(Lister):
                 parts = os.path.split(file_path)
                 self.add_node(parts, nodes)
             for pre, _, node in RenderTree(root):
-                print("%s%s" % (pre, node.name))
+                try:
+                    print("%s%s" % (pre, node.name))
+                except BrokenPipeError:
+                    pass
             return ((), ())
         else:
             columns = ['Results']
