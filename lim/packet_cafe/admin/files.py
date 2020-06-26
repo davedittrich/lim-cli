@@ -38,19 +38,16 @@ class Files(Lister):
         return add_packet_cafe_global_options(parser)
 
     # TODO(dittrich): Not DRY. Repeated in lim/packet_cafe/admin/results.py
-    def add_node(self, parts, nodes):
+    def add_node(self, file_path, nodes):
         """Recursively add nodes to branch based on parts of file paths."""
-        branch, node = parts
-        branch_parts = os.path.split(branch)
-        # When the path is down to something like "/files", return
-        # values will be ('/', 'files'). Stop recursion.
-        if branch == '/':
+        branch, node = os.path.split(file_path)
+        # When the path is down to something like "files", return
+        # values will be ('', 'files'). Stop recursion.
+        if branch == '':
             return True
-        else:
-            branch = branch.lstrip('/')
-        if branch_parts[1] not in nodes:
-            self.add_node(branch_parts, nodes)
-        nodes[node] = Node(node, parent=nodes[branch_parts[1]])
+        if branch not in nodes:
+            self.add_node(branch, nodes)
+        nodes[file_path] = Node(node, parent=nodes[branch])
 
     def take_action(self, parsed_args):
         logger.debug('[+] listing files')
@@ -60,11 +57,10 @@ class Files(Lister):
             raise RuntimeError('no files in packet_cafe server')
         if parsed_args.tree:
             root = Node(files[0].split("/")[1])
-            nodes = {}
+            nodes = defaultdict()
             nodes[root.name] = root
             for file_path in sorted(files):
-                parts = os.path.split(file_path)
-                self.add_node(parts, nodes)
+                self.add_node(file_path.lstrip('/'), nodes)
             for pre, _, node in RenderTree(root):
                 try:
                     print("%s%s" % (pre, node.name))
