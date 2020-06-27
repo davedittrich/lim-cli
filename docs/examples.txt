@@ -1,0 +1,96 @@
+# Help text shows available commands
+#
+lim --version
+lim cafe --help
+clear
+
+# The "info" commands show, well, ... info!
+#
+lim cafe info
+lim cafe admin info
+clear
+
+# The Docker containers must be running first
+#
+docker ps
+clear
+
+# We can check with the CLI
+#
+lim cafe containers
+clear
+
+# Download a PCAP file to upload into packet_cafe
+# https://levelup.gitconnected.com/diving-into-sandbox-captured-malware-data-d0bb10a5bfd9
+#
+lim ctu get Botnet-48 pcap
+tree CTU-Malware-Capture-Botnet-48/
+clear
+
+# Upload PCAP, tracking workers, and including elapsed times
+#
+lim cafe upload --elapsed CTU-Malware-Capture-Botnet-48/botnet-capture-20110806-sogou.pcap
+lim cafe admin sessions
+clear
+
+# Upload another file from packet_cafe Git repo
+#
+lim cafe upload --elapsed $HOME/git/packet_cafe/notebooks/smallFlows.pcap
+lim cafe admin sessions
+clear
+
+# You can skip tracking on upload and check status interactively,
+# and also control the session ID value (if needed)
+#
+lim cafe upload --no-track \
+  $HOME/git/packet_cafe/notebooks/smallFlows.pcap 11111111-1111-1111-1111-111111111111
+lim cafe status
+clear
+
+# You can get output from some commands in several formats
+lim -q cafe status -f value
+lim -q cafe status -f csv
+lim -q cafe status -f json
+clear
+
+# All workers show "Complete" when done
+#
+lim -q cafe status
+clear
+
+# You can get raw results from workers.
+# When raw output goes to a terminal, it is colored
+#
+lim cafe raw --tool networkml
+clear
+
+# When it is piped to a program or redirected, it is clean
+#
+lim cafe raw --tool networkml | head -n 20
+clear
+
+# Rudimentary tabular reports are also available
+# from one or more workers (here is just one)
+#
+lim cafe report --tool p0f | head -n 20
+
+# All the examples so far used the last session ID
+# and last request ID by default, but you can also
+# request to interactively choose which to use
+#
+lim cafe admin sessions
+lim cafe admin delete --choose
+
+# Results can be viewed in tree format
+#
+lim cafe admin results --tree | head -n 20
+
+# Same with files produced by workers
+#
+lim cafe admin files --tree | head -n 20
+
+# You can delete all sessions as once, if necessary
+#
+lim cafe admin delete --all
+
+exit

@@ -8,5 +8,6 @@ cliff
 future
 pandas
 python_secrets
+pyreadline
 six
 requests>=2.17.0

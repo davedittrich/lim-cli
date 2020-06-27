@@ -219,7 +219,7 @@ class Packet_Cafe(object):
     ):
         if not containers_are_running():
             raise RuntimeError(
-                '[-] the packet-cafe Docker containers do not appear to'
+                '[-] the packet-cafe Docker containers do not appear to '
                 'all be running\n[-] try "lim cafe containers" command?'
             )
         self.sess_id = sess_id
@@ -566,7 +566,10 @@ class Packet_Cafe(object):
             workers_reporting = [k for k in status.keys() if k != 'cleaned']
             states = dict()
             if debug and status != last_status:
-                print(json.dumps(status), file=sys.stderr)
+                try:
+                    print(json.dumps(status), file=sys.stderr)
+                except BrokenPipeError:
+                    pass
                 last_status = status
             for worker in workers_reporting:
                 states[status[worker]['state']] = True
@@ -583,7 +586,10 @@ class Packet_Cafe(object):
                             f"{ status[worker]['timestamp'] }" +
                             (f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
                         )
-                        print(status_line)
+                        try:
+                            print(status_line)
+                        except BrokenPipeError:
+                            pass
                     reported[worker] = True
             if len(reported) == len(workers):
                 break

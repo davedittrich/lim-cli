@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.6.2
+VERSION:=20.6.3
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -65,7 +65,6 @@ no-diffs:
 #HELP release - package and upload a release to pypi
 .PHONY: release
 release: clean docs sdist bdist_wheel twine-check
-	$(MAKE) no-diffs
 	twine upload dist/* -r pypi
 
 #HELP release-prep - final documentation preparations for release
@@ -110,6 +109,7 @@ clean:
 	rm -rf CTU-Malware-Capture-Botnet-48
 	rm -f botnet-capture-20110816-sogou.pcap
 
+
 #HELP spotless - deep clean
 .PHONY: spotless
 spotless: clean
@@ -117,6 +117,20 @@ spotless: clean
 	rm -rf .packet_cafe_last_{request,session}_id
 	(cd docs && make clean)
 	rm -rf tests/libs/{bats,bats-support,bats-assert}
+
+#HELP clean-packet-cafe - remove packet_cafe contents
+.PHONY: clean-packet-cafe
+clean-packet-cafe:
+	lim cafe containers && \
+		lim cafe admin delete --all
+
+#HELP spotless-packet-cafe - Remove all packet_cafe files and containers
+.PHONY: spotless-packet-cafe
+spotless-packet-cafe: clean-packet-cafe
+	lim cafe containers && \
+		cd ~/git/packet_cafe && \
+		docker-compose down
+	[ ! -z "$(VOL_PREFIX)" ] && sudo rm -rf $(VOL_PREFIX)/{definitions,files,id,redis}
 
 #HELP install - install in required Python virtual environment (default $(REQUIRED_VENV))
 .PHONY: install
@@ -139,6 +153,7 @@ install:
 .PHONY: install
 i install-active: bdist_wheel
 	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
+	git checkout ChangeLog
 
 #HELP docs-tests - generate bats test output for documentation
 .PHONY: docs-tests

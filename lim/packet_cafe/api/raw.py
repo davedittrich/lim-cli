@@ -130,17 +130,27 @@ class Raw(Command):
                 # pp = pprint.PrettyPrinter(indent=parsed_args.indent)
                 # pp.print(results)
                 pp = pprint.PrettyPrinter()
-                pp.pprint(results)
+                try:
+                    pp.pprint(results)
+                except BrokenPipeError:
+                    pass
             else:
                 if parsed_args.nocolor or not sys.stdout.isatty():
-                    print(json.dumps(results, indent=parsed_args.indent))
+                    try:
+                        print(json.dumps(results,
+                                         indent=parsed_args.indent))
+                    except BrokenPipeError:
+                        pass
                 else:
                     formatted_json = json.dumps(results,
                                                 indent=parsed_args.indent)
                     colored_json = highlight(formatted_json,
                                              lexers.JsonLexer(),
                                              formatters.TerminalFormatter())
-                    print(colored_json)
+                    try:
+                        print(colored_json)
+                    except BrokenPipeError:
+                        pass
 
 
 # vim: set ts=4 sw=4 tw=0 et :

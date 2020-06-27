@@ -76,7 +76,10 @@ class Results(Command):
                                                 counter=parsed_args.counter,
                                                 sess_id=sess_id,
                                                 req_id=req_id)
-        print(results)
+        try:
+            print(results)
+        except BrokenPipeError:
+            pass
 
 
 # vim: set ts=4 sw=4 tw=0 et :

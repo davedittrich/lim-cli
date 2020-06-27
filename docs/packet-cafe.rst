@@ -25,11 +25,17 @@ show the URL and also attempt to open a browser to the web page:
 .. figure:: images/packet-cafe-web-page.png
    :align: center
    :alt: Opening Packet Café web page
-   :width: 835px
+   :width: 768px
 
    Opening Packet Café web page
 
 ..
+
+.. Screen shots for the Medium article about ``lim cafe`` subcommands
+.. were made by playing the asciicast linked below in a browser in
+.. full-screen mode, screen shot using ``screencapture -D 2`` on a Mac,
+.. then edited by cropping down to just the commands and output.
+
 
 .. note::
 
@@ -37,6 +43,17 @@ show the URL and also attempt to open a browser to the web page:
     this section.  Just enough to show end-to-end use of ``lim``
     as a CLI for Packet Café is included here. See the section
     :ref:`usage` for full details of command usage.
+
+    You can also watch the following asciicast to see ``lim cafe``
+    commands in action:
+
+    .. image:: https://asciinema.org/a/343477.png
+       :target: https://asciinema.org/a/343477?autoplay=1
+       :align: center
+       :alt: ``lim`` subcommands for Packet Café API
+       :width: 835px
+
+    ..
 
 ..
 
@@ -332,13 +349,16 @@ processing should be done using the output of ``lim cafe raw`` instead.
     [+] implicitly reusing last session id 148aa08d-0760-40e1-aaab-2e3f7bb19ab6
     [+] implicitly reusing last request id ab154ad99e7d4eb3ba1d36dd3e6a1d31
 
-    ********************************************************************
-       Report for Session ID:    148aa08d-0760-40e1-aaab-2e3f7bb19ab6
-                  Request ID:    ab154ad99e7d4eb3ba1d36dd3e6a1d31
-                  Counter:       1
-                  Date produced: 2020-05-27T23:35:57.762086+00:00
-    ********************************************************************
+    ************************************************************************************
+                                      Packet Cafe Report
 
+       Date produced: 2020-06-27T03:54:06.517174+00:00
+       Session ID:    148aa08d-0760-40e1-aaab-2e3f7bb19ab6
+       Request ID:    ab154ad99e7d4eb3ba1d36dd3e6a1d31
+       File:          trace_a93591b554fe420ebbcf14b67fc8d298_2020-06-21_21_44_45.pcap
+       Original File: test.pcap
+
+    ************************************************************************************
 
     Worker results: p0f
     ===================

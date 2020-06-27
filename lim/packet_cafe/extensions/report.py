@@ -47,6 +47,17 @@ class Report(Lister):
                 [+] implicitly reusing last session id 46d4f9a9-d5db-487e-a261-91764c044b44
                 [+] implicitly reusing last request id a93591b554fe420ebbcf14b67fc8d298
 
+                ************************************************************************************
+                                                  Packet Cafe Report
+
+                   Date produced: 2020-06-27T03:54:06.517174+00:00
+                   Session ID:    46d4f9a9-d5db-487e-a261-91764c044b44
+                   Request ID:    a93591b554fe420ebbcf14b67fc8d298
+                   File:          trace_a93591b554fe420ebbcf14b67fc8d298_2020-06-21_21_44_45.pcap
+                   Original File: test.pcap
+
+                ************************************************************************************
+
                 Worker results: p0f
                 ===================
 
@@ -101,18 +112,21 @@ class Report(Lister):
         self.parsed_args = parsed_args
         if self.app_args.verbose_level >= 1:
             header_decorator = "*" * (len(request['filename']) + 21)
-            print(textwrap.dedent(f"""
-                { header_decorator }
-                { " " * (int(len(header_decorator) / 2) - 8) }Packet Cafe Report
+            try:
+                print(textwrap.dedent(f"""
+                    { header_decorator }
+                    { " " * (int(len(header_decorator) / 2) - 8) }Packet Cafe Report
 
-                   Date produced: { arrow.utcnow() }
-                   Session ID:    { sess_id }
-                   Request ID:    { req_id }
-                   File:          { request['filename']}
-                   Original File: { request['original_filename']}
+                       Date produced: { arrow.utcnow() }
+                       Session ID:    { sess_id }
+                       Request ID:    { req_id }
+                       File:          { request['filename']}
+                       Original File: { request['original_filename']}
 
-                { header_decorator }
-                """))  # noqa
+                    { header_decorator }
+                    """))  # noqa
+            except BrokenPipeError:
+                pass
         if parsed_args.tool is None:
             # Preserve report ordering. Because, CDO.
             # (It's like OCD, but the letters are in alphabetic order.)
