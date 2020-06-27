@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import sys
 import textwrap
 
 from anytree import Node
@@ -140,11 +141,12 @@ class Results(Lister):
             nodes[root.name] = root
             for file_path in sorted(results):
                 self.add_node(file_path.lstrip('/'), nodes)
-            for pre, _, node in RenderTree(root):
-                try:
+            try:
+                for pre, _, node in RenderTree(root):
                     print("%s%s" % (pre, node.name))
-                except BrokenPipeError:
-                    pass
+            except BrokenPipeError:
+                # Reopen stdout to avoid recurring exceptions
+                sys.stdout = open(os.devnull, 'w')
             return ((), ())
         else:
             columns = ['Results']
