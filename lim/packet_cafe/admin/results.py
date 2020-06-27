@@ -54,15 +54,48 @@ class Results(Lister):
         )
         parser.epilog = textwrap.dedent("""
             List files produced as a result of processing uploaded files.
+            This can produce a large amount of output with very long lines, so
+            you may want to use the ``--fit-width`` option to break lines to
+            fit the screen.
+
+            You can get a tree listing of files, which is much more compact and
+            readable, with the ``--tree`` option.
+
+            .. code-block:: console
+
+                $ lim cafe admin results  --tree
+                id
+                └── 791e1034-fdb9-4fa4-a410-e1dedef7c0b8
+                    └── dcfe1b4dd2a04d559f6600902847a11a
+                        ├── mercury
+                        │   └── metadata.json
+                        ├── networkml
+                        │   └── metadata.json
+                        ├── p0f
+                        │   └── metadata.json
+                        ├── pcap-stats
+                        │   └── metadata.json
+                        ├── pcapplot
+                        │   ├── metadata.json
+                        │   └── trace_dcfe1b4dd2a04d559f6600902847a11a_2020-06-21_21_44_45-client-ip-147-32-84-165-147-32-80-9-147-32-84-165-wsshort-frame-eth-dns-udp-ip-port-53.pcap
+                        │       ├── 1
+                        │       │   └── map_ASN-trace_dcfe1b4dd2a04d559f6600902847a11a_2020-06-21_21_44_45-client-ip-147-32-84-165-147-32-80-9-147-32-84-165-wsshort-frame-eth-dns-udp-ip-port-53.pcap.png
+                        │       ├── 2
+                        │       │   └── map_Private_RFC_1918-trace_dcfe1b4dd2a04d559f6600902847a11a_2020-06-21_21_44_45-client-ip-147-32-84-165-147-32-80-9-147-32-84-165-wsshort-frame-eth-dns-udp-ip-port-53.pcap.png
+                        │       ├── 3
+                        │       │   └── map_Source_Ports-trace_dcfe1b4dd2a04d559f6600902847a11a_2020-06-21_21_44_45-client-ip-147-32-84-165-147-32-80-9-147-32-84-165-wsshort-frame-eth-dns-udp-ip-port-53.pcap.png
+                        │       └── 4
+                        │           └── map_Destination_Ports-trace_dcfe1b4dd2a04d559f6600902847a11a_2020-06-21_21_44_45-client-ip-147-32-84-165-147-32-80-9-147-32-84-165-wsshort-frame-eth-dns-udp-ip-port-53.pcap.png
+                        └── snort
+                            └── metadata.json
+
+            ..
 
             You can filter results by session, by request, or by tool.
             Filtering matches lines that contain all of the specified values.
-
             To show results for a specific session or a specific request,
-            provide them as arguments to the command.
-
-            To show only results for a given tool, specify it with the
-            ``-tool`` option.
+            provide them as arguments to the command.  To show only results
+            for a given tool, specify it with the ``-tool`` option.
 
             .. code-block:: console
 
