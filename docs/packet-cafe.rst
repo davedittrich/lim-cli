@@ -2,9 +2,9 @@
 Controlling Packet Café
 =======================
 
-The In-Q-Tel Labs `Packet Café`_ service provides a modular
-`PCAP`_ analysis service that runs from a set of Docker
-containers.
+``lim`` serves as a command line interface to In-Q-Tel Labs'
+`Packet Café`_ to process `PCAP`_ files you *upload* to the
+local service.
 
 .. epigraph::
 
