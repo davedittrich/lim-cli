@@ -22,10 +22,14 @@ help:
 	@echo 'release-test - produce a pypi test release'
 	@echo 'release-prep - final documentation preparations for release'
 	@echo 'sdist - run "python setup.py sdist"'
+	@echo 'bdist_wheel - build a universal binary wheel'
 	@echo 'twine-check - run "twine check"'
+	@echo 'clean - remove build artifacts'
+	@echo 'spotless - deep clean'
 	@echo 'install - install pip package'
 	@echo 'install-active - run "python -m pip install -U ."'
 	@echo 'docs-tests - generate bats test output for documentation'
+	@echo 'docs-help - generate "lim help" output for documentation'
 	@echo 'docs - build Sphinx docs'
 
 
