@@ -84,13 +84,18 @@ of the Packet Café documentation.
 
 ..
 
-You can always use ``docker ps`` to see all Docker containers and their
+You can always use ``docker ps`` to see *all* Docker containers and their
 status, but there is a more direct way to see the running status of only
-the Packet Café Docker containers. A table is produced by the command ``lim
-cafe containers``, while adding the ``--check-running`` flag will just check to
-see if all containers with the ``com.docker.compose.project`` label set to
-``packet_cafe`` and return a standard Unix exit code of ``0`` (success) or
-``1`` (failure).
+the Packet Café Docker containers. The command ``lim cafe containers``
+produces a table with just those containers having the label
+``com.docker.compose.project`` set to ``packet_cafe`` and return a
+standard Unix exit code of ``0`` (success).
+
+If the Packet Café Docker containers are not running, a message to that
+effect is returend and an exit code of ``1`` (failure).
+
+Adding the ``-q`` flag will suppress the table or warning for use in
+scripts.
 
 .. # Copied from lim/packet_cafe/extensions/containers.py
 
@@ -110,9 +115,19 @@ see if all containers with the ``com.docker.compose.project`` label set to
     | packet_cafe_redis_1     | c893c408b5 | cyberreboot/packet_cafe_redis:latest     | running |
     | packet_cafe_lb_1        | 4530125e8e | cyberreboot/packet_cafe_lb:latest        | running |
     +-------------------------+------------+------------------------------------------+---------+
-    $ lim cafe containers --check-running
+    $ lim -q cafe containers
     $ echo $?
     0
+
+..
+
+.. code-block:: console
+
+    $ lim cafe containers
+    [-] no packet-cafe containers are running
+    $ lim -q cafe containers
+    $ echo $?
+    1
 
 ..
 
