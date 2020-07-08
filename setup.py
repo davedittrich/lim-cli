@@ -11,7 +11,8 @@ import codecs
 import os
 import re
 
-from setuptools import find_packages, setup
+from distutils.core import setup
+from setuptools import find_packages
 
 # Package meta-data.
 NAME = 'lim-cli'
