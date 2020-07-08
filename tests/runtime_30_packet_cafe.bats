@@ -37,13 +37,13 @@ teardown() {
 }
 
 @test "packet-cafe Docker containers are running (via \"docker ps\")" {
-    bash -c "([ $(docker ps | grep cyberreboot | grep healthy | wc -l) -ge 7 ] && echo UP || echo DOWN) | tee /tmp/packet_cafe_status"
+    bash -c "([ $(docker ps --filter 'name=packet_cafe' | grep healthy | wc -l) -ge 7 ] && echo UP || echo DOWN) | tee /tmp/packet_cafe_status"
     [ -f /tmp/packet_cafe_status ]
     [ "$(cat /tmp/packet_cafe_status)" == "UP" ]
 }
 
-@test "\"lim cafe containers --check-running\" reports Docker containers are running" {
-    run bash -c "$LIM cafe containers --check-running"
+@test "\"lim -q cafe containers\" reports Docker containers are running" {
+    run bash -c "$LIM -q cafe containers"
     assert_success
 }
 
@@ -81,6 +81,12 @@ teardown() {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe admin sessions"
     assert_output --partial "[-] packet-cafe server has no sessions"
+}
+
+@test "\"lim -q cafe admin sessions\" returns failure" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM -q cafe admin sessions"
+    assert_failure
 }
 
 @test "\"lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap\" works" {

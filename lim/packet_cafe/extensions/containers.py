@@ -19,14 +19,6 @@ class Containers(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
-            '--check-running',
-            action='store_true',
-            dest='check_running',
-            default=False,
-            help=('Just check for running containers and return '
-                  'results (default: False)')
-        )
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Produce a table listing the Docker containers associated with
@@ -53,11 +45,11 @@ class Containers(Lister):
             ..
 
             To just get a return value (``0`` for "all running" and ``1`` if not),
-            use the ``--check-running`` option.
+            use the ``-q`` option.
 
             .. code-block:: console
 
-                $ lim cafe containers --check-running
+                $ lim -q cafe containers
                 $ echo $?
                 0
             ..
@@ -67,11 +59,10 @@ class Containers(Lister):
     def take_action(self, parsed_args):
         logger.debug('[+] report on Docker containers')
         if not containers_are_running():
-            if parsed_args.check_running:
-                sys.exit(1)
-            else:
-                raise RuntimeError('[-] no packet-cafe containers are running')
-        elif parsed_args.check_running:
+            if bool(self.app_args.verbose_level):
+                logger.info('[-] no packet-cafe containers are running')
+            sys.exit(1)
+        elif not bool(self.app_args.verbose_level):
             sys.exit(0)
         # client = docker.from_env()
         # container_ids = [getattr(c, 'id') for c in client.containers.list()]
