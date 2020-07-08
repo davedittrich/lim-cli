@@ -84,18 +84,15 @@ of the Packet Café documentation.
 
 ..
 
-You can always use ``docker ps`` to see *all* Docker containers and their
-status, but there is a more direct way to see the running status of only
-the Packet Café Docker containers. The command ``lim cafe containers``
-produces a table with just those containers having the label
-``com.docker.compose.project`` set to ``packet_cafe`` and return a
-standard Unix exit code of ``0`` (success).
+You can use ``docker ps --filter 'name=packet_cafe'`` to see the Packet
+Café containers (and their status) by their name.  The command ``lim cafe
+containers`` produces a table with just those containers having the label
+``com.docker.compose.project`` set to ``packet_cafe`` and returns a standard
+Unix exit code of ``0`` (success).  If the Packet Café Docker containers are
+not running, a message to that effect is returend and an exit code of ``1``
+(failure).
 
-If the Packet Café Docker containers are not running, a message to that
-effect is returend and an exit code of ``1`` (failure).
-
-Adding the ``-q`` flag will suppress the table or warning for use in
-scripts.
+Adding the ``-q`` flag will suppress the table or warning for use in scripts.
 
 .. # Copied from lim/packet_cafe/extensions/containers.py
 
