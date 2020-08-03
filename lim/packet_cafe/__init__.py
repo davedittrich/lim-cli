@@ -14,6 +14,7 @@ import uuid
 
 
 from lim.utils import Timer
+from urllib3.exceptions import ProtocolError
 
 
 # TODO(dittrich): https://github.com/Mckinsey666/bullet/issues/2
@@ -172,7 +173,10 @@ def containers_are_running():
 def get_containers(columns=['name', 'status']):
     """Get normalized metadata for packet_cafe Docker container."""
     client = docker.from_env()
-    container_ids = [getattr(c, 'id') for c in client.containers.list()]
+    try:
+        container_ids = [getattr(c, 'id') for c in client.containers.list()]
+    except (requests.exceptions.ConnectionError, ProtocolError):
+        raise RuntimeError('[-] cannot connect to the Docker daemon: is it running?')
     containers = []
     for container_id in container_ids:
         container = client.containers.get(container_id)
@@ -718,6 +722,7 @@ class Packet_Cafe(object):
                 "[-] request ID not provided" +
                 (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
+        self.set_last_request_id(req_id=_req_id)
         return _req_id
 
     def get_last_request_id(self):
