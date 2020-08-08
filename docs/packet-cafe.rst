@@ -99,19 +99,19 @@ Adding the ``-q`` flag will suppress the table or warning for use in scripts.
 .. code-block:: console
 
     $ lim cafe containers
-    +-------------------------+------------+------------------------------------------+---------+
-    | name                    | short_id   | image                                    | status  |
-    +-------------------------+------------+------------------------------------------+---------+
-    | packet_cafe_messenger_1 | ce4eed9e01 | cyberreboot/packet_cafe_messenger:latest | running |
-    | packet_cafe_workers_1   | 43fff494f6 | cyberreboot/packet_cafe_workers:latest   | running |
-    | packet_cafe_ui_1        | 794eb87ed6 | cyberreboot/packet_cafe_ui:latest        | running |
-    | packet_cafe_web_1       | a1f8f5f7cc | cyberreboot/packet_cafe_web:latest       | running |
-    | packet_cafe_mercury_1   | 882b12e31f | cyberreboot/mercury:v0.11.10             | running |
-    | packet_cafe_ncapture_1  | 5b1b10f3e0 | cyberreboot/ncapture:v0.11.10            | running |
-    | packet_cafe_admin_1     | 73304f16cf | cyberreboot/packet_cafe_admin:latest     | running |
-    | packet_cafe_redis_1     | c893c408b5 | cyberreboot/packet_cafe_redis:latest     | running |
-    | packet_cafe_lb_1        | 4530125e8e | cyberreboot/packet_cafe_lb:latest        | running |
-    +-------------------------+------------+------------------------------------------+---------+
+    +-------------------------+------------+--------------------------------------+---------+
+    | name                    | short_id   | image                                | status  |
+    +-------------------------+------------+--------------------------------------+---------+
+    | packet_cafe_messenger_1 | ce4eed9e01 | iqtlabs/packet_cafe_messenger:latest | running |
+    | packet_cafe_workers_1   | 43fff494f6 | iqtlabs/packet_cafe_workers:latest   | running |
+    | packet_cafe_ui_1        | 794eb87ed6 | iqtlabs/packet_cafe_ui:latest        | running |
+    | packet_cafe_web_1       | a1f8f5f7cc | iqtlabs/packet_cafe_web:latest       | running |
+    | packet_cafe_mercury_1   | 882b12e31f | iqtlabs/mercury:v0.11.10             | running |
+    | packet_cafe_ncapture_1  | 5b1b10f3e0 | iqtlabs/ncapture:v0.11.10            | running |
+    | packet_cafe_admin_1     | 73304f16cf | iqtlabs/packet_cafe_admin:latest     | running |
+    | packet_cafe_redis_1     | c893c408b5 | iqtlabs/packet_cafe_redis:latest     | running |
+    | packet_cafe_lb_1        | 4530125e8e | iqtlabs/packet_cafe_lb:latest        | running |
+    +-------------------------+------------+--------------------------------------+---------+
     $ lim -q cafe containers
     $ echo $?
     0

@@ -173,7 +173,7 @@ spotless-packet-cafe: clean-packet-cafe
 			docker-compose down); \
 	fi
 	[ ! -z "$(VOL_PREFIX)" ] && sudo rm -rf $(VOL_PREFIX)/{definitions,files,id,redis} || true
-	for image in $(shell docker images | grep cyberreboot | awk '{print $$3;}'); \
+	for image in $(shell docker images | grep iqtlabs | awk '{print $$3;}'); \
 	do \
 		docker rmi $$image; \
 	done

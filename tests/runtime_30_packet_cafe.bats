@@ -59,10 +59,10 @@ teardown() {
     assert_output --partial "/v1/info"
 }
 
-@test "\"lim cafe tools\" includes \"cyberreboot/\"" {
+@test "\"lim cafe tools\" includes \"iqtlabs/\"" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe tools"
-    assert_output --partial "cyberreboot/"
+    assert_output --partial "iqtlabs/"
 }
 
 @test "\"lim cafe info\" includes \"hostname\"" {
@@ -89,11 +89,11 @@ teardown() {
     assert_failure
 }
 
-@test "\"lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap\" works" {
+@test "\"lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap\" works" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    [ -f $HOME/git/packet_cafe/notebooks/smallFlows.pcap ] || skip "No packet-cafe smallFlows.pcap available"
-    run bash -c "$LIM cafe upload --wait $HOME/git/packet_cafe/notebooks/smallFlows.pcap 11111111-1111-1111-1111-111111111111"
-    assert_output --partial "[+] Upload smallFlows.pcap: success"
+    [ -f $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap ] || skip "No packet-cafe smallFlows_nopayloads.pcap available"
+    run bash -c "$LIM cafe upload --wait $HOME/git/packet_cafe/notebooks/smallFlows_nopayploads.pcap 11111111-1111-1111-1111-111111111111"
+    assert_output --partial "[+] Upload smallFlows_nopayloads.pcap: success"
 }
 
 @test "\"lim cafe status\" contains \"Complete\"" {
