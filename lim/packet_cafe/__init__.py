@@ -180,14 +180,13 @@ def get_containers(columns=['name', 'status']):
     containers = []
     for container_id in container_ids:
         container = client.containers.get(container_id)
-        containers.append([get_container_metadata(
-                             getattr(container, attr, None)
-                           )
-                           for attr in columns
-                           if container.labels.get(
-                               'com.docker.compose.project', '')
-                           == 'packet_cafe'
-                           ])
+        if container.labels.get(
+            'com.docker.compose.project', ''
+        ) == 'packet_cafe':
+            containers.append([get_container_metadata(
+                                 getattr(container, attr, None)
+                               )
+                               for attr in columns])
     return containers
 
 
