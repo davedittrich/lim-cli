@@ -39,7 +39,6 @@ help:
 	@echo 'docs - build Sphinx docs'
 
 
-
 #HELP test - run 'tox' for testing
 .PHONY: test
 test: test-tox test-bats
@@ -124,7 +123,7 @@ clean:
 .PHONY: spotless
 spotless: clean
 	rm -rf .eggs .tox
-	rm -rf .packet_cafe_last_{request,session}_id
+	rm -f .packet_cafe_last_{request,session}_id
 	(cd docs && make clean)
 	rm -rf tests/libs/{bats,bats-support,bats-assert}
 
@@ -157,6 +156,7 @@ down-packet-cafe:
 	else \
 	       echo '[-] containers are already down'; \
 	fi
+	@rm -f .packet_cafe_last_{request,session}_id
 
 #HELP clean-packet-cafe - remove packet_cafe contents
 .PHONY: clean-packet-cafe
@@ -164,6 +164,7 @@ clean-packet-cafe:
 	if lim -q cafe containers; then \
 		lim cafe admin delete --all || true; \
 	fi
+	@rm -f .packet_cafe_last_{request,session}_id
 
 #HELP spotless-packet-cafe - Remove all packet_cafe files and containers
 .PHONY: spotless-packet-cafe

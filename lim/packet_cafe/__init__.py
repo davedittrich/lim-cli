@@ -640,7 +640,8 @@ class Packet_Cafe(object):
                 "[-] session ID not provided" +
                 (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
-        self.set_last_session_id(sess_id=_sess_id)
+        if _sess_id is not None:
+            self.set_last_session_id(sess_id=_sess_id)
         return _sess_id
 
     def get_last_session_id(self):
@@ -722,7 +723,8 @@ class Packet_Cafe(object):
                 "[-] request ID not provided" +
                 (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
-        self.set_last_request_id(req_id=_req_id)
+        if _req_id is not None:
+            self.set_last_request_id(req_id=_req_id)
         return _req_id
 
     def get_last_request_id(self):
