@@ -176,7 +176,8 @@ def get_containers(columns=['name', 'status']):
     try:
         container_ids = [getattr(c, 'id') for c in client.containers.list()]
     except (requests.exceptions.ConnectionError, ProtocolError):
-        raise RuntimeError('[-] cannot connect to the Docker daemon: is it running?')
+        raise RuntimeError(
+            '[-] cannot connect to the Docker daemon: is it running?')
     containers = []
     for container_id in container_ids:
         container = client.containers.get(container_id)
