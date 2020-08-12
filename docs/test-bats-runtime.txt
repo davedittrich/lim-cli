@@ -1,6 +1,6 @@
 $ make test-bats-runtime
 [+] Running bats runtime tests: runtime_10_ctu.bats runtime_20_pcap.bats runtime
-1..34
+1..35
 ok 1 "lim -q ctu list CTU-Malware-Capture-Botnet-48" works
 ok 2 "lim -q ctu list Botnet-48" works
 ok 3 "lim -q ctu get Botnet-48 pcap --no-subdir " gets PCAP file to cwd
@@ -10,28 +10,29 @@ ok 6 "lim pcap extract ips --stdout CTU-Malware-Capture-Botnet-48/botnet-capture
 ok 7 "lim pcap shift time CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-
 ok 8 VOL_PREFIX is exported
 ok 9 packet-cafe Docker containers are running (via "docker ps")
-ok 10 "lim cafe containers --check-running" reports Docker containers are runnin
+ok 10 "lim -q cafe containers" reports Docker containers are running
 ok 11 "lim cafe endpoints" includes "/api/v1/info"
 ok 12 "lim cafe admin endpoints" includes "/v1/info"
-ok 13 "lim cafe tools" includes "cyberreboot/"
+ok 13 "lim cafe tools" includes "iqtlabs/"
 ok 14 "lim cafe info" includes "hostname"
 ok 15 "lim cafe admin info" includes "hostname"
 ok 16 "lim cafe admin sessions" has no sessions
-ok 17 "lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap" works
-ok 18 "lim cafe status" contains "Complete"
-ok 19 "lim cafe admin results" contains "metadata.json" files
-ok 20 "lim cafe admin files" contains "smallFlows.pcap"
-ok 21 "lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110
-ok 22 "lim -q cafe report --tool poof" fails
-ok 23 "lim -q cafe report --tool p0f" works
-ok 24 "lim cafe results --tool networkml" works
-ok 25 "lim cafe admin sessions -f value" shows both sessions
-ok 26 "lim cafe admin delete 22222222-2222-2222-2222-222222222222" removes sessi
-ok 27 "lim cafe admin delete --all" leaves storage directory empty
-ok 28 "lim cafe raw --tool p0f" fails
-ok 29 "lim cafe raw --tool p0f --choose" fails (no tty)
-ok 30 "lim cafe results --tool p0f" fails
-ok 31 "lim cafe results --choose" fails (no tty)
-ok 32 "lim cafe about" fails (no tty)
-ok 33 "lim cafe ui" fails (no tty)
-ok 34 Cleaning up /tmp/packet_cafe_status
+ok 17 "lim -q cafe admin sessions" returns failure
+ok 18 "lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows_nopayloads.
+ok 19 "lim cafe status" contains "Complete"
+ok 20 "lim cafe admin results" contains "metadata.json" files
+ok 21 "lim cafe admin files" contains "smallFlows_nopayloads.pcap"
+ok 22 "lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110
+ok 23 "lim -q cafe report --tool poof" fails
+ok 24 "lim -q cafe report --tool p0f" works
+ok 25 "lim cafe results --tool networkml" works
+ok 26 "lim cafe admin sessions -f value" shows both sessions
+ok 27 "lim cafe admin delete 22222222-2222-2222-2222-222222222222" removes sessi
+ok 28 "lim cafe admin delete --all" leaves storage directory empty
+ok 29 "lim cafe raw --tool p0f" fails
+ok 30 "lim cafe raw --tool p0f --choose" fails (no tty)
+ok 31 "lim cafe results --tool p0f" fails
+ok 32 "lim cafe results --choose" fails (no tty)
+ok 33 "lim cafe about" fails (no tty)
+ok 34 "lim cafe ui" fails (no tty)
+ok 35 Cleaning up /tmp/packet_cafe_status
