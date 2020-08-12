@@ -108,10 +108,10 @@ teardown() {
     assert_output --partial "metadata.json"
 }
 
-@test "\"lim cafe admin files\" contains \"smallFlows.pcap\"" {
+@test "\"lim cafe admin files\" contains \"smallFlows_nopayloads.pcap\"" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe admin files -f value | grep 11111111-1111-1111-1111-111111111111"
-    assert_output --partial "smallFlows.pcap"
+    assert_output --partial "smallFlows_nopayloads.pcap"
 }
 
 @test "\"lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap\" works" {
