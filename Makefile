@@ -58,14 +58,14 @@ test-bats: bats-libraries
 			echo "[-] Skipping bats tests"; \
 		else \
 			echo "[+] Running bats tests: $(shell cd tests && echo [0-9][0-9]*.bats)"; \
-			bats --tap tests/[0-9][0-9]*.bats; \
+			PYTHONWARNINGS="ignore" bats --tap tests/[0-9][0-9]*.bats; \
 		fi \
 	 fi
 
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
 	@echo "[+] Running bats runtime tests: $(shell cd tests && echo runtime_[0-9][0-9]*.bats)"; \
-	bats --tap tests/runtime_[0-9][0-9]*.bats
+	PYTHONWARNINGS="ignore" bats --tap tests/runtime_[0-9][0-9]*.bats
 
 .PHONY: no-diffs
 no-diffs:
