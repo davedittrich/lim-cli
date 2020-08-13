@@ -52,7 +52,7 @@ class AdminInfo(ShowOne):
 
             ..
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-info
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-info
             """)
         return add_packet_cafe_global_options(parser)
 
