@@ -20,21 +20,34 @@ class ApiInfo(ShowOne):
         parser.epilog = textwrap.dedent("""
             Return basic information about the packet-cafe service.
 
+            Use this command to determine the last session ID and last
+            request ID, if available.
+
             .. code-block:: console
 
                 $ lim cafe info
-                +----------+---------------------------------+
-                | Field    | Value                           |
-                +----------+---------------------------------+
-                | url      | http://127.0.0.1:80/api/v1/info |
-                | version  | v0.1.0                          |
-                | hostname | bf1456253115                    |
-                +----------+---------------------------------+
+                +--------------+--------------------------------------+
+                | Field        | Value                                |
+                +--------------+--------------------------------------+
+                | url          | http://127.0.0.1:80/api/v1/info      |
+                | last_session | 9a949fe6-6520-437f-89ec-e7af6925b1e0 |
+                | last_request | 81778bb8a9b946ba82659732baacdb44     |
+                | version      | v0.1.0                               |
+                | hostname     | bf1456253115                         |
+                +--------------+--------------------------------------+
 
             ..
 
-            Note that the last session ID and last request ID are found in the output
-            of ``lim cafe admin info`` (not ``lim cafe info``).
+            To programmatically obtain the last session ID for use in other
+            scripts, do the following:
+
+            .. code-block:: console
+
+                $ lim cafe info -f shell | grep last_
+                last_session="9a949fe6-6520-437f-89ec-e7af6925b1e0"
+                last_request="81778bb8a9b946ba82659732baacdb44"
+
+            ..
 
             See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-info
             """)  # noqa
