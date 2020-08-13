@@ -15,16 +15,16 @@ lim
        :alt: Documentation Status
 
 
-The ``lim`` app is a command line interface integrating multiple network
-security tools and data sources into a common front end that you can use
-interactively, or call from your own scripts or from existing security
-event processing or automation platforms.
+The ``lim`` app is a command line interface that provides a common
+means of interactively accessing multiple network security tools
+and data sources, or allowing you to do so from your own scripts
+or from existing security event processing and automation platforms.
 
-It uses the `Cliff`_ framework to organize features into related groups, some
-accessing local files, or the RESTful API of a network-based service, or the
-web site archiving data. It produces output in clean tabular form,
-or in several other data formats that can feed into yet other network security
-tools or automation platforms.
+``lim`` uses the `Cliff`_ framework to organize features into related
+groups, some accessing local files, or the RESTful API of a network-based
+service, or the web site archiving data. It produces output in clean tabular
+form, or in several other data formats that can feed into yet other network
+security tools or automation platforms.
 
 Using ``lim``, you can learn skills a SOC analyst needs to understand how
 malicious software communicates on the network, or script the post-processing
