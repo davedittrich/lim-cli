@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get -y install make bats
-        python -m pip install --upgrade pip setuptools
+        python -m pip install --upgrade pip setuptools twine
         [ -f requirements.txt ] && pip install -Ur requirements.txt
         [ -f test-requirements.txt ] && pip install -Ur test-requirements.txt
         make bats-libraries
