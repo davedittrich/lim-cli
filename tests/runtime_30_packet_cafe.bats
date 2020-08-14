@@ -91,6 +91,12 @@ teardown() {
     assert_output --partial "hostname"
 }
 
+@test "\"lim cafe info\" shows last_session_id == None" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe info -f shell | grep last_session"
+    assert_output 'last_session_id="None"'
+}
+
 @test "\"lim cafe admin sessions\" has no sessions" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe admin sessions"
@@ -108,6 +114,17 @@ teardown() {
     [ -f $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap ] || skip "No packet-cafe smallFlows_nopayloads.pcap available"
     run bash -c "$LIM cafe upload --wait $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap 11111111-1111-1111-1111-111111111111"
     assert_output --partial "[+] Upload smallFlows_nopayloads.pcap: success"
+}
+
+@test "The last upload created last session/request state" {
+    [ -f ${VOL_PREFIX}/files/last_session_id ]
+    [ -f ${VOL_PREFIX}/files/last_request_id ]
+}
+
+@test "\"lim cafe info\" shows last_session_id == 11111111-1111-1111-1111-111111111111" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe info -f shell | grep last_session"
+    assert_output 'last_session_id="11111111-1111-1111-1111-111111111111"'
 }
 
 @test "\"lim -q cafe admin sessions\" returns success" {
@@ -168,8 +185,8 @@ teardown() {
 
 @test "\"lim cafe admin delete 22222222-2222-2222-2222-222222222222\" removes session/request state" {
     run bash -c "$LIM cafe admin delete 22222222-2222-2222-2222-222222222222"
-    [ ! -f .packet_cafe_last_session_id ]
-    [ ! -f .packet_cafe_last_request_id ]
+    [ ! -f ${VOL_PREFIX}/files/last_session_id ]
+    [ ! -f ${VOL_PREFIX}/files/last_request_id ]
 }
 
 @test "\"lim cafe admin delete --all\" leaves storage directory empty" {
