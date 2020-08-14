@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-tools
+# See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-tools
 
 import argparse
 import docker
@@ -14,6 +14,7 @@ import uuid
 
 
 from lim.utils import Timer
+from urllib3.exceptions import ProtocolError
 
 
 # TODO(dittrich): https://github.com/Mckinsey666/bullet/issues/2
@@ -151,10 +152,10 @@ def containers_are_running():
     containers when you check. To be safe, ensure that at minimum the
     ``ui``, ``web``, and ``admin`` containers are all running.
 
-    See: https://cyberreboot.gitbook.io/packet-cafe/design/api
+    See: https://iqtlabs.gitbook.io/packet-cafe/design/api
     """
     # TODO(dittrich): identify a way to tell how many containers *should* exist.  # noqa
-    # Check out https://github.com/CyberReboot/packet_cafe/blob/master/workers/workers.json  # noqa
+    # Check out https://github.com/IQTLabs/packet_cafe/blob/master/workers/workers.json  # noqa
     #
     # NOTE(dittrich): Names may change?
     # This would be more robust if done via an API call.
@@ -172,18 +173,21 @@ def containers_are_running():
 def get_containers(columns=['name', 'status']):
     """Get normalized metadata for packet_cafe Docker container."""
     client = docker.from_env()
-    container_ids = [getattr(c, 'id') for c in client.containers.list()]
+    try:
+        container_ids = [getattr(c, 'id') for c in client.containers.list()]
+    except (requests.exceptions.ConnectionError, ProtocolError):
+        raise RuntimeError(
+            '[-] cannot connect to the Docker daemon: is it running?')
     containers = []
     for container_id in container_ids:
         container = client.containers.get(container_id)
-        containers.append([get_container_metadata(
-                             getattr(container, attr, None)
-                           )
-                           for attr in columns
-                           if container.labels.get(
-                               'com.docker.compose.project', '')
-                           == 'packet_cafe'
-                           ])
+        if container.labels.get(
+            'com.docker.compose.project', ''
+        ) == 'packet_cafe':
+            containers.append([get_container_metadata(
+                                 getattr(container, attr, None)
+                               )
+                               for attr in columns])
     return containers
 
 
@@ -208,7 +212,7 @@ class Packet_Cafe(object):
     CAFE_ADMIN_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
     CAFE_API_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
     CAFE_UI_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/'
-    CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
+    CAFE_DOCS_URL = 'https://iqtlabs.gitbook.io/packet-cafe'
 
     def __init__(
         self,
@@ -636,7 +640,8 @@ class Packet_Cafe(object):
                 "[-] session ID not provided" +
                 (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
-        self.set_last_session_id(sess_id=_sess_id)
+        if _sess_id is not None:
+            self.set_last_session_id(sess_id=_sess_id)
         return _sess_id
 
     def get_last_session_id(self):
@@ -718,6 +723,8 @@ class Packet_Cafe(object):
                 "[-] request ID not provided" +
                 (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
+        if _req_id is not None:
+            self.set_last_request_id(req_id=_req_id)
         return _req_id
 
     def get_last_request_id(self):

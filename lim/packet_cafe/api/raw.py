@@ -94,7 +94,7 @@ class Raw(Command):
             pretty-printing with ``--pprint``, and control indentation with
             ``--indent``.
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-raw-tool-counter-sess_id-req_id
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-raw-tool-counter-sess_id-req_id
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

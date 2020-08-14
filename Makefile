@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.6.3
+VERSION:=20.8.0
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -9,6 +9,7 @@ else
   ENVNAME:=$(shell basename $(VIRTUAL_ENV) 2>/dev/null || echo "")
 endif
 PROJECT:=$(shell basename $(CWD))
+CURRENT_ID=root:root
 
 all: help
 help:
@@ -22,12 +23,20 @@ help:
 	@echo 'release-test - produce a pypi test release'
 	@echo 'release-prep - final documentation preparations for release'
 	@echo 'sdist - run "python setup.py sdist"'
+	@echo 'bdist_wheel - build a universal binary wheel'
 	@echo 'twine-check - run "twine check"'
+	@echo 'clean - remove build artifacts'
+	@echo 'spotless - deep clean'
+	@echo 'build-packet-cafe - Build and bring up packet_cafe containers'
+	@echo 'up-packet-cafe - Bring up packet_cafe containers'
+	@echo 'down-packet-cafe - Bring up packet_cafe containers'
+	@echo 'clean-packet-cafe - remove packet_cafe contents'
+	@echo 'spotless-packet-cafe - Remove all packet_cafe files and containers'
 	@echo 'install - install pip package'
 	@echo 'install-active - run "python -m pip install -U ."'
 	@echo 'docs-tests - generate bats test output for documentation'
+	@echo 'docs-help - generate "lim help" output for documentation'
 	@echo 'docs - build Sphinx docs'
-
 
 
 #HELP test - run 'tox' for testing
@@ -48,14 +57,14 @@ test-bats: bats-libraries
 			echo "[-] Skipping bats tests"; \
 		else \
 			echo "[+] Running bats tests: $(shell cd tests && echo [0-9][0-9]*.bats)"; \
-			bats --tap tests/[0-9][0-9]*.bats; \
+			PYTHONWARNINGS="ignore" bats --tap tests/[0-9][0-9]*.bats; \
 		fi \
 	 fi
 
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
 	@echo "[+] Running bats runtime tests: $(shell cd tests && echo runtime_[0-9][0-9]*.bats)"; \
-	bats --tap tests/runtime_[0-9][0-9]*.bats
+	PYTHONWARNINGS="ignore" bats --tap tests/runtime_[0-9][0-9]*.bats
 
 .PHONY: no-diffs
 no-diffs:
@@ -114,23 +123,61 @@ clean:
 .PHONY: spotless
 spotless: clean
 	rm -rf .eggs .tox
-	rm -rf .packet_cafe_last_{request,session}_id
+	rm -f .packet_cafe_last_{request,session}_id
 	(cd docs && make clean)
 	rm -rf tests/libs/{bats,bats-support,bats-assert}
+
+#HELP build-packet-cafe - Build and bring up packet_cafe containers
+.PHONY: build-packet-cafe
+build-packet-cafe:
+	if lim -q cafe containers; then \
+		echo '[-] containers are already up'; \
+	else \
+		(cd ~/git/packet_cafe && \
+			CURRENT_ID=$(CURRENT_ID) docker-compose up -d --build); \
+	fi
+
+#HELP up-packet-cafe - Bring up packet_cafe containers
+.PHONY: up-packet-cafe
+up-packet-cafe:
+	if lim -q cafe containers; then \
+		echo '[-] containers are already up'; \
+	else \
+		(cd ~/git/packet_cafe && \
+			CURRENT_ID=$(CURRENT_ID) docker-compose up -d); \
+	fi
+
+#HELP down-packet-cafe - Bring up packet_cafe containers
+.PHONY: down-packet-cafe
+down-packet-cafe:
+	@if lim -q cafe containers; then \
+		(cd ~/git/packet_cafe && \
+			CURRENT_ID=$(CURRENT_ID) docker-compose down); \
+	else \
+	       echo '[-] containers are already down'; \
+	fi
+	@rm -f .packet_cafe_last_{request,session}_id
 
 #HELP clean-packet-cafe - remove packet_cafe contents
 .PHONY: clean-packet-cafe
 clean-packet-cafe:
-	lim cafe containers && \
-		lim cafe admin delete --all
+	if lim -q cafe containers; then \
+		lim cafe admin delete --all || true; \
+	fi
+	@rm -f .packet_cafe_last_{request,session}_id
 
 #HELP spotless-packet-cafe - Remove all packet_cafe files and containers
 .PHONY: spotless-packet-cafe
 spotless-packet-cafe: clean-packet-cafe
-	lim cafe containers && \
-		cd ~/git/packet_cafe && \
-		docker-compose down
-	[ ! -z "$(VOL_PREFIX)" ] && sudo rm -rf $(VOL_PREFIX)/{definitions,files,id,redis}
+	if lim -q cafe containers; then \
+		(cd ~/git/packet_cafe && \
+			docker-compose down); \
+	fi
+	[ ! -z "$(VOL_PREFIX)" ] && sudo rm -rf $(VOL_PREFIX)/{definitions,files,id,redis} || true
+	for image in $(shell docker images | grep iqtlabs | awk '{print $$3;}'); \
+	do \
+		docker rmi $$image; \
+	done
 
 #HELP install - install in required Python virtual environment (default $(REQUIRED_VENV))
 .PHONY: install

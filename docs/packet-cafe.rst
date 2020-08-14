@@ -2,9 +2,9 @@
 Controlling Packet Café
 =======================
 
-The In-Q-Tel Labs `Packet Café`_ service provides a modular
-`PCAP`_ analysis service that runs from a set of Docker
-containers.
+``lim`` serves as a command line interface to In-Q-Tel Labs'
+`Packet Café`_ to process `PCAP`_ files you *upload* to the
+local service.
 
 .. epigraph::
 
@@ -84,35 +84,47 @@ of the Packet Café documentation.
 
 ..
 
-You can always use ``docker ps`` to see all Docker containers and their
-status, but there is a more direct way to see the running status of only
-the Packet Café Docker containers. A table is produced by the command ``lim
-cafe containers``, while adding the ``--check-running`` flag will just check to
-see if all containers with the ``com.docker.compose.project`` label set to
-``packet_cafe`` and return a standard Unix exit code of ``0`` (success) or
-``1`` (failure).
+You can use ``docker ps --filter 'name=packet_cafe'`` to see the Packet
+Café containers (and their status) by their name.  The command ``lim cafe
+containers`` produces a table with just those containers having the label
+``com.docker.compose.project`` set to ``packet_cafe`` and returns a standard
+Unix exit code of ``0`` (success).  If the Packet Café Docker containers are
+not running, a message to that effect is returend and an exit code of ``1``
+(failure).
+
+Adding the ``-q`` flag will suppress the table or warning for use in scripts.
 
 .. # Copied from lim/packet_cafe/extensions/containers.py
 
 .. code-block:: console
 
     $ lim cafe containers
-    +-------------------------+------------+------------------------------------------+---------+
-    | name                    | short_id   | image                                    | status  |
-    +-------------------------+------------+------------------------------------------+---------+
-    | packet_cafe_messenger_1 | ce4eed9e01 | cyberreboot/packet_cafe_messenger:latest | running |
-    | packet_cafe_workers_1   | 43fff494f6 | cyberreboot/packet_cafe_workers:latest   | running |
-    | packet_cafe_ui_1        | 794eb87ed6 | cyberreboot/packet_cafe_ui:latest        | running |
-    | packet_cafe_web_1       | a1f8f5f7cc | cyberreboot/packet_cafe_web:latest       | running |
-    | packet_cafe_mercury_1   | 882b12e31f | cyberreboot/mercury:v0.11.10             | running |
-    | packet_cafe_ncapture_1  | 5b1b10f3e0 | cyberreboot/ncapture:v0.11.10            | running |
-    | packet_cafe_admin_1     | 73304f16cf | cyberreboot/packet_cafe_admin:latest     | running |
-    | packet_cafe_redis_1     | c893c408b5 | cyberreboot/packet_cafe_redis:latest     | running |
-    | packet_cafe_lb_1        | 4530125e8e | cyberreboot/packet_cafe_lb:latest        | running |
-    +-------------------------+------------+------------------------------------------+---------+
-    $ lim cafe containers --check-running
+    +-------------------------+------------+--------------------------------------+---------+
+    | name                    | short_id   | image                                | status  |
+    +-------------------------+------------+--------------------------------------+---------+
+    | packet_cafe_messenger_1 | ce4eed9e01 | iqtlabs/packet_cafe_messenger:latest | running |
+    | packet_cafe_workers_1   | 43fff494f6 | iqtlabs/packet_cafe_workers:latest   | running |
+    | packet_cafe_ui_1        | 794eb87ed6 | iqtlabs/packet_cafe_ui:latest        | running |
+    | packet_cafe_web_1       | a1f8f5f7cc | iqtlabs/packet_cafe_web:latest       | running |
+    | packet_cafe_mercury_1   | 882b12e31f | iqtlabs/mercury:v0.11.10             | running |
+    | packet_cafe_ncapture_1  | 5b1b10f3e0 | iqtlabs/ncapture:v0.11.10            | running |
+    | packet_cafe_admin_1     | 73304f16cf | iqtlabs/packet_cafe_admin:latest     | running |
+    | packet_cafe_redis_1     | c893c408b5 | iqtlabs/packet_cafe_redis:latest     | running |
+    | packet_cafe_lb_1        | 4530125e8e | iqtlabs/packet_cafe_lb:latest        | running |
+    +-------------------------+------------+--------------------------------------+---------+
+    $ lim -q cafe containers
     $ echo $?
     0
+
+..
+
+.. code-block:: console
+
+    $ lim cafe containers
+    [-] no packet-cafe containers are running
+    $ lim -q cafe containers
+    $ echo $?
+    1
 
 ..
 
@@ -414,6 +426,6 @@ command:
 
 .. _Packet Café: https://www.cyberreboot.org/projects/packet-cafe/
 .. _PCAP: https://www.tcpdump.org/pcap.html
-.. _Deployment: https://cyberreboot.gitbook.io/packet-cafe/deployment/prerequisites
+.. _Deployment: https://iqtlabs.gitbook.io/packet-cafe/deployment/prerequisites
 
 .. EOF

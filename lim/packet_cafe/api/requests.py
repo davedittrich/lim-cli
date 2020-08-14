@@ -38,7 +38,7 @@ class Requests(Lister):
 
             ..
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-ids-sess_id
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-ids-sess_id
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

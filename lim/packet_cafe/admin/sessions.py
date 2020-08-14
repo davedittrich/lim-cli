@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import sys
 import textwrap
 
 from cliff.lister import Lister
@@ -19,6 +20,11 @@ class Sessions(Lister):
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.epilog = textwrap.dedent("""
             List the current session IDS in the packet-cafe service.
+            Returns shell exit code ``0`` if one or more sessiona are
+            present, or ``1`` if none are present.
+
+            Use the ``-q`` option to suppress the output table or error
+            message.
 
             .. code-block:: console
 
@@ -37,7 +43,7 @@ class Sessions(Lister):
 
             ..
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-ids
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-ids
             """)
         return add_packet_cafe_global_options(parser)
 
@@ -47,7 +53,11 @@ class Sessions(Lister):
         columns = ['SessionId']
         data = [[row] for row in packet_cafe.get_session_ids()]
         if not bool(len(data)):
-            logger.info('[-] packet-cafe server has no sessions')
+            if bool(self.app_args.verbose_level):
+                logger.info('[-] packet-cafe server has no sessions')
+            sys.exit(1)
+        if not bool(self.app_args.verbose_level):
+            sys.exit(0)
         return (columns, data)
 
 

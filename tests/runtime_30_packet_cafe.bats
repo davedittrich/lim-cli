@@ -37,13 +37,13 @@ teardown() {
 }
 
 @test "packet-cafe Docker containers are running (via \"docker ps\")" {
-    bash -c "([ $(docker ps | grep cyberreboot | grep healthy | wc -l) -ge 7 ] && echo UP || echo DOWN) | tee /tmp/packet_cafe_status"
+    bash -c "([ $(docker ps --filter 'name=packet_cafe' | grep healthy | wc -l) -ge 7 ] && echo UP || echo DOWN) | tee /tmp/packet_cafe_status"
     [ -f /tmp/packet_cafe_status ]
     [ "$(cat /tmp/packet_cafe_status)" == "UP" ]
 }
 
-@test "\"lim cafe containers --check-running\" reports Docker containers are running" {
-    run bash -c "$LIM cafe containers --check-running"
+@test "\"lim -q cafe containers\" reports Docker containers are running" {
+    run bash -c "$LIM -q cafe containers"
     assert_success
 }
 
@@ -59,10 +59,24 @@ teardown() {
     assert_output --partial "/v1/info"
 }
 
-@test "\"lim cafe tools\" includes \"cyberreboot/\"" {
+@test "\"lim cafe about\" fails (no tty)" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe about < /dev/null"
+    assert_failure
+    assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
+}
+
+@test "\"lim cafe ui\" fails (no tty)" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM cafe ui < /dev/null"
+    assert_failure
+    assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
+}
+
+@test "\"lim cafe tools\" includes \"iqtlabs/\"" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe tools"
-    assert_output --partial "cyberreboot/"
+    assert_output --partial "iqtlabs/"
 }
 
 @test "\"lim cafe info\" includes \"hostname\"" {
@@ -83,11 +97,23 @@ teardown() {
     assert_output --partial "[-] packet-cafe server has no sessions"
 }
 
-@test "\"lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows.pcap\" works" {
+@test "\"lim -q cafe admin sessions\" returns failure" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    [ -f $HOME/git/packet_cafe/notebooks/smallFlows.pcap ] || skip "No packet-cafe smallFlows.pcap available"
-    run bash -c "$LIM cafe upload --wait $HOME/git/packet_cafe/notebooks/smallFlows.pcap 11111111-1111-1111-1111-111111111111"
-    assert_output --partial "[+] Upload smallFlows.pcap: success"
+    run bash -c "$LIM -q cafe admin sessions"
+    assert_failure
+}
+
+@test "\"lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap\" works" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    [ -f $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap ] || skip "No packet-cafe smallFlows_nopayloads.pcap available"
+    run bash -c "$LIM cafe upload --wait $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap 11111111-1111-1111-1111-111111111111"
+    assert_output --partial "[+] Upload smallFlows_nopayloads.pcap: success"
+}
+
+@test "\"lim -q cafe admin sessions\" returns success" {
+    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
+    run bash -c "$LIM -q cafe admin sessions"
+    assert_success
 }
 
 @test "\"lim cafe status\" contains \"Complete\"" {
@@ -102,10 +128,10 @@ teardown() {
     assert_output --partial "metadata.json"
 }
 
-@test "\"lim cafe admin files\" contains \"smallFlows.pcap\"" {
+@test "\"lim cafe admin files\" contains \"smallFlows_nopayloads.pcap\"" {
     [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
     run bash -c "$LIM cafe admin files -f value | grep 11111111-1111-1111-1111-111111111111"
-    assert_output --partial "smallFlows.pcap"
+    assert_output --partial "smallFlows_nopayloads.pcap"
 }
 
 @test "\"lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap\" works" {
@@ -166,41 +192,6 @@ teardown() {
     run bash -c "$LIM cafe raw --tool p0f"
     assert_failure
     assert_output --partial "[-] session ID not provided"
-}
-
-@test "\"lim cafe raw --tool p0f --choose\" fails (no tty)" {
-    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe raw --tool p0f --choose"
-    assert_failure
-    assert_output --partial "[-] caller did not provide a session from which to choose"
-}
-
-@test "\"lim cafe results --tool p0f\" fails" {
-    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe raw --tool p0f"
-    assert_failure
-    assert_output --partial "[-] session ID not provided"
-}
-
-@test "\"lim cafe results --choose\" fails (no tty)" {
-    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe results --choose"
-    assert_failure
-    assert_output --partial "[-] no sessions available"
-}
-
-@test "\"lim cafe about\" fails (no tty)" {
-    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe about < /dev/null"
-    assert_failure
-    assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
-}
-
-@test "\"lim cafe ui\" fails (no tty)" {
-    [ "$PACKET_CAFE_STATUS" == "UP" ] || skip "packet-cafe not running"
-    run bash -c "$LIM cafe ui < /dev/null"
-    assert_failure
-    assert_output --partial "[-] use --force to open browser when stdin is not a TTY"
 }
 
 @test "Cleaning up /tmp/packet_cafe_status" {
