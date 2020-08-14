@@ -43,7 +43,7 @@ class Tools(Lister):
 
             ..
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-tools
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-tools
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

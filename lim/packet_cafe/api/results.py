@@ -45,7 +45,7 @@ class Results(Command):
             redirect them to a file. (In future, this will be saved and a browser
             opened to view the file, as if you had selected a result in the web UI.)
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-results-tool-counter-sess_id-req_id
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-results-tool-counter-sess_id-req_id
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

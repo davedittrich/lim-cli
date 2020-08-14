@@ -426,6 +426,6 @@ command:
 
 .. _Packet Café: https://www.cyberreboot.org/projects/packet-cafe/
 .. _PCAP: https://www.tcpdump.org/pcap.html
-.. _Deployment: https://cyberreboot.gitbook.io/packet-cafe/deployment/prerequisites
+.. _Deployment: https://iqtlabs.gitbook.io/packet-cafe/deployment/prerequisites
 
 .. EOF

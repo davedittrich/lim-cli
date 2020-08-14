@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-tools
+# See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-tools
 
 import argparse
 import docker
@@ -152,10 +152,10 @@ def containers_are_running():
     containers when you check. To be safe, ensure that at minimum the
     ``ui``, ``web``, and ``admin`` containers are all running.
 
-    See: https://cyberreboot.gitbook.io/packet-cafe/design/api
+    See: https://iqtlabs.gitbook.io/packet-cafe/design/api
     """
     # TODO(dittrich): identify a way to tell how many containers *should* exist.  # noqa
-    # Check out https://github.com/CyberReboot/packet_cafe/blob/master/workers/workers.json  # noqa
+    # Check out https://github.com/IQTLabs/packet_cafe/blob/master/workers/workers.json  # noqa
     #
     # NOTE(dittrich): Names may change?
     # This would be more robust if done via an API call.
@@ -212,7 +212,7 @@ class Packet_Cafe(object):
     CAFE_ADMIN_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
     CAFE_API_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
     CAFE_UI_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/'
-    CAFE_DOCS_URL = 'https://cyberreboot.gitbook.io/packet-cafe'
+    CAFE_DOCS_URL = 'https://iqtlabs.gitbook.io/packet-cafe'
 
     def __init__(
         self,

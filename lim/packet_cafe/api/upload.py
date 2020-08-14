@@ -155,7 +155,7 @@ class Upload(Command):
             for each file is done is done before uploading the next file.  Use the
             ``--wait`` flag to do this.
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-upload
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-upload
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

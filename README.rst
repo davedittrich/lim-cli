@@ -20,7 +20,7 @@ means of interactively accessing multiple network security tools
 and data sources, or allowing you to do so from your own scripts
 or from existing security event processing and automation platforms.
 
-``lim`` uses the `Cliff`_ framework to organize features into related
+``lim`` uses the `openstack/cliff`_ framework to organize features into related
 groups, some accessing local files, or the RESTful API of a network-based
 service, or the web site archiving data. It produces output in clean tabular
 form, or in several other data formats that can feed into yet other network

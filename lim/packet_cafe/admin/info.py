@@ -36,7 +36,7 @@ class AdminInfo(ShowOne):
             Note that the last session ID and last request ID are found in the
             output of ``lim cafe info`` (not ``lim cafe admin info``).
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-info
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-info
             """)
         return add_packet_cafe_global_options(parser)
 
