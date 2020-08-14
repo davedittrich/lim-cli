@@ -23,7 +23,7 @@ class Stop(Command):
             Stop jobs of a request ID.
 
             This is a placeholder for future functionality.
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#api-v-1-stop-sess_id-req_id
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-stop-sess_id-req_id
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

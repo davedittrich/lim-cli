@@ -77,7 +77,7 @@ class Files(Lister):
 
             ..
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-id-files
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-id-files
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

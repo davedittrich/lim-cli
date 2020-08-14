@@ -113,7 +113,7 @@ class Results(Lister):
 
             ..
 
-            See https://cyberreboot.gitbook.io/packet-cafe/design/api#v-1-id-results
+            See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-id-results
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 
