@@ -1,8 +1,77 @@
 CHANGES
 =======
 
+* Fix broken link
+* Add twine
+* Add GitHub workflows directory and actions
+* cyberreboot -> iqtlabs
+* Improve README.rst
+* Refine runtime tests for packet\_cafe subcommands
+* Fix bugs re: saving session/request state
+* Update test output docs
+* Refactor tox configuration
+* Fix regression error in testing
+* Fix setuptools warning
+* Resolve pep8 findings
+* Ignore python warnings in tests
+* Fix typo in test
+* More edits related to renaming of packet\_cafe repo
+* Rename github repo for packet\_cafe
+* Fix bug in extracting packet\_cafe container data
+* Fix bug in saving last request ID state
+* Remove redundant flag
+* Tighten up documentation
+* Resolve warning message
+* Update documentation
+* Extend packet\_cafe control in Makefile
+* Update help text
+* Be more clear about lim being a CLI
+
+20.6.3
+------
+
+* Bump version
+* Prevent recurring BrokenPipeError exceptions
+* Update documentation and help text
+* Fix spacing in asciicast explanatory text
+* Add screen captures to docs/images
+* Add example commands and asciicast file
+* Keep track of nodes with full path (dirs repeat)
+* Add packet\_cafe cleanup targets to Makefile
+* Get rid of ChangeLog when installing for devtest
+* Ignore broken pipe exceptions
+* Add test for VOL\_PREFIX export
+* Add '--tree' option for files, results
+* Don't stop for ChangeLog
+* Fix test
+* Don't need to know about pipes we broke
+* Fix spacing in error message
+* Add pyreadline for Ubuntu on WSL to work
+
+20.6.2
+------
+
+* Bump version for release
 * Fix test
 * Resolve pep8 findings
+* Add method to get dict of session+request IDs
+* Improve reporting
+* Fix bug in containers check
+* Add failure assertions to other failure tests
+* Add failure test for wrong tool
+* Resolve option '-c' conflict
+* Clarify how the options work
+* Fix bugs in class methods, logic, and use
+* Fix bug in logic
+* Improve help text
+* Improve container status checking
+* Add missing kwarg parameter
+* Update VSCode test configuration
+* Improve test coverage
+* Add tty enforcement for opening browser
+* Fix logic and grammar
+* Improve help output
+* Fix documentation link
 * Add method to get dict of session+request IDs
 * Improve reporting
 * Fix bug in containers check
