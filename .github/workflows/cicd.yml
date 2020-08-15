@@ -68,7 +68,8 @@ jobs:
       with:
         name: ${{ steps.get_artifact.outputs.ARTIFACT }}
     - name: Display artifacts
-      run: ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
+      run: >-
+          ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
     - name: Publish to TestPyPI
       if: >-
         github.event_name == 'push' &&
