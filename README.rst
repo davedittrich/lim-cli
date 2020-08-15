@@ -7,6 +7,7 @@ lim
        :alt: PyPi Status
 
 .. image:: https://github.com/davedittrich/lim-cli/workflows/CICD/badge.svg
+       :target: https://github.com/davedittrich/lim-cli/actions
        :alt: GitHub Actions Status
 
 .. image:: https://img.shields.io/travis/davedittrich/lim-cli.svg
