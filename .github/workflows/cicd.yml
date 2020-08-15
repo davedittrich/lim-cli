@@ -61,7 +61,7 @@ jobs:
     - name: Publish to TestPyPI
       if: >-
         github.event_name == 'push' &&
-        "${GITHUB_REF##*/}" == 'develop'
+        endsWith(github.ref, 'develop')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_test_pypi_token }}
