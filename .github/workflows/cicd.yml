@@ -8,12 +8,6 @@ jobs:
       PY_COLORS: 1
       TOX_PARALLEL_NO_SPINNER: 1
     steps:
-    - name: Check out src from GitHub
-      uses: actions/checkout@v2
-    - name: Get history and tags for SCM versioning to work
-      run: |
-        git fetch --prune --unshallow
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -25,8 +19,12 @@ jobs:
         python3 -m pip install --upgrade setuptools wheel twine
         [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         make bats-libraries
-    - name: Run tests
-      run: make test
+    - name: Check out src from GitHub
+      uses: actions/checkout@v2
+    - name: Get history and tags for SCM versioning to work
+      run: |
+        git fetch --prune --unshallow
+        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
     - name: Get repo name
       id: get_repo
       run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
@@ -36,15 +34,17 @@ jobs:
     - name: Get version number
       id: get_version
       run: |
-        _VERSION=$(python3 setup.py --version)
-        echo "${_VERSION}"
-        if [[ "${_VERSION}" =~ 0\.0\..* || "${{ steps.get_branch.outputs.BRANCH }}" =~ .*\.RC.* ]]; then
-          echo ::set-output name=VERSION::${_VERSION}
-        else
-          echo ::set-output name=VERSION::${{ steps.get_repo.outputs.BRANCH }}
-        fi
+        echo ::set-output name=VERSION::$(python3 setup.py --version)
+        # echo "${_VERSION}"
+        # if [[ "${_VERSION}" =~ 0\.0\..* || "${{ steps.get_branch.outputs.BRANCH }}" =~ .*\.RC.* ]]; then
+        #   echo ::set-output name=VERSION::${_VERSION}
+        # else
+        #   echo ::set-output name=VERSION::${{ steps.get_repo.outputs.BRANCH }}
+        # fi
       env:
         SETUPTOOLS_SCM_DEBUG: 1
+    - name: Run tests
+      run: make test
     - name: Get artifact name
       id: get_artifact
       run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
