@@ -47,12 +47,12 @@ jobs:
       run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
     - name: Expose variables for debugging
       run: |
-        echo GITHUB_REF:: \"${GITHUB_REF}\"
-        echo Actor:: \"${GITHUB_ACTOR}\"
-        echo BRANCH:: ${{ steps.get_branch.outputs.BRANCH }}
-        echo REPO:: ${{ steps.get_repo.outputs.REPO }}
-        echo VERSION:: ${{ steps.get_version.outputs.VERSION }}
-        echo ARTIFACT:: ${{ steps.get_artifact.outputs.ARTIFACT }}
+        echo "GITHUB_REF:   ${GITHUB_REF}"
+        echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
+        echo "BRANCH:       ${{ steps.get_branch.outputs.BRANCH }}"
+        echo "REPO:         ${{ steps.get_repo.outputs.REPO }}"
+        echo "VERSION:      ${{ steps.get_version.outputs.VERSION }}"
+        echo "ARTIFACT:     ${{ steps.get_artifact.outputs.ARTIFACT }}"
     - name: Run tests
       run: make test
     - name: Build a binary wheel and a source tarball
