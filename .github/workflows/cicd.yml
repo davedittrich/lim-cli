@@ -61,11 +61,8 @@ jobs:
       PY_COLORS: 1
       TOX_PARALLEL_NO_SPINNER: 1
     steps:
-    - name: Download all the dists
+    - name: Download all the artifacts
       uses: actions/download-artifact@v2
-      with:
-        name: "${{ steps.get_artifact.outputs.ARTIFACT }}"
-        path: dist/
     - name: Publish to TestPyPI
       if: >-
         github.event_name == 'push' &&
