@@ -40,6 +40,9 @@ jobs:
       run: echo ::set-output name=VERSION::$(python setup.py --version)
       env:
         SETUPTOOLS_SCM_DEBUG: 1
+    - name: Get artifact name
+      id: get_artifact
+      run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
     - name: Run tests
       run: make test test-bats
     - name: Build a binary wheel and a source tarball
@@ -47,7 +50,7 @@ jobs:
     - name: Store the source distribution
       uses: actions/upload-artifact@v2
       with:
-        name: "${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}"
+        name: "${{ steps.get_artifact.outputs.ARTIFACT }}"
         path: dist
   deploy:
     name: Publish
@@ -62,7 +65,7 @@ jobs:
     - name: Download all the dists
       uses: actions/download-artifact@v2
       with:
-        name: dist-src
+        name: "${{ steps.get_artifact.outputs.ARTIFACT }}"
         path: dist/
     - name: Publish to TestPyPI
       if: >-
