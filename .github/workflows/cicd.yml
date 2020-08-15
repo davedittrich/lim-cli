@@ -10,11 +10,6 @@ jobs:
     steps:
     - name: Check out src from GitHub
       uses: actions/checkout@v2
-    - name: Expose variables for situational awareness
-      run: |
-        echo GITHUB_REF \"${GITHUB_REF}\"
-        echo Running on branch \"${GITHUB_REF##*/}\"
-        echo Actor \"${GITHUB_ACTOR}\"
     - name: Get history and tags for SCM versioning to work
       run: |
         git fetch --prune --unshallow
@@ -32,6 +27,9 @@ jobs:
     - name: Get repo name
       id: get_repo
       run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
+    - name: Get branch/tag name
+      id: get_branch
+      run: echo ::set-output name=BRANCH::${GITHUB_REF##*/}
     - name: Get version number
       id: get_version
       run: |
@@ -47,6 +45,14 @@ jobs:
     - name: Get artifact name
       id: get_artifact
       run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
+    - name: Expose variables for debugging
+      run: |
+        echo GITHUB_REF:: \"${GITHUB_REF}\"
+        echo Actor:: \"${GITHUB_ACTOR}\"
+        echo BRANCH:: ${{ steps.get_branch.outputs.BRANCH }}
+        echo REPO:: ${{ steps.get_repo.outputs.REPO }}
+        echo VERSION:: ${{ steps.get_version.outputs.VERSION }}
+        echo ARTIFACT:: ${{ steps.get_artifact.outputs.ARTIFACT }}
     - name: Run tests
       run: make test
     - name: Build a binary wheel and a source tarball
@@ -70,8 +76,8 @@ jobs:
     steps:
     - name: Download all the artifacts
       uses: actions/download-artifact@v2
-      with:
-        name: ${{ steps.get_artifact.outputs.ARTIFACT }}
+#     with:
+#       name: ${{ steps.get_artifact.outputs.ARTIFACT }}
     - name: Get repo name
       id: get_repo
       run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
@@ -82,7 +88,8 @@ jobs:
       run: echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_repo.outputs.REPO }}* )
     - name: Display artifacts
       run: >-
-          ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
+        # ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
+        ls -lR
     - name: Publish to TestPyPI
       if: >-
         github.event_name == 'push' &&
