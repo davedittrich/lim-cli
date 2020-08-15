@@ -46,7 +46,7 @@ jobs:
     - name: Run tests
       run: make test test-bats
     - name: Build a binary wheel and a source tarball
-      run: make twine-check
+      run: make bdist_wheel sdist twine-check
     - name: Store the source distribution
       uses: actions/upload-artifact@v2
       with:
