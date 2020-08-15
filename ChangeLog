@@ -1,9 +1,43 @@
 CHANGES
 =======
 
+* Only do bats tests once (moved into tox)
+* Add target
+* Add GitHub Actions badge
+* Work around inability to share vars across jobs
+* Attempting to fix variable use
+* Remove quotation marks
+* Remove redundant make target
+* Correct directory path
+* Use proper artifact path
+* Expose paths and fix download
+* Fix artifact upload/download (multiple artifacts)
+* Ensure wheel package is present
+* Improve and extend bats testing
+* Normalize "no sessions" checking and error messages
+* Add bdist\_wheel
+* Fix artifact name
+* Fix artifact name
+* Adjust global conditional for Publish
+* Fix incorrect expression
+* Refine conditional in workflow
+* Update asciinema asciicast
+
+20.8.1
+------
+
+* Bump version
+* Change secrets variables
+
+20.8.0
+------
+
+* Bump version and prepare ChangeLog for release
 * Fix broken link
 * Add twine
 * Add GitHub workflows directory and actions
+* Add tests for last session and request ID state
+* Port session+request state mgmt to packet\_cafe
 * cyberreboot -> iqtlabs
 * Improve README.rst
 * Refine runtime tests for packet\_cafe subcommands
