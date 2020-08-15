@@ -21,7 +21,8 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get -y install make bats
-        python3 -m pip install --upgrade pip setuptools wheel twine
+        python3 -m pip install --upgrade pip
+        python3 -m pip install --upgrade setuptools wheel twine
         [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         make bats-libraries
     - name: Get repo name
@@ -34,11 +35,11 @@ jobs:
       id: get_version
       run: |
         _VERSION=$(python3 setup.py --version)
-        echo ${_VERSION}
-        if [[ "${_VERSION}" != "0.0.0" ]]; then
-          echo ::set-output name=VERSION::$(python3 setup.py --version)
+        echo "${_VERSION}"
+        if [[ "${_VERSION}" =~ 0\.0\..* -o "${{ steps.get_branch.outputs.BRANCH }}" =~ .*\.RC.* ]]; then
+          echo ::set-output name=VERSION::${_VERSION}
         else
-          echo ::set-output name=VERSION::${{ steps.get_repo.outputs.REPO }}
+          echo ::set-output name=VERSION::${{ steps.get_repo.outputs.BRANCH }}
         fi
       env:
         SETUPTOOLS_SCM_DEBUG: 1
@@ -93,7 +94,7 @@ jobs:
     - name: Publish to TestPyPI
       if: >-
         github.event_name == 'push' &&
-        contains(github.ref, '-RC')
+        contains(github.ref, '.RC')
       uses: pypa/gh-action-pypi-publish@master
       with:
         repository_url: https://test.pypi.org/legacy/
@@ -102,7 +103,7 @@ jobs:
     - name: Publish to PyPI
       if: >-
         github.event_name == 'push' &&
-        ! contains(github.ref, '-RC')
+        ! contains(github.ref, '.RC')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
