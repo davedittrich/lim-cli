@@ -46,6 +46,8 @@ jobs:
       run: make test test-bats
     - name: Build a binary wheel and a source tarball
       run: make bdist_wheel sdist twine-check
+    - name: Display artifacts
+      run: ls -lR dist
     - name: Store the source distribution
       uses: actions/upload-artifact@v2
       with:
@@ -63,6 +65,10 @@ jobs:
     steps:
     - name: Download all the artifacts
       uses: actions/download-artifact@v2
+      with:
+        path: dist
+    - name: Display artifacts
+      run: ls -lR dist
     - name: Publish to TestPyPI
       if: >-
         github.event_name == 'push' &&
