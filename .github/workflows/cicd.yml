@@ -52,7 +52,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: "${{ steps.get_artifact.outputs.ARTIFACT }}"
-        path: dist
+        path: dist/*
   deploy:
     name: Publish
     if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || endsWith(github.ref, 'develop'))
@@ -66,7 +66,7 @@ jobs:
     - name: Download all the artifacts
       uses: actions/download-artifact@v2
       with:
-        path: dist
+        name: "${{ steps.get_artifact.outputs.ARTIFACT }}"
     - name: Display artifacts
       run: ls -lR dist
     - name: Publish to TestPyPI
@@ -75,8 +75,9 @@ jobs:
         endsWith(github.ref, 'develop')
       uses: pypa/gh-action-pypi-publish@master
       with:
-        password: ${{ secrets.lim_test_pypi_token }}
         repository_url: https://test.pypi.org/legacy/
+        password: ${{ secrets.lim_test_pypi_token }}
+        packages_dir: "${{ steps.get_artifact.outputs.ARTIFACT }}"
     - name: Publish to PyPI
       if: >-
         github.event_name == 'push' &&
@@ -84,4 +85,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
+        packages_dir: "${{ steps.get_artifact.outputs.ARTIFACT }}"
 
