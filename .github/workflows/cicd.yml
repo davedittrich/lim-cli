@@ -36,6 +36,7 @@ jobs:
       id: get_version
       run: >-
         _VERSION=$(python3 setup.py --version)
+        echo ${_VERSION}
         if [[ "${_VERSION}" != "0.0.0" ]]; then
           echo ::set-output name=VERSION::$(python3 setup.py --version)
         else
