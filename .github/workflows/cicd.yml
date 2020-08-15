@@ -67,6 +67,14 @@ jobs:
       uses: actions/download-artifact@v2
       with:
         name: ${{ steps.get_artifact.outputs.ARTIFACT }}
+    - name: Get repo name
+      id: get_repo
+      run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
+      env:
+        SETUPTOOLS_SCM_DEBUG: 1
+    - name: Get artifact name
+      id: get_artifact
+      run: echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_repo.outputs.REPO }}* )
     - name: Display artifacts
       run: >-
           ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
@@ -86,5 +94,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
-        packages_dir: "${{ steps.get_artifact.outputs.ARTIFACT }}"
+        packages_dir: ${{ steps.get_artifact.outputs.ARTIFACT }}
 
