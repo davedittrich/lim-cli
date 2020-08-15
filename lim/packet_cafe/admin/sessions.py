@@ -8,6 +8,7 @@ import textwrap
 from cliff.lister import Lister
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import get_packet_cafe
+from lim.packet_cafe import NO_SESSIONS_MSG
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ class Sessions(Lister):
         data = [[row] for row in packet_cafe.get_session_ids()]
         if not bool(len(data)):
             if bool(self.app_args.verbose_level):
-                logger.info('[-] packet-cafe server has no sessions')
+                logger.info(NO_SESSIONS_MSG)
             sys.exit(1)
         if not bool(self.app_args.verbose_level):
             sys.exit(0)

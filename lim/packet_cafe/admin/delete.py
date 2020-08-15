@@ -9,6 +9,7 @@ from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import check_remind_defaulting
 from lim.packet_cafe import choose_wisely
 from lim.packet_cafe import get_packet_cafe
+from lim.packet_cafe import NO_SESSIONS_MSG
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +60,7 @@ class AdminDelete(Command):
         packet_cafe = get_packet_cafe(self.app, parsed_args)
         ids = packet_cafe.get_session_ids()
         if ids is None or not len(ids):
-            raise RuntimeError('[-] no sessions exist')
+            raise RuntimeError(NO_SESSIONS_MSG)
         if parsed_args.all:
             sess_ids = ids
         else:

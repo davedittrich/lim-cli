@@ -26,8 +26,7 @@ except ModuleNotFoundError:
 
 
 __BROWSERS__ = os.getenv('LIM_BROWSERS', 'firefox,chrome,safari').split(',')
-LAST_SESSION_STATE = '.packet_cafe_last_session_id'
-LAST_REQUEST_STATE = '.packet_cafe_last_request_id'
+NO_SESSIONS_MSG = '[-] packet-cafe server has no sessions'
 
 logger = logging.getLogger(__name__)
 
