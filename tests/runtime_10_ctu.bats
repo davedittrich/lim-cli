@@ -3,13 +3,20 @@ load test_helper
 # See definition of LIM in test_helpers.bash for why "main" is used
 # in tests.
 
+setup_file() {
+    true
+}
+
+teardown_file() {
+    true
+}
+
 setup() {
     true
 }
 
 teardown() {
-    rm -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.ips
-    rm -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou-time-shifted.pcap
+    true
 }
 
 @test "\"lim -q ctu list CTU-Malware-Capture-Botnet-48\" works" {
@@ -30,15 +37,15 @@ teardown() {
 +-----------+---------+---------------+-------------------------------------------------------------------------+'
 }
 
-@test "\"lim -q ctu get Botnet-48 pcap --no-subdir \" gets PCAP file to cwd" {
-    run bash -c "[ -f botnet-capture-20110816-sogou.pcap ] || $LIM -q ctu get Botnet-48 pcap --no-subdir"
-    [ -f botnet-capture-20110816-sogou.pcap ]
+@test "\"lim -q ctu get Botnet-114-1 pcap\" gets PCAP file in subdir" {
+    run bash -c "[ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114 pcap"
+    [ -d CTU-Malware-Capture-Botnet-114-1 ]
+    [ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ]
 }
 
-@test "\"lim -q ctu get Botnet-48 pcap\" gets PCAP file" {
-    run bash -c "[ -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap ] || $LIM -q ctu get Botnet-48 pcap"
-    [ -d CTU-Malware-Capture-Botnet-48 ]
-    [ -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap ]
+@test "\"lim -q ctu get Botnet-114-1 pcap --no-subdir \" gets PCAP file to cwd" {
+    run bash -c "[ -f 2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114-1 pcap --no-subdir"
+    [ -f 2015-04-09_capture-win2.pcap ]
 }
 
 # vim: set ts=4 sw=4 tw=0 et :
