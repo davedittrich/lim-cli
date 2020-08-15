@@ -9,6 +9,7 @@ from lim.packet_cafe import _valid_counter
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import choose_wisely
 from lim.packet_cafe import get_packet_cafe
+from lim.packet_cafe import NO_SESSIONS_MSG
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +55,7 @@ class Results(Command):
         packet_cafe = get_packet_cafe(self.app, parsed_args)
         ids = packet_cafe.get_session_ids()
         if not len(ids):
-            raise RuntimeError('[-] no sessions available')
+            raise RuntimeError(NO_SESSIONS_MSG)
         sess_id = packet_cafe.get_session_id(
                 sess_id=parsed_args.sess_id,
                 choose=parsed_args.choose)

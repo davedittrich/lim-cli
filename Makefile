@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.8.1
+VERSION:=20.8.2
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -41,7 +41,7 @@ help:
 
 #HELP test - run 'tox' for testing
 .PHONY: test
-test: test-tox test-bats
+test: test-tox
 	@echo '[+] All tests succeeded'
 
 .PHONY: test-tox

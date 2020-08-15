@@ -10,8 +10,11 @@ jobs:
     steps:
     - name: Check out src from GitHub
       uses: actions/checkout@v2
-    - name: Expose branch name
-      run: echo Running on branch \"${GITHUB_REF##*/}\"
+    - name: Expose variables for situational awareness
+      run: |
+        echo GITHUB_REF \"${GITHUB_REF}\"
+        echo Running on branch \"${GITHUB_REF##*/}\"
+        echo Actor \"${GITHUB_ACTOR}\"
     - name: Get history and tags for SCM versioning to work
       run: |
         git fetch --prune --unshallow
@@ -23,26 +26,36 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get -y install make bats
-        python -m pip install --upgrade pip setuptools twine
-        [ -f requirements.txt ] && pip install -Ur requirements.txt
-        [ -f test-requirements.txt ] && pip install -Ur test-requirements.txt
+        python3 -m pip install --upgrade pip setuptools wheel twine
+        [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         make bats-libraries
-    - name: Extract version
-      run: python setup.py --version
+    - name: Get repo name
+      id: get_repo
+      run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
       env:
         SETUPTOOLS_SCM_DEBUG: 1
+    - name: Get version number
+      id: get_version
+      run: echo ::set-output name=VERSION::$(python setup.py --version)
+      env:
+        SETUPTOOLS_SCM_DEBUG: 1
+    - name: Get artifact name
+      id: get_artifact
+      run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
     - name: Run tests
-      run: make test test-bats
+      run: make test
     - name: Build a binary wheel and a source tarball
-      run: make twine-check
+      run: make bdist_wheel sdist twine-check
+    - name: Display artifacts
+      run: ls -lR dist
     - name: Store the source distribution
       uses: actions/upload-artifact@v2
       with:
-        name: dist-src
-        path: dist
+        name: ${{ steps.get_artifact.outputs.ARTIFACT }}
+        path: dist/*
   deploy:
     name: Publish
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || endsWith(github.ref, 'develop'))
     needs:
       - build-test
     runs-on: ubuntu-18.04
@@ -50,19 +63,30 @@ jobs:
       PY_COLORS: 1
       TOX_PARALLEL_NO_SPINNER: 1
     steps:
-    - name: Download all the dists
+    - name: Download all the artifacts
       uses: actions/download-artifact@v2
       with:
-        name: dist-src
-        path: dist/
+        name: ${{ steps.get_artifact.outputs.ARTIFACT }}
+    - name: Get repo name
+      id: get_repo
+      run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
+      env:
+        SETUPTOOLS_SCM_DEBUG: 1
+    - name: Get artifact name
+      id: get_artifact
+      run: echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_repo.outputs.REPO }}* )
+    - name: Display artifacts
+      run: >-
+          ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
     - name: Publish to TestPyPI
       if: >-
         github.event_name == 'push' &&
-        github.ref == 'refs/heads/develop'
+        endsWith(github.ref, 'develop')
       uses: pypa/gh-action-pypi-publish@master
       with:
-        password: ${{ secrets.lim_test_pypi_token }}
         repository_url: https://test.pypi.org/legacy/
+        password: ${{ secrets.lim_test_pypi_token }}
+        packages_dir: ${{ steps.get_artifact.outputs.ARTIFACT }}
     - name: Publish to PyPI
       if: >-
         github.event_name == 'push' &&
@@ -70,4 +94,5 @@ jobs:
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
+        packages_dir: ${{ steps.get_artifact.outputs.ARTIFACT }}
 

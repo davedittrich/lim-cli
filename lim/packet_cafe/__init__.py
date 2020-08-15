@@ -26,8 +26,7 @@ except ModuleNotFoundError:
 
 
 __BROWSERS__ = os.getenv('LIM_BROWSERS', 'firefox,chrome,safari').split(',')
-LAST_SESSION_STATE = '.packet_cafe_last_session_id'
-LAST_REQUEST_STATE = '.packet_cafe_last_request_id'
+NO_SESSIONS_MSG = '[-] packet-cafe server has no sessions'
 
 logger = logging.getLogger(__name__)
 
@@ -227,8 +226,8 @@ class Packet_Cafe(object):
                 'all be running\n[-] try "lim cafe containers" command?'
             )
         self.sess_id = sess_id
-        self.last_session_id = self.get_last_session_id()
-        self.last_request_id = self.get_last_request_id()
+        self.last_session_id = None
+        self.last_request_id = None
         self.cafe_host_ip = cafe_host_ip
         self.cafe_admin_port = cafe_admin_port
         self.cafe_ui_port = cafe_ui_port
@@ -487,10 +486,6 @@ class Packet_Cafe(object):
         if response.status_code == 201:
             result = json.loads(response.text)
             result['sess_id'] = str(sess_id)
-            # Save state for later defaulting
-            self.set_last_session_id(result['sess_id'])
-            # NOTE(dittrich): Don't forget: 'req_id' is 'uuid' in result
-            self.set_last_request_id(result['uuid'])
             time.sleep(3)
             return result
         else:
@@ -529,10 +524,6 @@ class Packet_Cafe(object):
         url = f'{ self.get_admin_url() }/id/delete/{ sess_id }'
         response = requests.request("GET", url)
         if response.status_code == 200:
-            if sess_id == self.last_session_id:
-                # Fuhgeddaboudit  (https://www.oed.com/view/Entry/51390667?)
-                self.set_last_session_id(sess_id=None)
-                self.set_last_request_id(req_id=None)
             return json.loads(response.text)
         elif raise_exception:
             raise RuntimeError(
@@ -640,45 +631,16 @@ class Packet_Cafe(object):
                 "[-] session ID not provided" +
                 (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
-        if _sess_id is not None:
-            self.set_last_session_id(sess_id=_sess_id)
         return _sess_id
 
     def get_last_session_id(self):
         """Return the last session ID if one is saved, else None."""
-        sess_id = None
-        if os.path.exists(LAST_SESSION_STATE):
-            try:
-                with open(LAST_SESSION_STATE, 'r') as sf:
-                    sess_id = sf.read().strip()
-            except Exception:  # noqa
-                pass
-        return sess_id
+        response = self.get_api_info()
+        return response['last_session_id']
 
     def is_active_session_id(self, sess_id=None):
         sess_ids = self.get_session_ids()
         return sess_id in sess_ids
-
-    def set_last_session_id(self, sess_id=None):
-        """
-        Save the last session ID for later use.
-
-        If sess_id is None, remove the saved state.
-
-        Return True if successful, else False
-        """
-        if sess_id is None:
-            self.last_session_id = None
-            os.remove(LAST_SESSION_STATE)
-            return True
-        if sess_id != self.last_session_id:
-            try:
-                with open(LAST_SESSION_STATE, 'w') as sf:
-                    sf.write(str(sess_id) + '\n')
-            except:  # noqa
-                return False
-            self.last_session_id = sess_id
-        return True
 
     def get_request_id(
         self,
@@ -723,8 +685,6 @@ class Packet_Cafe(object):
                 "[-] request ID not provided" +
                 (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
-        if _req_id is not None:
-            self.set_last_request_id(req_id=_req_id)
         return _req_id
 
     def get_last_request_id(self):
@@ -732,13 +692,8 @@ class Packet_Cafe(object):
         Return the last request ID if one is saved and it exists
         in the last session, else None.
         """
-        _req_id = None
-        try:
-            with open(LAST_REQUEST_STATE, 'r') as sf:
-                _req_id = sf.read().strip()
-        except FileNotFoundError:
-            pass
-        return _req_id
+        response = self.get_api_info()
+        return response['last_request_id']
 
     def is_valid_request_id(self, sess_id=None, req_id=None):
         """Return True if req_id is found in Session sess_id."""
@@ -749,28 +704,6 @@ class Packet_Cafe(object):
             req_id=req_id,
             raise_exception=False
         ) is not None
-
-    def set_last_request_id(self, req_id=None):
-        """
-        Save the last request ID for later use.
-
-        If req_id is None, remove the saved state.
-
-        Return True if successful, else False
-        """
-        if req_id is None:
-            self.last_request_id = None
-            os.remove(LAST_REQUEST_STATE)
-            return True
-        if req_id != self.last_request_id:
-            try:
-                with open(LAST_REQUEST_STATE, 'w') as sf:
-                    sf.write(str(req_id) + '\n')
-                self.last_request_id = req_id
-            except:  # noqa
-                return False
-            self.last_request_id = req_id
-        return True
 
 
 # vim: set ts=4 sw=4 tw=0 et :

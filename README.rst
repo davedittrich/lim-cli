@@ -6,6 +6,10 @@ lim
        :target: https://pypi.python.org/pypi/lim-cli
        :alt: PyPi Status
 
+.. image:: https://github.com/davedittrich/lim-cli/workflows/CICD/badge.svg
+       :target: https://github.com/davedittrich/lim-cli/actions
+       :alt: GitHub Actions Status
+
 .. image:: https://img.shields.io/travis/davedittrich/lim-cli.svg
        :target: https://travis-ci.org/davedittrich/lim-cli
        :alt: Travis.ci Status
