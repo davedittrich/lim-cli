@@ -32,11 +32,15 @@ jobs:
     - name: Get repo name
       id: get_repo
       run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
-      env:
-        SETUPTOOLS_SCM_DEBUG: 1
     - name: Get version number
       id: get_version
-      run: echo ::set-output name=VERSION::$(python setup.py --version)
+      run: >-
+        _VERSION=$(python3 setup.py --version)
+        if [[ "${_VERSION}" != "0.0.0" ]]; then
+          echo ::set-output name=VERSION::$(python3 setup.py --version)
+        else
+          echo ::set-output name=VERSION::${{ steps.get_repo.outputs.REPO }}
+        fi
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Get artifact name
