@@ -43,7 +43,7 @@ jobs:
       id: get_artifact
       run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
     - name: Run tests
-      run: make test test-bats
+      run: make test
     - name: Build a binary wheel and a source tarball
       run: make bdist_wheel sdist twine-check
     - name: Display artifacts
