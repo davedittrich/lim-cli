@@ -26,10 +26,12 @@ jobs:
     - name: Get variables
       id: get_vars
       run: |
-        echo ::set-output name=REPO::$(basename ${{ github.repository }})
+        REPO=$(basename ${{ github.repository }})
+        echo ::set-output name=REPO::${REPO}
         echo ::set-output name=BRANCH::${GITHUB_REF##*/}
-        echo ::set-output name=VERSION::$(python3 setup.py --version)
-        echo ::set-output name=ARTIFACT::${{ steps.get_vars.outputs.REPO }}-${{ steps.get_vars.outputs.VERSION }}
+        VERSION=$(python3 setup.py --version)
+        echo ::set-output name=VERSION::${VERSION}
+        echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Expose variables for debugging
@@ -69,8 +71,9 @@ jobs:
       id: get_vars
       run: |
         echo ::set-output name=BRANCH::${GITHUB_REF##*/}
-        echo ::set-output name=REPO::$(basename ${{ github.repository }})
-        echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_vars.outputs.REPO }}* )
+        REPO=$(basename ${{ github.repository }})
+        echo ::set-output name=REPO::${REPO}
+        echo ::set-output name=ARTIFACT::$(echo ${REPO}*)
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Expose variables for debugging
