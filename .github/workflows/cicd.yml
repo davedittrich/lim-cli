@@ -22,12 +22,12 @@ jobs:
       run: |
         sudo apt-get -y install make bats
         python3 -m pip install --upgrade pip
-        python3 -m pip install --upgrade setuptools wheel twine
+        python3 -m pip install --upgrade setuptools wheel twine pbr
         [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         make bats-libraries
     - name: Get repo name
       id: get_repo
-      run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
+      run: echo ::set-output name=REPO::$(basename ${{ github.repository }})
     - name: Get branch/tag name
       id: get_branch
       run: echo ::set-output name=BRANCH::${GITHUB_REF##*/}
@@ -35,12 +35,6 @@ jobs:
       id: get_version
       run: |
         echo ::set-output name=VERSION::$(python3 setup.py --version)
-        # echo "${_VERSION}"
-        # if [[ "${_VERSION}" =~ 0\.0\..* || "${{ steps.get_branch.outputs.BRANCH }}" =~ .*\.RC.* ]]; then
-        #   echo ::set-output name=VERSION::${_VERSION}
-        # else
-        #   echo ::set-output name=VERSION::${{ steps.get_repo.outputs.BRANCH }}
-        # fi
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Run tests
@@ -81,15 +75,14 @@ jobs:
 #       name: ${{ steps.get_artifact.outputs.ARTIFACT }}
     - name: Get repo name
       id: get_repo
-      run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
+      run: echo ::set-output name=REPO::$(basename ${{ github.repository }})
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Get artifact name
       id: get_artifact
       run: echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_repo.outputs.REPO }}* )
     - name: Display artifacts
-      run: >-
-        # ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
+      run: |
         ls -lR
     - name: Publish to TestPyPI
       if: >-
