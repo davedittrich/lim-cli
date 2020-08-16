@@ -23,31 +23,25 @@ jobs:
         python3 -m pip install --upgrade setuptools wheel twine pbr
         [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         make bats-libraries
-    - name: Get repo name
-      id: get_repo
-      run: echo ::set-output name=REPO::$(basename ${{ github.repository }})
-    - name: Get branch/tag name
-      id: get_branch
-      run: echo ::set-output name=BRANCH::${GITHUB_REF##*/}
-    - name: Get version number
-      id: get_version
+    - name: Get variables
+      id: get_vars
       run: |
+        echo ::set-output name=REPO::$(basename ${{ github.repository }})
+        echo ::set-output name=BRANCH::${GITHUB_REF##*/}
         echo ::set-output name=VERSION::$(python3 setup.py --version)
+        echo ::set-output name=ARTIFACT::${{ steps.get_vars.outputs.REPO }}-${{ steps.get_vars.outputs.VERSION }}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
-    - name: Run tests
-      run: make test
-    - name: Get artifact name
-      id: get_artifact
-      run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
     - name: Expose variables for debugging
       run: |
         echo "GITHUB_REF:   ${GITHUB_REF}"
         echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
-        echo "BRANCH:       ${{ steps.get_branch.outputs.BRANCH }}"
-        echo "REPO:         ${{ steps.get_repo.outputs.REPO }}"
-        echo "VERSION:      ${{ steps.get_version.outputs.VERSION }}"
-        echo "ARTIFACT:     ${{ steps.get_artifact.outputs.ARTIFACT }}"
+        echo "BRANCH:       ${{ steps.get_vars.outputs.BRANCH }}"
+        echo "REPO:         ${{ steps.get_vars.outputs.REPO }}"
+        echo "VERSION:      ${{ steps.get_vars.outputs.VERSION }}"
+        echo "ARTIFACT:     ${{ steps.get_vars.outputs.ARTIFACT }}"
+    - name: Run tests
+      run: make test
     - name: Build a binary wheel and a source tarball
       run: make bdist_wheel sdist twine-check
     - name: Display artifacts
@@ -55,11 +49,13 @@ jobs:
     - name: Store the source distribution
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.get_artifact.outputs.ARTIFACT }}
+        name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
   deploy:
     name: Publish
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags')
     needs:
       - build-test
     runs-on: ubuntu-18.04
@@ -69,16 +65,20 @@ jobs:
     steps:
     - name: Download all the artifacts
       uses: actions/download-artifact@v2
-#     with:
-#       name: ${{ steps.get_artifact.outputs.ARTIFACT }}
-    - name: Get repo name
-      id: get_repo
-      run: echo ::set-output name=REPO::$(basename ${{ github.repository }})
+    - name: Get variables
+      id: get_vars
+      run: |
+        echo ::set-output name=BRANCH::${GITHUB_REF##*/}
+        echo ::set-output name=REPO::$(basename ${{ github.repository }})
+        echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_vars.outputs.REPO }}* )
       env:
         SETUPTOOLS_SCM_DEBUG: 1
-    - name: Get artifact name
-      id: get_artifact
-      run: echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_repo.outputs.REPO }}* )
+    - name: Expose variables for debugging
+      run: |
+        echo "BRANCH:       ${{ steps.get_vars.outputs.BRANCH }}"
+        echo "REPO:         ${{ steps.get_vars.outputs.REPO }}"
+        echo "VERSION:      ${{ steps.get_vars.outputs.VERSION }}"
+        echo "ARTIFACT:     ${{ steps.get_vars.outputs.ARTIFACT }}"
     - name: Display artifacts
       run: |
         ls -lR
@@ -90,13 +90,12 @@ jobs:
       with:
         repository_url: https://test.pypi.org/legacy/
         password: ${{ secrets.lim_test_pypi_token }}
-        packages_dir: ${{ steps.get_artifact.outputs.ARTIFACT }}
-    - name: Publish to PyPI
+        packages_dir: ${{ steps.get_vars.outputs.ARTIFACT }}
       if: >-
         github.event_name == 'push' &&
         ! contains(github.ref, '.RC')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
-        packages_dir: ${{ steps.get_artifact.outputs.ARTIFACT }}
+        packages_dir: ${{ steps.get_vars.outputs.ARTIFACT }}
 
