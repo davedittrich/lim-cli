@@ -40,11 +40,11 @@ jobs:
         echo ::set-output name=VERSION::${VERSION}
 
         TAG_VERSION=$(git describe --abbrev=0 --tags)
-        echo TAG_VERSION=${TAG_VERSION}
+        echo "TAG_VERSION=${TAG_VERSION}"
         echo ::set-output name=TAG_VERSION::${TAG_VERSION}
 
         ARTIFACT="${REPO}-${VERSION}"
-        echo "ARTIFACT:${ARTIFACT}"
+        echo "ARTIFACT=${ARTIFACT}"
         echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
