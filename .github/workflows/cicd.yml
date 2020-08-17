@@ -50,11 +50,11 @@ jobs:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Run tests
       run: make test
-    - name: Build a binary wheel and a source tarball
+    - name: Build artifacts
       run: make bdist_wheel sdist twine-check
     - name: Display artifacts
       run: ls -lR dist
-    - name: Store the source distribution
+    - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.get_vars.outputs.ARTIFACT }}
@@ -72,7 +72,7 @@ jobs:
       PY_COLORS: 1
       TOX_PARALLEL_NO_SPINNER: 1
     steps:
-    - name: Download all the artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v2
     - name: Get variables
       id: get_vars
@@ -93,7 +93,7 @@ jobs:
     - name: Display artifacts
       run: |
         ls -lR
-    - name: Publish to TestPyPI
+    - name: Publish artifacts to TestPyPI
       if: >-
         github.event_name == 'push' &&
         contains(github.ref, '.RC')
@@ -102,7 +102,7 @@ jobs:
         repository_url: https://test.pypi.org/legacy/
         password: ${{ secrets.lim_test_pypi_token }}
         packages_dir: ${{ steps.get_vars.outputs.ARTIFACT }}
-    - name: Publish to PyPI
+    - name: Publish artifacts to PyPI
       if: >-
         github.event_name == 'push' &&
         ! contains(github.ref, '.RC')
