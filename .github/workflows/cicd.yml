@@ -1,5 +1,6 @@
 name: CICD
 on: [ push, pull_request ]
+
 jobs:
   build-test:
     name: Test and Build
@@ -10,15 +11,8 @@ jobs:
     steps:
     - name: Check out src from GitHub
       uses: actions/checkout@v2
-    - name: Expose variables for situational awareness
-      run: |
-        echo GITHUB_REF \"${GITHUB_REF}\"
-        echo Running on branch \"${GITHUB_REF##*/}\"
-        echo Actor \"${GITHUB_ACTOR}\"
-    - name: Get history and tags for SCM versioning to work
-      run: |
-        git fetch --prune --unshallow
-        git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      with:
+        fetch-depth: 0
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
@@ -26,36 +20,51 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get -y install make bats
-        python3 -m pip install --upgrade pip setuptools wheel twine
+        python3 -m pip install --upgrade pip
+        python3 -m pip install --upgrade setuptools wheel twine pbr
         [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         make bats-libraries
-    - name: Get repo name
-      id: get_repo
-      run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
+    - name: Get variables
+      id: get_vars
+      run: |
+        REPO=$(basename ${{ github.repository }})
+        echo "REPO=${REPO}"
+        echo ::set-output name=REPO::${REPO}
+
+        BRANCH=${GITHUB_REF##*/}
+        echo "BRANCH=${BRANCH}"
+        echo ::set-output name=BRANCH::${BRANCH}
+
+        VERSION=$(python3 setup.py --version)
+        echo "VERSION=${VERSION}"
+        echo ::set-output name=VERSION::${VERSION}
+
+        TAG_VERSION=$(git describe --abbrev=0 --tags)
+        echo "TAG_VERSION=${TAG_VERSION}"
+        echo ::set-output name=TAG_VERSION::${TAG_VERSION}
+
+        ARTIFACT="${REPO}-${VERSION}"
+        echo "ARTIFACT=${ARTIFACT}"
+        echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
-    - name: Get version number
-      id: get_version
-      run: echo ::set-output name=VERSION::$(python setup.py --version)
-      env:
-        SETUPTOOLS_SCM_DEBUG: 1
-    - name: Get artifact name
-      id: get_artifact
-      run: echo ::set-output name=ARTIFACT::${{ steps.get_repo.outputs.REPO }}-${{ steps.get_version.outputs.VERSION }}
     - name: Run tests
       run: make test
-    - name: Build a binary wheel and a source tarball
+    - name: Build artifacts
       run: make bdist_wheel sdist twine-check
     - name: Display artifacts
       run: ls -lR dist
-    - name: Store the source distribution
+    - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
-        name: ${{ steps.get_artifact.outputs.ARTIFACT }}
+        name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
+
   deploy:
     name: Publish
-    if: github.event_name == 'push' && (startsWith(github.ref, 'refs/tags') || endsWith(github.ref, 'develop'))
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/tags')
     needs:
       - build-test
     runs-on: ubuntu-18.04
@@ -63,36 +72,42 @@ jobs:
       PY_COLORS: 1
       TOX_PARALLEL_NO_SPINNER: 1
     steps:
-    - name: Download all the artifacts
+    - name: Download artifacts
       uses: actions/download-artifact@v2
-      with:
-        name: ${{ steps.get_artifact.outputs.ARTIFACT }}
-    - name: Get repo name
-      id: get_repo
-      run: echo ::set-output name=REPO::$(echo ${{ github.repository }} | cut -d / -f 2)
+    - name: Get variables
+      id: get_vars
+      run: |
+        BRANCH=${GITHUB_REF##*/}
+        echo "BRANCH=${BRANCH}"
+        echo ::set-output name=BRANCH::${BRANCH}
+
+        REPO=$(basename ${{ github.repository }})
+        echo "REPO=${REPO}"
+        echo ::set-output name=REPO::${REPO}
+
+        ARTIFACT=$(echo ${REPO}*)
+        echo "ARTIFACT:${ARTIFACT}"
+        echo ::set-output name=ARTIFACT::${ARTIFACT}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
-    - name: Get artifact name
-      id: get_artifact
-      run: echo ::set-output name=ARTIFACT::$(echo ${{ steps.get_repo.outputs.REPO }}* )
     - name: Display artifacts
-      run: >-
-          ls -lR ${{ steps.get_artifact.outputs.ARTIFACT }}
-    - name: Publish to TestPyPI
+      run: |
+        ls -lR
+    - name: Publish artifacts to TestPyPI
       if: >-
         github.event_name == 'push' &&
-        endsWith(github.ref, 'develop')
+        contains(github.ref, '.RC')
       uses: pypa/gh-action-pypi-publish@master
       with:
         repository_url: https://test.pypi.org/legacy/
         password: ${{ secrets.lim_test_pypi_token }}
-        packages_dir: ${{ steps.get_artifact.outputs.ARTIFACT }}
-    - name: Publish to PyPI
+        packages_dir: ${{ steps.get_vars.outputs.ARTIFACT }}
+    - name: Publish artifacts to PyPI
       if: >-
         github.event_name == 'push' &&
-        startsWith(github.ref, 'refs/tags')
+        ! contains(github.ref, '.RC')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
-        packages_dir: ${{ steps.get_artifact.outputs.ARTIFACT }}
+        packages_dir: ${{ steps.get_vars.outputs.ARTIFACT }}
 
