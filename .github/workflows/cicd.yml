@@ -13,6 +13,7 @@ jobs:
       run: |
         echo "github.ref=${{ github.ref }}"
         echo "github.event.head_commit=${{ toJson(github.event.head_commit) }}"
+        echo "job=${{ toJson(job)}}"
     - name: Check out src from GitHub
       uses: actions/checkout@v2
       with:
