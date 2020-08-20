@@ -1,6 +1,13 @@
 CHANGES
 =======
 
+* Fix conditional syntax
+* Fix conditionals publishing releases
+
+20.8.3
+------
+
+* Prepare for release
 * Improve comments
 * Normalize echo statements
 * Consolidate variable setting/displaying
