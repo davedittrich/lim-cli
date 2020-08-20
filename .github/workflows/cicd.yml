@@ -66,8 +66,9 @@ jobs:
       github.event_name == 'push' &&
       (
         (
-          startsWith(github.event.head_commit.message, 'Merge branch \'release/') &&
-          endsWith(github.event.head_commit.message, 'into master')
+          startsWith(github.event.head_commit.message, 'Merge branch ') &&
+          contains(github.event.head_commit.message, 'release/') &&
+          endsWith(github.event.head_commit.message, ' into master')
         ) ||
         contains(github.ref, '.RC')
       )
@@ -112,8 +113,9 @@ jobs:
       if: >-
         github.event_name == 'push' &&
         (
-          startsWith(github.event.head_commit.message, 'Merge branch \'release/') &&
-          endsWith(github.event.head_commit.message, 'into master')
+          startsWith(github.event.head_commit.message, 'Merge branch ') &&
+          contains(github.event.head_commit.message, 'release/') &&
+          endsWith(github.event.head_commit.message, ' into master')
         )
       uses: pypa/gh-action-pypi-publish@master
       with:
