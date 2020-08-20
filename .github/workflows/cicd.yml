@@ -4,6 +4,9 @@ on: [ push, pull_request ]
 jobs:
   build-test:
     name: Test and Build
+    if: >-
+      github.event_name == 'push' &&
+      startsWith(github.ref, 'refs/heads/')
     runs-on: ubuntu-18.04
     env:
       PY_COLORS: 1
@@ -13,7 +16,6 @@ jobs:
       run: |
         echo "github.ref=${{ github.ref }}"
         echo "github.event.head_commit=${{ toJson(github.event.head_commit) }}"
-        echo "job=${{ toJson(job)}}"
     - name: Check out src from GitHub
       uses: actions/checkout@v2
       with:
