@@ -1,5 +1,6 @@
 name: CICD
 on: [ push, pull_request ]
+
 jobs:
   build-test:
     name: Test and Build
@@ -27,21 +28,26 @@ jobs:
       id: get_vars
       run: |
         REPO=$(basename ${{ github.repository }})
+        echo "REPO=${REPO}"
         echo ::set-output name=REPO::${REPO}
-        echo ::set-output name=BRANCH::${GITHUB_REF##*/}
+
+        BRANCH=${GITHUB_REF##*/}
+        echo "BRANCH=${BRANCH}"
+        echo ::set-output name=BRANCH::${BRANCH}
+
         VERSION=$(python3 setup.py --version)
+        echo "VERSION=${VERSION}"
         echo ::set-output name=VERSION::${VERSION}
+
+        TAG_VERSION=$(git describe --abbrev=0 --tags)
+        echo TAG_VERSION=${TAG_VERSION}
+        echo ::set-output name=TAG_VERSION::${TAG_VERSION}
+
+        ARTIFACT="${REPO}-${VERSION}"
+        echo "ARTIFACT:${ARTIFACT}"
         echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
-    - name: Expose variables for debugging
-      run: |
-        echo "GITHUB_REF:   ${GITHUB_REF}"
-        echo "GITHUB_ACTOR: ${GITHUB_ACTOR}"
-        echo "BRANCH:       ${{ steps.get_vars.outputs.BRANCH }}"
-        echo "REPO:         ${{ steps.get_vars.outputs.REPO }}"
-        echo "VERSION:      ${{ steps.get_vars.outputs.VERSION }}"
-        echo "ARTIFACT:     ${{ steps.get_vars.outputs.ARTIFACT }}"
     - name: Run tests
       run: make test
     - name: Build a binary wheel and a source tarball
@@ -53,6 +59,7 @@ jobs:
       with:
         name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
+
   deploy:
     name: Publish
     if: >-
@@ -70,18 +77,19 @@ jobs:
     - name: Get variables
       id: get_vars
       run: |
-        echo ::set-output name=BRANCH::${GITHUB_REF##*/}
+        BRANCH=${GITHUB_REF##*/}
+        echo "BRANCH=${BRANCH}"
+        echo ::set-output name=BRANCH::${BRANCH}
+
         REPO=$(basename ${{ github.repository }})
+        echo "REPO=${REPO}"
         echo ::set-output name=REPO::${REPO}
-        echo ::set-output name=ARTIFACT::$(echo ${REPO}*)
+
+        ARTIFACT=$(echo ${REPO}*)
+        echo "ARTIFACT:${ARTIFACT}"
+        echo ::set-output name=ARTIFACT::${ARTIFACT}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
-    - name: Expose variables for debugging
-      run: |
-        echo "BRANCH:       ${{ steps.get_vars.outputs.BRANCH }}"
-        echo "REPO:         ${{ steps.get_vars.outputs.REPO }}"
-        echo "VERSION:      ${{ steps.get_vars.outputs.VERSION }}"
-        echo "ARTIFACT:     ${{ steps.get_vars.outputs.ARTIFACT }}"
     - name: Display artifacts
       run: |
         ls -lR
