@@ -1,6 +1,34 @@
 CHANGES
 =======
 
+* Improve comments
+* Normalize echo statements
+* Consolidate variable setting/displaying
+* Can't access outputs for same step within step
+* Deleted one too many line
+* Consolidate into fewer steps
+* Fix syntax error
+* Change fetch\_depth to try to fix version 0.0.1
+* Clean up workflow file
+* Fix order of steps
+* Continuing to debug
+* Try changing task order
+* Fix shell syntax error
+* Continue to debug version problem
+* Clean up variable output
+* Expose more variables to debug this
+* Wrong YAML syntax
+* Echo version number for debugging
+* Make sure setup.py and tox.ini use same versions
+* Try to work around 0.0.0 version bug
+* Try a different identifier (version was 0.0.0)
+* Use '.RC' in tag for conditional on publish
+* Only publish on tags (e.g., use X.X.X.RCY tag)
+
+20.8.2
+------
+
+* Prepare for release
 * Only do bats tests once (moved into tox)
 * Add target
 * Add GitHub Actions badge
