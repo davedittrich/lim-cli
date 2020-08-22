@@ -137,6 +137,11 @@ build-packet-cafe:
 			CURRENT_ID=$(CURRENT_ID) docker-compose up -d --build); \
 	fi
 
+#HELP pull-packet-cafe - Pull packet_cafe service containers
+.PHONY: pull-packet-cafe
+pull-packet-cafe:
+	cd ~/git/packet_cafe && docker-compose pull
+
 #HELP up-packet-cafe - Bring up packet_cafe containers
 .PHONY: up-packet-cafe
 up-packet-cafe:
