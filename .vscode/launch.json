@@ -675,7 +675,7 @@
             }
         },
         {
-            "name": "lim cafe containers",
+            "name": "lim cafe containers show",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -684,14 +684,115 @@
             "args": [
                 "--debug",
                 "cafe",
-                "containers"
+                "containers",
+                "show"
             ],
             "stopOnEntry": false,
             "env": {
                 "PYTHONUNBUFFERED": "1",
-                "PYTHONPATH": "${workspaceFolder}"
+                "PYTHONPATH": "${workspaceFolder}",
+                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
             }
-        },        {
+        },
+        {
+            "name": "lim cafe containers build",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "cafe",
+                "containers",
+                "build"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}",
+                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+            }
+        },
+        {
+            "name": "lim cafe containers pull",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "cafe",
+                "containers",
+                "pull"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}",
+                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+            }
+        },
+        {
+            "name": "lim cafe containers images",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "cafe",
+                "containers",
+                "images"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}",
+                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+            }
+        },
+        {
+            "name": "lim cafe containers down",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "cafe",
+                "containers",
+                "down"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}",
+                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+            }
+        },
+        {
+            "name": "lim cafe containers up",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "cafe",
+                "containers",
+                "up"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}",
+                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+            }
+        },
+        {
             "name": "lim cafe admin info",
             "type": "python",
             "request": "launch",
