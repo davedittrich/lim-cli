@@ -738,6 +738,8 @@ def add_packet_cafe_global_options(parser):
               '(Env: ``LIM_CAFE_ADMIN_PORT``; '
               f'default: { Packet_Cafe.CAFE_ADMIN_PORT })')
     )
+    return parser
+
 
 def add_docker_global_options(parser):
     """Add global Docker options."""
