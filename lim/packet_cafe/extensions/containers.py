@@ -141,7 +141,7 @@ class ContainersPull(Command):
         logger.debug('[+] pull Packet Café Docker containers')
         env = get_environment(parsed_args)
         #
-        # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:89e1dbe6d7f300ff02c8bcf2d16ad6726b492dd63069d75c080591a59783b5dd: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout
+        # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
         #
         env['COMPOSE_HTTP_TIMEOUT'] = '200'
         result = get_output_realtime(
