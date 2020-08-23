@@ -8,6 +8,7 @@ import logging
 import json
 import os
 import requests
+import subprocess
 import sys
 import time
 import uuid
@@ -29,51 +30,6 @@ __BROWSERS__ = os.getenv('LIM_BROWSERS', 'firefox,chrome,safari').split(',')
 NO_SESSIONS_MSG = '[-] packet-cafe server has no sessions'
 
 logger = logging.getLogger(__name__)
-
-
-def add_packet_cafe_global_options(parser):
-    """Add global packet_cafe options."""
-    parser.add_argument(
-        '--choose',
-        action='store_true',
-        dest='choose',
-        default=False,
-        help='Choose session and request (default: False)'
-    )
-    parser.add_argument(
-        '--cafe-host',
-        action='store',
-        type=str,
-        metavar='<cafe_host_ip>',
-        dest='cafe_host_ip',
-        default=Packet_Cafe.CAFE_HOST_IP,
-        help=('IP address for packet_cafe server '
-              '(Env: ``LIM_CAFE_HOST``; '
-              f'default: \'{ Packet_Cafe.CAFE_HOST_IP }\')')
-    )
-    parser.add_argument(
-        '--cafe-ui-port',
-        action='store',
-        type=int,
-        metavar='<cafe_ui_port>',
-        dest='cafe_ui_port',
-        default=Packet_Cafe.CAFE_UI_PORT,
-        help=('TCP port for packet_cafe UI service '
-              '(Env: ``LIM_CAFE_UI_PORT``; '
-              f'default: { Packet_Cafe.CAFE_UI_PORT })')
-    )
-    parser.add_argument(
-        '--cafe-admin-port',
-        action='store',
-        type=int,
-        metavar='<cafe_admin_port>',
-        dest='cafe_admin_port',
-        default=Packet_Cafe.CAFE_ADMIN_PORT,
-        help=('TCP port for packet_cafe admin service '
-              '(Env: ``LIM_CAFE_ADMIN_PORT``; '
-              f'default: { Packet_Cafe.CAFE_ADMIN_PORT })')
-    )
-    return parser
 
 
 def _valid_counter(value):
@@ -190,6 +146,33 @@ def get_containers(columns=['name', 'status']):
     return containers
 
 
+def get_images(filter=None):
+    """Return an array of JSON objects describing Docker images."""
+    cmd = ['docker', 'images', '--format="{{json .}}"']
+    results = get_output(cmd=cmd)
+    #
+    # The output from 'docker images' is a list of JSON objects that get
+    # quotes added around the string, like this:
+    #   '"{"Containers":"N/A","CreatedAt":"2020-08-22 17:26:57 -0700 PDT",
+    #   "CreatedSince":"38 minutes ago","Digest":"\\u003cnone\\u003e",
+    #   "ID":"f9f4e0d488ca","Repository":"davedittrich/packet_cafe_redis",
+    #   "SharedSize":"N/A","Size":"29.8MB","Tag":"v0.2.6","UniqueSize":"N/A",
+    #   "VirtualSize":"29.8MB"}"'
+    # Strip off the quotes at the start and end of the line before converting.
+    #
+    images = [json.loads(r[1:-1]) for r in results]
+    if filter is None:
+        return images
+    else:
+        filtered_images = []
+        for f in list(set(filter)):
+            for i in images:
+                if i['Repository'].startswith(f'{f}/'):
+                    filtered_images.append(i)
+                    next
+        return filtered_images
+
+
 def get_container_metadata(item):
     """Extract desired metadata from Docker container object."""
     if type(item) is str:
@@ -202,7 +185,7 @@ def get_container_metadata(item):
 
 
 class Packet_Cafe(object):
-    """Class for interactive with a Packet Cafe server."""
+    """Class for interacting with a Packet Cafe server."""
 
     CAFE_HOST_IP = os.getenv('LIM_CAFE_HOST_IP', '127.0.0.1')
     CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
@@ -211,7 +194,14 @@ class Packet_Cafe(object):
     CAFE_ADMIN_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_ADMIN_PORT }/{ CAFE_API_VERSION }'  # noqa
     CAFE_API_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
     CAFE_UI_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/'
+    CAFE_GITHUB_URL = os.getenv('LIM_CAFE_GITHUB_URL',
+                                'https://github.com/iqtlabs/packet-cafe')
     CAFE_DOCS_URL = 'https://iqtlabs.gitbook.io/packet-cafe'
+    CAFE_REPO_DIR = os.getenv('LIM_CAFE_REPO_DIR', '.packet-cafe')
+    CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
+    CAFE_SERVICE_NAMESPACE = os.getenv('LIM_CAFE_SERVICE_NAMESPACE', 'iqtlabs')
+    CAFE_SERVICE_VERSION = os.getenv('LIM_CAFE_SERVICE_VERSION', 'latest')
+    CAFE_TOOL_NAMESPACE = os.getenv('LIM_CAFE_TOOL_NAMESPACE', 'iqtlabs')
 
     def __init__(
         self,
@@ -223,7 +213,7 @@ class Packet_Cafe(object):
         if not containers_are_running():
             raise RuntimeError(
                 '[-] the packet-cafe Docker containers do not appear to '
-                'all be running\n[-] try "lim cafe containers" command?'
+                'all be running\n[-] try "lim cafe containers show" command?'
             )
         self.sess_id = sess_id
         self.last_session_id = None
@@ -705,5 +695,138 @@ class Packet_Cafe(object):
             raise_exception=False
         ) is not None
 
+
+def add_packet_cafe_global_options(parser):
+    """Add global packet_cafe options."""
+    parser.add_argument(
+        '--choose',
+        action='store_true',
+        dest='choose',
+        default=False,
+        help='Choose session and request (default: False)'
+    )
+    parser.add_argument(
+        '--cafe-host',
+        action='store',
+        type=str,
+        metavar='<cafe_host_ip>',
+        dest='cafe_host_ip',
+        default=Packet_Cafe.CAFE_HOST_IP,
+        help=('IP address for packet_cafe server '
+              '(Env: ``LIM_CAFE_HOST``; '
+              f'default: \'{ Packet_Cafe.CAFE_HOST_IP }\')')
+    )
+    parser.add_argument(
+        '--cafe-ui-port',
+        action='store',
+        type=int,
+        metavar='<cafe_ui_port>',
+        dest='cafe_ui_port',
+        default=Packet_Cafe.CAFE_UI_PORT,
+        help=('TCP port for packet_cafe UI service '
+              '(Env: ``LIM_CAFE_UI_PORT``; '
+              f'default: { Packet_Cafe.CAFE_UI_PORT })')
+    )
+    parser.add_argument(
+        '--cafe-admin-port',
+        action='store',
+        type=int,
+        metavar='<cafe_admin_port>',
+        dest='cafe_admin_port',
+        default=Packet_Cafe.CAFE_ADMIN_PORT,
+        help=('TCP port for packet_cafe admin service '
+              '(Env: ``LIM_CAFE_ADMIN_PORT``; '
+              f'default: { Packet_Cafe.CAFE_ADMIN_PORT })')
+    )
+
+def add_docker_global_options(parser):
+    """Add global Docker options."""
+    parser.add_argument(
+        '--docker-service-namespace',
+        action='store',
+        metavar='<service_namespace>',
+        dest='docker_service_namespace',
+        default=Packet_Cafe.CAFE_SERVICE_NAMESPACE,
+        help=('Namespace for Packet Café service containers '
+              '(Env: ``LIM_CAFE_SERVICE_NAMESPACE``; '
+              f'default: { Packet_Cafe.CAFE_SERVICE_NAMESPACE })')
+    )
+    parser.add_argument(
+        '--docker-service-version',
+        action='store',
+        metavar='<service_version>',
+        dest='docker_service_version',
+        default=Packet_Cafe.CAFE_SERVICE_VERSION,
+        help=('Version (tag) for Packet Café service containers '
+              '(Env: ``LIM_CAFE_SERVICE_VERSION``; '
+              'default: "latest")')
+    )
+    parser.add_argument(
+        '--docker-tool-namespace',
+        action='store',
+        metavar='<tool_namespace>',
+        dest='docker_tool_namespace',
+        default=Packet_Cafe.CAFE_TOOL_NAMESPACE,
+        help=('Namespace for Packet Café tool containers '
+              '(Env: ``LIM_CAFE_TOOL_NAMESPACE``; '
+              f'default: { Packet_Cafe.CAFE_TOOL_NAMESPACE })')
+    )
+    parser.add_argument(
+        '--packet_cafe_github_url',
+        action='store',
+        metavar='<github_url>',
+        dest='packet_cafe_github_url',
+        default=Packet_Cafe.CAFE_GITHUB_URL,
+        help=('URL for packet_cafe GitHub repository '
+              '(Env: ``LIM_CAFE_GITHUB_URL``; '
+              f'default: { Packet_Cafe.CAFE_GITHUB_URL })')
+    )
+    parser.add_argument(
+        '--packet_cafe_repo_dir',
+        action='store',
+        metavar='<repo_dir>',
+        dest='packet_cafe_repo_dir',
+        default=Packet_Cafe.CAFE_REPO_DIR,
+        help=('Directory holding clone of packet_cafe repository '
+              '(Env: ``LIM_CAFE_REPO_DIR``; '
+              f'default: { Packet_Cafe.CAFE_REPO_DIR })')
+    )
+    return parser
+
+
+def get_output_realtime(cmd=['echo', 'NO COMMAND SPECIFIED'],
+                        cwd=os.getcwd(),
+                        env=os.environ,
+                        stderr=subprocess.STDOUT,
+                        shell=False):
+    """Use subprocess.Popen() to track process output in realtime"""
+    p = subprocess.Popen(  # nosec
+            cmd,
+            cwd=cwd,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=stderr,
+            shell=shell
+        )
+    for char in iter(p.stdout.readline, b''):
+        sys.stdout.write(char.decode('utf-8'))
+    p.stdout.close()
+    return p.wait()
+
+
+def get_output(
+    cmd=['echo', 'NO COMMAND SPECIFIED'],
+    cwd=os.getcwd(),
+    stderr=subprocess.STDOUT,
+    shell=False
+):
+    """Use subprocess.check_ouput to run subcommand"""
+    output = subprocess.check_output(  # nosec
+            cmd,
+            cwd=cwd,
+            stderr=stderr,
+            shell=shell
+        ).decode('UTF-8').splitlines()
+    return output
 
 # vim: set ts=4 sw=4 tw=0 et :

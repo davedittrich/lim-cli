@@ -10,7 +10,7 @@ setup_file() {
         echo 'Environment variable "VOL_PREFIX" is not set' >&2
         return 1
     fi
-    if ! $LIM -q cafe containers; then
+    if ! $LIM -q cafe containers show; then
         echo 'Packet Cafe containers are not running ("make build-packet-cafe"?)' >&2
         return 1
     fi

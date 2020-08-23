@@ -116,7 +116,12 @@ setup(
             'cafe admin results = lim.packet_cafe.admin.results:Results',
             'cafe admin sessions = lim.packet_cafe.admin.sessions:Sessions',
             'cafe admin info = lim.packet_cafe.admin.info:AdminInfo',
-            'cafe containers = lim.packet_cafe.extensions.containers:Containers',  # noqa
+            'cafe containers build = lim.packet_cafe.extensions.containers:ContainersBuild',  # noqa
+            'cafe containers down = lim.packet_cafe.extensions.containers:ContainersDown',  # noqa
+            'cafe containers images = lim.packet_cafe.extensions.containers:ContainersImages',  # noqa
+            'cafe containers pull = lim.packet_cafe.extensions.containers:ContainersPull',  # noqa
+            'cafe containers show = lim.packet_cafe.extensions.containers:ContainersShow',  # noqa
+            'cafe containers up = lim.packet_cafe.extensions.containers:ContainersUp',  # noqa
             'cafe endpoints = lim.packet_cafe.api.endpoints:Endpoints',
             'cafe raw = lim.packet_cafe.api.raw:Raw',
             'cafe requests = lim.packet_cafe.api.requests:Requests',
