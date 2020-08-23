@@ -176,7 +176,8 @@ spotless-packet-cafe: clean-packet-cafe
 			docker-compose down); \
 	fi
 	[ ! -z "$(VOL_PREFIX)" ] && sudo rm -rf $(VOL_PREFIX)/{definitions,files,id,redis} || true
-	for image in $(shell docker images | grep iqtlabs | awk '{print $$3;}'); \
+	@# Quick hack to include custom images; replace this with new --docker-*-namespace option.
+	for image in $(shell docker images | egrep "iqtlabs|davedittrich/" | awk '{print $$3;}'); \
 	do \
 		docker rmi $$image; \
 	done
