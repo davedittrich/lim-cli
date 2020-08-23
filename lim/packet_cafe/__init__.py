@@ -8,7 +8,13 @@ import logging
 import json
 import os
 import requests
-import subprocess
+# >> Issue: [B404:blacklist] Consider possible security implications associated
+#           with subprocess module.
+#    Severity: Low   Confidence: High
+#    Location: lim/packet_cafe/__init__.py:11
+#    More Info: https://bandit.readthedocs.io/en/
+#    latest/blacklists/blacklist_imports.html#b404-import-subprocess
+import subprocess  # nosec
 import sys
 import time
 import uuid
