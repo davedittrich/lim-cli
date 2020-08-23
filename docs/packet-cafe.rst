@@ -98,7 +98,7 @@ Adding the ``-q`` flag will suppress the table or warning for use in scripts.
 
 .. code-block:: console
 
-    $ lim cafe containers
+    $ lim cafe containers show
     +-------------------------+------------+--------------------------------------+---------+
     | name                    | short_id   | image                                | status  |
     +-------------------------+------------+--------------------------------------+---------+
@@ -120,9 +120,9 @@ Adding the ``-q`` flag will suppress the table or warning for use in scripts.
 
 .. code-block:: console
 
-    $ lim cafe containers
+    $ lim cafe containers show
     [-] no packet-cafe containers are running
-    $ lim -q cafe containers
+    $ lim -q cafe containers show
     $ echo $?
     1
 
