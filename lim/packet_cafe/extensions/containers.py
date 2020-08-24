@@ -115,7 +115,7 @@ def update_available(
         raise RuntimeError(f'[-] branch "{current_branch}" is checked out')
     up_to_date = checkout(repo_dir, branch=branch)
     if not up_to_date:
-        logger.info('[!] The branch "{branch}" is not up to date')
+        logger.info(f'[!] The branch "{branch}" is not up to date')
     # results = pull(repo_dir, remote=remote, branch=branch)
     return not up_to_date
 
@@ -190,7 +190,7 @@ def pull(repo_dir, remote='origin', branch='master'):
         results_str.find('Already up to date')
     ):
         raise RuntimeError(
-            '[-] pull from "{remote}" to branch "{branch}" had problems')
+            f'[-] pull from "{remote}" to branch "{branch}" had problems')
     return True
 
 
@@ -238,7 +238,7 @@ class ContainersBuild(Command):
                 pull(repo_dir, remote=remote, branch=branch)
             else:
                 raise RuntimeError(
-                    '[-] An update is available from remote "{remote}"\n'
+                    f'[-] An update is available from remote "{remote}"\n'
                     '[-] Use ``-update`` to pull before building')
         elif parsed_args.update:
             logger.info('[-] No updates available')
@@ -530,7 +530,7 @@ class ContainersUp(Command):
                 pull(repo_dir, remote=remote, branch=branch)
             else:
                 raise RuntimeError(
-                    '[-] An update is available from remote "{remote}"\n'
+                    f'[-] An update is available from remote "{remote}"\n'
                     '[-] Use ``-update`` to pull before building')
         elif parsed_args.update:
             logger.info('[-] No updates available')
