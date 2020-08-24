@@ -8,13 +8,13 @@ import textwrap
 
 from cliff.command import Command
 from cliff.lister import Lister
+from lim import execute
 from lim.packet_cafe import add_docker_global_options
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import containers_are_running
 from lim.packet_cafe import get_containers
 from lim.packet_cafe import get_images
 from lim.packet_cafe import get_output
-from lim.packet_cafe import get_output_realtime
 from lim.packet_cafe import rm_images
 from lim.packet_cafe import Packet_Cafe
 
@@ -78,11 +78,13 @@ def clone(url=None, repo_dir=None, branch='master'):
     # Resolving deltas: 100% (2380/2380), done.
     logger.info(f'[+] Cloning from URL {url}')
     sys.stdout.write('[+] ')
-    clone_result = get_output_realtime(cmd=['git',
-                                            'clone',
-                                            url,
-                                            repo_dir])
+    sys.stdout.flush()
+    clone_result = execute(cmd=['git', 'clone', url, repo_dir])
     if clone_result != 0:
+        try:
+            os.rmdir(path)
+        except OSError:
+            pass
         raise RuntimeError('[-] cloning failed')
     up_to_date = checkout(repo_dir, branch=branch)
     return up_to_date
@@ -245,10 +247,9 @@ class ContainersBuild(Command):
         if self.app_args.verbose_level <= 1:
             cmd.append('-d')
         cmd.append('--build')
-        result = get_output_realtime(
-            cmd=cmd,
-            cwd=repo_dir,
-            env=get_environment(parsed_args)
+        result = execute(cmd=cmd,
+                         cwd=repo_dir,
+                         env=get_environment(parsed_args)
         )
         if result != 0:
             raise RuntimeError('[-] docker-compose build failed')
@@ -282,7 +283,7 @@ class ContainersDown(Command):
         if self.app_args.verbose_level > 1:
             cmd.append('--verbose')
         cmd.append('down')
-        result = get_output_realtime(
+        result = execute(
             cmd=cmd,
             cwd=repo_dir,
             env=get_environment(parsed_args)
@@ -372,7 +373,7 @@ class ContainersPull(Command):
         # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
         #
         env['COMPOSE_HTTP_TIMEOUT'] = '200'
-        result = get_output_realtime(
+        result = execute(
             cmd=['docker-compose', 'pull'],
             cwd=repo_dir,
             env=env
@@ -532,7 +533,7 @@ class ContainersUp(Command):
         if self.app_args.verbose_level <= 1:
             cmd.append('-d')
         cmd.append('--no-build')
-        result = get_output_realtime(
+        result = execute(
             cmd=cmd,
             cwd=repo_dir,
             env=get_environment(parsed_args)
