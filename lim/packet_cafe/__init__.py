@@ -179,6 +179,25 @@ def get_images(filter=None):
         return filtered_images
 
 
+def rm_images(images):
+    """Remove Docker images.
+
+    Returns input array with all successfully removed images, well, removed.
+    (What did you expect?)
+    """
+    client = docker.from_env()
+    removed_images = []
+    for i in images:
+        try:
+            client.images.remove(i['ID'])
+        except Exception:
+            logger.info('[-] Failed to remove ID '
+                        f"{i['ID']} ({i['Repository']})")
+        else:
+            removed_images.append(i)
+    return removed_images
+
+
 def get_container_metadata(item):
     """Extract desired metadata from Docker container object."""
     if type(item) is str:
@@ -201,9 +220,14 @@ class Packet_Cafe(object):
     CAFE_API_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/api/{ CAFE_API_VERSION }'  # noqa
     CAFE_UI_URL = f'http://{ CAFE_HOST_IP }:{ CAFE_UI_PORT }/'
     CAFE_GITHUB_URL = os.getenv('LIM_CAFE_GITHUB_URL',
-                                'https://github.com/iqtlabs/packet-cafe')
+                                'https://github.com/iqtlabs/packet_cafe.git')
     CAFE_DOCS_URL = 'https://iqtlabs.gitbook.io/packet-cafe'
-    CAFE_REPO_DIR = os.getenv('LIM_CAFE_REPO_DIR', '.packet-cafe')
+    CAFE_REPO_DIR = os.getenv('LIM_CAFE_REPO_DIR',
+                              os.path.join(
+                                  os.path.expanduser('~'),
+                                  'packet_cafe')
+                              )
+    CAFE_REPO_BRANCH = os.getenv('LIM_CAFE_REPO_BRANCH', 'master')
     CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
     CAFE_SERVICE_NAMESPACE = os.getenv('LIM_CAFE_SERVICE_NAMESPACE', 'iqtlabs')
     CAFE_SERVICE_VERSION = os.getenv('LIM_CAFE_SERVICE_VERSION', 'latest')
@@ -798,6 +822,16 @@ def add_docker_global_options(parser):
         help=('Directory holding clone of packet_cafe repository '
               '(Env: ``LIM_CAFE_REPO_DIR``; '
               f'default: { Packet_Cafe.CAFE_REPO_DIR })')
+    )
+    parser.add_argument(
+        '--packet_cafe_repo_branch',
+        action='store',
+        metavar='<repo_branch>',
+        dest='packet_cafe_repo_branch',
+        default=Packet_Cafe.CAFE_REPO_BRANCH,
+        help=('Branch of packet_cafe repository to use '
+              '(Env: ``LIM_CAFE_REPO_BRANCH``; '
+              f'default: { Packet_Cafe.CAFE_REPO_BRANCH })')
     )
     return parser
 
