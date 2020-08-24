@@ -229,9 +229,10 @@ class Packet_Cafe(object):
                               )
     CAFE_REPO_BRANCH = os.getenv('LIM_CAFE_REPO_BRANCH', 'master')
     CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
-    CAFE_SERVICE_NAMESPACE = os.getenv('LIM_CAFE_SERVICE_NAMESPACE', 'iqtlabs')
-    CAFE_SERVICE_VERSION = os.getenv('LIM_CAFE_SERVICE_VERSION', 'latest')
-    CAFE_TOOL_NAMESPACE = os.getenv('LIM_CAFE_TOOL_NAMESPACE', 'iqtlabs')
+    CAFE_SERVICE_NAMESPACE = os.getenv('LIM_CAFE_SERVICE_NAMESPACE', None)
+    CAFE_SERVICE_VERSION = os.getenv('LIM_CAFE_SERVICE_VERSION', None)
+    CAFE_TOOL_NAMESPACE = os.getenv('LIM_CAFE_TOOL_NAMESPACE', None)
+    CAFE_TOOL_VERSION = os.getenv('LIM_CAFE_TOOL_VERSION', None)
 
     def __init__(
         self,
@@ -802,6 +803,16 @@ def add_docker_global_options(parser):
         help=('Namespace for Packet Café tool containers '
               '(Env: ``LIM_CAFE_TOOL_NAMESPACE``; '
               f'default: { Packet_Cafe.CAFE_TOOL_NAMESPACE })')
+    )
+    parser.add_argument(
+        '--docker-tool-version',
+        action='store',
+        metavar='<tool_version>',
+        dest='docker_tool_version',
+        default=Packet_Cafe.CAFE_TOOL_VERSION,
+        help=('Version (tag) for Packet Café tool containers '
+              '(Env: ``LIM_CAFE_TOOL_VERSION``; '
+              'default: "latest")')
     )
     parser.add_argument(
         '--packet-cafe-github-url',

@@ -34,9 +34,14 @@ def print_output(results=[]):
 
 def get_environment(args):
     env = os.environ.copy()
-    env["SERVICE_NAMESPACE"] = args.docker_service_namespace
-    env["SERVICE_VERSION"] = args.docker_service_version
-    env["TOOL_NAMESPACE"] = args.docker_tool_namespace
+    if args.docker_service_namespace is not None:
+        env["SERVICE_NAMESPACE"] = args.docker_service_namespace
+    if args.docker_service_version is not None:
+        env["SERVICE_VERSION"] = args.docker_service_version
+    if args.docker_tool_namespace is not None:
+        env["TOOL_NAMESPACE"] = args.docker_tool_namespace
+    if args.docker_service_version is not None:
+        env["TOOL_VERSION"] = args.docker_service_version
     env["REPO_DIR"] = args.packet_cafe_repo_dir
     env["GITHUB_URL"] = args.packet_cafe_github_url
     return env
@@ -323,11 +328,16 @@ class ContainersImages(Lister):
         # ]
         # if result != 0:
         #     raise RuntimeError('[-] failed to list containers')
-        images = get_images(filter=[parsed_args.docker_service_namespace,
-                                    parsed_args.docker_tool_namespace])
+        service_namespace = parsed_args.docker_service_namespace
+        if service_namespace is None:
+            service_namespace = 'iqtlabs'
+        tool_namespace = parsed_args.docker_tool_namespace
+        if tool_namespace is None:
+            tool_namespace = 'iqtlabs'
+        images = get_images(filter=[service_namespace, tool_namespace])
         image_set = (
-            f'service namespace "{parsed_args.docker_service_namespace}", '
-            f'tool namespace "{parsed_args.docker_tool_namespace}"'
+            f'service namespace "{service_namespace}", '
+            f'tool namespace "{tool_namespace}"'
         )
         if not len(images):
             raise RuntimeError(f'[-] no images found for {image_set}')
