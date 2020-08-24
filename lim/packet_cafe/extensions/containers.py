@@ -46,18 +46,25 @@ def ensure_clone(url=None, repo_dir=None, branch='master'):
     """Make sure that a clone of packet_cafe exists in repo_dir."""
     if url is None:
         url = Packet_Cafe.CAFE_GITHUB_URL
-    if not os.path.exists(repo_dir):
-        logger.info(f'[-] "{repo_dir}" does not exist')
+    if os.path.exists(repo_dir):
+        if not os.path.exists(os.path.join(repo_dir, '.git')):
+            raise RuntimeError(f'[-] Directory "{repo_dir}" does not '
+                               'look like a Git repository clone')
+        elif not os.path.exists(os.path.join(repo_dir, 'docker-compose.yml')):
+            raise RuntimeError(f'[-] Directory "{repo_dir}" does not '
+                               'contain a docker-compose.yml file')
+        try:
+            remotes = get_remote(repo_dir)
+        except RuntimeError:
+            remotes = []
+        if 'origin' not in remotes:
+            raise RuntimeError(f'[-] Directory "{repo_dir}" does not '
+                               'have a remote "origin" defined')
+    else:
+        logger.info(f'[-] Directory "{repo_dir}" does not exist')
         clone(url=url,
               repo_dir=repo_dir,
               branch=branch)
-    else:
-        if not os.path.exists(os.path.join(repo_dir, '.git')):
-            raise RuntimeError('[-] "{repo_dir}" does not '
-                               'look like a Git repository clone')
-        elif not os.path.exists(os.path.join(repo_dir, 'docker-compose.yml')):
-            raise RuntimeError('[-] "{repo_dir}" does not '
-                               'contain a docker-compose.yml file')
     return True
 
 
