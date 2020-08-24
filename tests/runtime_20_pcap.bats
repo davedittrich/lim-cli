@@ -5,7 +5,8 @@ load test_helper
 
 setup_file() {
     # Make sure needed PCAP file is present (don't rely on earlier tests)
-    if [[ ! -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap ]]; then
+    if [[ ! -d CTU-Malware-Capture-Botnet-48 ]] || \
+       [[ ! -f CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap ]]; then
         if ! $LIM -q ctu get Botnet-48 pcap; then
             echo "Failed to get Botnet-48 PCAP" >&2;
             exit 1
