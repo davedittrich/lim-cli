@@ -804,7 +804,7 @@ def add_docker_global_options(parser):
               f'default: { Packet_Cafe.CAFE_TOOL_NAMESPACE })')
     )
     parser.add_argument(
-        '--packet_cafe_github_url',
+        '--packet-cafe-github-url',
         action='store',
         metavar='<github_url>',
         dest='packet_cafe_github_url',
@@ -814,7 +814,7 @@ def add_docker_global_options(parser):
               f'default: { Packet_Cafe.CAFE_GITHUB_URL })')
     )
     parser.add_argument(
-        '--packet_cafe_repo_dir',
+        '--packet-cafe-repo-dir',
         action='store',
         metavar='<repo_dir>',
         dest='packet_cafe_repo_dir',
@@ -824,7 +824,7 @@ def add_docker_global_options(parser):
               f'default: { Packet_Cafe.CAFE_REPO_DIR })')
     )
     parser.add_argument(
-        '--packet_cafe_repo_branch',
+        '--packet-cafe-repo-branch',
         action='store',
         metavar='<repo_branch>',
         dest='packet_cafe_repo_branch',
