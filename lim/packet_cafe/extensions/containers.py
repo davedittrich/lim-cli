@@ -322,20 +322,18 @@ class ContainersImages(Lister):
         # ]
         # if result != 0:
         #     raise RuntimeError('[-] failed to list containers')
-        if self.app_args.verbose_level > 0:
-            action = 'Removing' if parsed_args.rm_images else 'Listing'
-            readable_result = (
-                f'[+] {action} images for '
-                f'service namespace "{parsed_args.docker_service_namespace}", '  # noqa
-                f'tool namespace "{parsed_args.docker_tool_namespace}"')
-            logger.info(readable_result)
         images = get_images(filter=[parsed_args.docker_service_namespace,
                                     parsed_args.docker_tool_namespace])
+        image_set = (
+            f'service namespace "{parsed_args.docker_service_namespace}", '
+            f'tool namespace "{parsed_args.docker_tool_namespace}"'
+        )
         if not len(images):
-            raise RuntimeError('[-] no images found')
+            raise RuntimeError(f'[-] no images found for {image_set}')
+        if self.app_args.verbose_level > 0:
+            action = 'Removing' if parsed_args.rm_images else 'Listing'
+            logger.info(f'[+] {action} images for {image_set}')
         if parsed_args.rm_images:
-            if self.app_args.verbose_level > 0:
-                logger.info('[+] Removing images')
             columns = ('ID', 'Repository')
             data = ((i['ID'], i['Repository']) for i in rm_images(images))
         else:
