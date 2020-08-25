@@ -1,6 +1,11 @@
 CHANGES
 =======
 
+
+20.8.5
+------
+
+* Prepare for release
 * Rename network-tools with underscore not hyphen
 * Update documentation for packet\_cafe commands
 * Ensure VOL\_PREFIX set

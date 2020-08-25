@@ -88,7 +88,7 @@ async def _stream_subprocess(
         *cmd,
         cwd=cwd,
         env=env,
-        limit = 1024 * 128,  # 128 KiB
+        limit=1024 * 128,  # 128 KiB
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
@@ -133,11 +133,11 @@ if __name__ == '__main__':
         execute(
             [
                 "bash",
-                 "-c",
-                 "echo stdout && sleep 1 && echo stderr 1>&2 && sleep 1 && echo done"
+                "-c",
+                "echo stdout && sleep 1 && echo stderr 1>&2 && sleep 1 && echo done"  # noqa
             ],
-            stdout_cb=lambda x: sys.stderr.write(f"STDOUT: {x.decode('utf-8')}"),
-            stderr_cb=lambda x: sys.stderr.write(f"STDERR: {x.decode('utf-8')}"),
+            stdout_cb=lambda x: sys.stderr.write(f"STDOUT: {x.decode('utf-8')}"),  # noqa
+            stderr_cb=lambda x: sys.stderr.write(f"STDERR: {x.decode('utf-8')}"),  # noqa
         )
     )
 
