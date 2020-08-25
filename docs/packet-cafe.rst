@@ -57,21 +57,146 @@ show the URL and also attempt to open a browser to the web page:
 
 ..
 
-Starting the service
---------------------
+Starting and Stopping Packet Café services
+------------------------------------------
 
-`Packet Café`_ runs all of its service workers and user interfaces
-as Docker containers on the local host.  To start the containers using
-``docker-compose``, follow the instructions in the `Deployment`_ section
-of the Packet Café documentation.
+`Packet Café`_ runs all of its service workers and user interfaces as Docker
+containers on the local host. Before doing this, the Docker images must be
+built locally and/or pulled from Docker Hub.  (The service containers are build
+from the ``packet_cafe`` repository directory, while the tools used by the
+workers come from another GitHub repository called `iqtlabs/network-tools`.
+Those containers are pulled from Docker Hub the stack is brought up using
+``docker-compose``.)
+
+The ``lim`` CLI has subcommands that simplify this process by cloning the
+Packet Café repository from GitHub as part of building and/or bringing the
+containers up.
+
+It also lets you know when the repo has been updated and provides an option to
+update the cloned repository by fetching and pulling new code.
+
+.. code-block:: console
+
+    $ lim cafe containers up
+    [!] The branch "master" is not up to date
+    [-] An update is available from remote "origin"
+    [-] Use ``-update`` to pull before building
+
+..
 
 .. note::
 
-   The Docker containers require the environment variable ``VOL_PREFIX`` be
-   set to point to the directory tree that will contain worker output and
-   related state is mounted so these files are available from outside the
-   containers. For this example, this variable is set to
-   ``$HOME/packet_cafe_data``.
+    For advanced users who want to develop and test the Packet Café platform
+    yourself, you can ``pull`` your own images by setting the namespace
+    for the service and tool image repositories to reference your own
+    account.  See ``lim cafe containers pull --help``.
+
+The Packet Café `Deployment`_ section assumes you will be building building
+containers locally. Their instructions show how to clone the repository and use
+``docker-compose`` directly.  These steps are handled by ``lim`` in the
+background, so you only need to run one command to clone the repo and build the
+containers.
+
+.. code-block:: console
+
+    $ lim cafe containers build
+    [-] Directory "/Users/dittrich/packet_cafe" does not exist
+    [+] Cloning from URL https://github.com/iqtlabs/packet_cafe.git
+    [+] Cloning into '/Users/dittrich/packet_cafe'...
+    [+] Running "docker-compose up --build" in /Users/dittrich/packet_cafe
+    Creating network "packet_cafe_default" with the default driver
+    Pulling networkml (iqtlabs/networkml:v0.6.0)...
+    v0.6.0: Pulling from iqtlabs/networkml
+     . . .
+    Removing intermediate container 7a838368792e
+     ---> b9768db0b583
+
+    Successfully built b9768db0b583
+    Successfully tagged iqtlabs/packet_cafe_workers:latest
+    Creating packet_cafe_admin_1 ...
+    Creating packet_cafe_messenger_1 ...
+    Creating packet_cafe_pcap-stats_1 ...
+    Creating packet_cafe_pcapplot_1   ...
+    Creating packet_cafe_ui_1         ...
+    Creating packet_cafe_networkml_1  ...
+    Creating packet_cafe_lb_1         ...
+    Creating packet_cafe_ncapture_1   ...
+    Creating packet_cafe_redis_1      ...
+    Creating packet_cafe_pcap-dot1q_1 ...
+    Creating packet_cafe_messenger_1     ... done
+    Creating packet_cafe_snort_1         ... done
+    Creating packet_cafe_pcap-splitter_1 ... done
+    Creating packet_cafe_web_1           ... done
+    Creating packet_cafe_mercury_1       ... done
+
+..
+
+The containers are now running:
+
+.. code-block:: console
+
+    $ lim cafe containers show
+    +-------------------------+------------+--------------------------------------+---------+
+    | name                    | short_id   | image                                | status  |
+    +-------------------------+------------+--------------------------------------+---------+
+    | packet_cafe_admin_1     | 4cc47659f3 | iqtlabs/packet_cafe_admin:latest     | running |
+    | packet_cafe_web_1       | f9c61afd10 | iqtlabs/packet_cafe_web:latest       | running |
+    | packet_cafe_workers_1   | b0621f3930 | iqtlabs/packet_cafe_workers:latest   | running |
+    | packet_cafe_lb_1        | 8ab78663e6 | iqtlabs/packet_cafe_lb:latest        | running |
+    | packet_cafe_ui_1        | fe73db6947 | iqtlabs/packet_cafe_ui:latest        | running |
+    | packet_cafe_redis_1     | 92120824d1 | iqtlabs/packet_cafe_redis:latest     | running |
+    | packet_cafe_messenger_1 | 25bf866dd3 | iqtlabs/packet_cafe_messenger:latest | running |
+    +-------------------------+------------+--------------------------------------+---------+
+
+..
+
+When you want to stop the Docker containers, just do the following:
+
+.. code-block:: console
+
+        $ lim cafe containers down
+        [+] Running "docker-compose down" in /Users/dittrich/packet_cafe
+        Stopping packet_cafe_admin_1     ... done
+        Stopping packet_cafe_web_1       ... done
+        Stopping packet_cafe_workers_1   ... done
+        Stopping packet_cafe_lb_1        ... done
+        Stopping packet_cafe_ui_1        ... done
+        Stopping packet_cafe_redis_1     ... done
+        Stopping packet_cafe_messenger_1 ... done
+        Removing packet_cafe_networkml_1     ... done
+        Removing packet_cafe_admin_1         ... done
+        Removing packet_cafe_pcap-stats_1    ... done
+        Removing packet_cafe_web_1           ... done
+        Removing packet_cafe_pcap-dot1q_1    ... done
+        Removing packet_cafe_ncapture_1      ... done
+        Removing packet_cafe_workers_1       ... done
+        Removing packet_cafe_pcapplot_1      ... done
+        Removing packet_cafe_pcap-splitter_1 ... done
+        Removing packet_cafe_lb_1            ... done
+        Removing packet_cafe_ui_1            ... done
+        Removing packet_cafe_redis_1         ... done
+        Removing packet_cafe_messenger_1     ... done
+        Removing packet_cafe_mercury_1       ... done
+        Removing packet_cafe_snort_1         ... done
+        Removing network packet_cafe_default
+        Removing network admin
+        Removing network frontend
+        Removing network results
+        Removing network backend
+        Removing network analysis
+        Removing network preprocessing
+
+..
+
+.. note::
+
+   The ``docker-compose.yml`` file requires that the environment variable
+   ``VOL_PREFIX`` be set prior to running ``docker-compose up`` so the
+   containers can volume mount a directory where workers write their output and
+   related state. The Docker volume mount ensures these files are available
+   from outside the containers. It will be set by ``lim`` internally prior to
+   running ``docker-compose`` to simplify things. This documentation assumes
+   this variable is set to ``$HOME/packet_cafe_data``.
 
 ..
 
@@ -86,7 +211,7 @@ of the Packet Café documentation.
 
 You can use ``docker ps --filter 'name=packet_cafe'`` to see the Packet
 Café containers (and their status) by their name.  The command ``lim cafe
-containers`` produces a table with just those containers having the label
+containers show`` produces a table with just those containers having the label
 ``com.docker.compose.project`` set to ``packet_cafe`` and returns a standard
 Unix exit code of ``0`` (success).  If the Packet Café Docker containers are
 not running, a message to that effect is returend and an exit code of ``1``
@@ -112,7 +237,7 @@ Adding the ``-q`` flag will suppress the table or warning for use in scripts.
     | packet_cafe_redis_1     | c893c408b5 | iqtlabs/packet_cafe_redis:latest     | running |
     | packet_cafe_lb_1        | 4530125e8e | iqtlabs/packet_cafe_lb:latest        | running |
     +-------------------------+------------+--------------------------------------+---------+
-    $ lim -q cafe containers
+    $ lim -q cafe containers show
     $ echo $?
     0
 
