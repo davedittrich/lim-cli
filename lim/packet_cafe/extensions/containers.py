@@ -364,6 +364,14 @@ class ContainersPull(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        parser.add_argument(
+            '-u', '--update',
+            action='store_true',
+            dest='update',
+            default=False,
+            help=('Update the repository contents before pulling '
+                  '(default: False)')
+        )
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Pull the containers associated with Packet Café services and workers from
@@ -379,9 +387,19 @@ class ContainersPull(Command):
             sys.exit(1)
         env = get_environment(parsed_args)
         repo_dir = parsed_args.packet_cafe_repo_dir
+        # TODO(dittrich): Fix this
+        remote = "origin"
+        branch = parsed_args.packet_cafe_repo_branch
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
-                     branch=parsed_args.packet_cafe_repo_branch)
+                     branch=branch)
+        if update_available(repo_dir, remote=remote, branch=branch):
+            if parsed_args.update:
+                pull(repo_dir, remote=remote, branch=branch)
+            else:
+                raise RuntimeError(
+                    f'[-] An update is available from remote "{remote}"\n'
+                    '[-] Use ``-update`` to pull before building')
         if self.app_args.verbose_level > 0:
             logger.info(f'[+] Running "docker-compose pull" in {repo_dir}')
         # Ensure VOL_PREFIX environment variable is set
