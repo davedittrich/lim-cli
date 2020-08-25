@@ -243,6 +243,13 @@ class ContainersBuild(Command):
         if self.app_args.verbose_level > 0:
             logger.info(
                 f'[+] Running "docker-compose up --build" in {repo_dir}')
+        # Ensure VOL_PREFIX environment variable is set
+        os.environ['VOL_PREFIX'] = self.app_args.packet_cafe_data_dir
+        env = get_environment(parsed_args)
+        #
+        # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
+        #
+        env['COMPOSE_HTTP_TIMEOUT'] = '200'
         cmd = [
             'docker-compose',
             'up'
@@ -252,7 +259,7 @@ class ContainersBuild(Command):
         cmd.append('--build')
         result = execute(cmd=cmd,
                          cwd=repo_dir,
-                         env=get_environment(parsed_args)
+                         env=env
         )
         if result != 0:
             raise RuntimeError('[-] docker-compose build failed')
@@ -377,6 +384,9 @@ class ContainersPull(Command):
                      branch=parsed_args.packet_cafe_repo_branch)
         if self.app_args.verbose_level > 0:
             logger.info(f'[+] Running "docker-compose pull" in {repo_dir}')
+        # Ensure VOL_PREFIX environment variable is set
+        os.environ['VOL_PREFIX'] = self.app_args.packet_cafe_data_dir
+        env = get_environment(parsed_args)
         #
         # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
         #
@@ -541,10 +551,17 @@ class ContainersUp(Command):
         if self.app_args.verbose_level <= 1:
             cmd.append('-d')
         cmd.append('--no-build')
+        # Ensure VOL_PREFIX environment variable is set
+        os.environ['VOL_PREFIX'] = self.app_args.packet_cafe_data_dir
+        env = get_environment(parsed_args)
+        #
+        # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
+        #
+        env['COMPOSE_HTTP_TIMEOUT'] = '200'
         result = execute(
             cmd=cmd,
             cwd=repo_dir,
-            env=get_environment(parsed_args)
+            env=env
         )
         if result != 0:
             raise RuntimeError(
