@@ -115,7 +115,7 @@ containers.
     Successfully tagged iqtlabs/packet_cafe_workers:latest
     Creating packet_cafe_admin_1 ...
     Creating packet_cafe_messenger_1 ...
-    Creating packet_cafe_pcap-stats_1 ...
+    Creating packet_cafe_pcap_stats_1 ...
     Creating packet_cafe_pcapplot_1   ...
     Creating packet_cafe_ui_1         ...
     Creating packet_cafe_networkml_1  ...
@@ -165,7 +165,7 @@ When you want to stop the Docker containers, just do the following:
         Stopping packet_cafe_messenger_1 ... done
         Removing packet_cafe_networkml_1     ... done
         Removing packet_cafe_admin_1         ... done
-        Removing packet_cafe_pcap-stats_1    ... done
+        Removing packet_cafe_pcap_stats_1    ... done
         Removing packet_cafe_web_1           ... done
         Removing packet_cafe_pcap-dot1q_1    ... done
         Removing packet_cafe_ncapture_1      ... done
@@ -333,7 +333,7 @@ real-time similar to the web UI.
     [+] Upload smallFlows.pcap: success
     [+] Session ID (sess_id): 30b9ce67-75a4-49e6-b484-c4646b72fbd9
     [+] Request ID (req_id): 4e058115ed19491193eadf58f105032b
-    [+] pcap-stats:    complete 2020-05-23T17:29:56.982084+00:00
+    [+] pcap_stats:    complete 2020-05-23T17:29:56.982084+00:00
     [+] pcap-dot1q:    complete 2020-05-23T17:29:55.773211+00:00
     [+] ncapture:      complete 2020-05-23T17:29:53.333307+00:00
     [+] mercury:       complete 2020-05-23T17:29:59.330288+00:00
@@ -364,7 +364,7 @@ wish with ``lim cafe status``.
     | pcap-dot1q    | Complete | 2020-05-15T01:25:47.988746+00:00 |
     | ncapture      | Complete | 2020-05-15T01:25:46.075214+00:00 |
     | pcapplot      | Complete | 2020-05-15T01:26:24.899752+00:00 |
-    | pcap-stats    | Complete | 2020-05-15T01:25:48.251749+00:00 |
+    | pcap_stats    | Complete | 2020-05-15T01:25:48.251749+00:00 |
     | p0f           | Complete | 2020-05-15T01:26:48.456883+00:00 |
     +---------------+----------+----------------------------------+
 
@@ -402,7 +402,7 @@ arrow keys and return key.
     | p0f           | Complete | 2020-05-27T23:00:33.691910+00:00 |
     | snort         | Complete | 2020-05-27T22:59:17.237826+00:00 |
     | pcap-splitter | Complete | 2020-05-27T22:59:22.099207+00:00 |
-    | pcap-stats    | Complete | 2020-05-27T22:59:11.146931+00:00 |
+    | pcap_stats    | Complete | 2020-05-27T22:59:11.146931+00:00 |
     | ncapture      | Complete | 2020-05-27T22:59:08.518450+00:00 |
     | mercury       | Complete | 2020-05-27T22:59:14.303015+00:00 |
     | pcapplot      | Complete | 2020-05-27T22:59:59.033611+00:00 |

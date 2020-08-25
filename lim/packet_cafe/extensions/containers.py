@@ -508,7 +508,7 @@ class ContainersUp(Command):
                 Creating network "backend" with the default driver
                 Creating network "analysis" with the default driver
                 Creating network "preprocessing" with the default driver
-                Creating packet_cafe_pcap-stats_1    ... done
+                Creating packet_cafe_pcap_stats_1    ... done
                 Creating packet_cafe_workers_1       ... done
                 Creating packet_cafe_ncapture_1      ... done
                 Creating packet_cafe_networkml_1     ... done

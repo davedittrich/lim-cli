@@ -168,7 +168,7 @@ class Report(Lister):
                                      req_id=req_id)
 
     def summarize_pcap_stats(self, results={}, sess_id=None, req_id=None):
-        """Report on pcap-stats output."""
+        """Report on pcap_stats output."""
         for item in results:
             for key, subresults in item.items():
                 sub_report_header = textwrap.dedent(f"""\
@@ -183,7 +183,7 @@ class Report(Lister):
                                             req_id=req_id)
                 else:
                     logger.info(
-                        f'[-] Reporting for subtool "pcap-stats:{ key }" '
+                        f'[-] Reporting for subtool "pcap_stats:{ key }" '
                         'is not yet supported.'
                     )
 
@@ -269,7 +269,7 @@ class Report(Lister):
     tool_function = OrderedDict({
         'p0f': summarize_p0f,
         'networkml': summarize_networkml,
-        'pcap-stats': summarize_pcap_stats,
+        'pcap_stats': summarize_pcap_stats,
         'tshark': summarize_tshark,
         'capinfos': summarize_capinfos,
         'snort': summarize_snort,

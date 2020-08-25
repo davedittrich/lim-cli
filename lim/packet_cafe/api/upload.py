@@ -75,7 +75,7 @@ class Upload(Command):
                 [+] Upload smallFlows.pcap: success
                 [+] Session ID (sess_id): 30b9ce67-75a4-49e6-b484-c4646b72fbd9
                 [+] Request ID (req_id): 4e058115ed19491193eadf58f105032b
-                [+] pcap-stats:    complete 2020-05-23T17:29:56.982084+00:00
+                [+] pcap_stats:    complete 2020-05-23T17:29:56.982084+00:00
                 [+] pcap-dot1q:    complete 2020-05-23T17:29:55.773211+00:00
                 [+] ncapture:      complete 2020-05-23T17:29:53.333307+00:00
                 [+] mercury:       complete 2020-05-23T17:29:59.330288+00:00
@@ -100,7 +100,7 @@ class Upload(Command):
                 [+] Session ID (sess_id): 46d4f9a9-d5db-487e-a261-91764c044b44
                 [+] Request ID (req_id): a93591b554fe420ebbcf14b67fc8d298
                 [+] ncapture:      complete 2020-05-27T03:26:53.894222+00:00 (00:00:05.07)
-                [+] pcap-stats:    complete 2020-05-27T03:26:56.531330+00:00 (00:00:05.07)
+                [+] pcap_stats:    complete 2020-05-27T03:26:56.531330+00:00 (00:00:05.07)
                 [+] pcap-dot1q:    complete 2020-05-27T03:26:56.311676+00:00 (00:00:05.07)
                 [+] mercury:       complete 2020-05-27T03:26:59.670225+00:00 (00:00:07.10)
                 [+] snort:         complete 2020-05-27T03:27:03.241917+00:00 (00:00:11.16)
@@ -130,7 +130,7 @@ class Upload(Command):
                 | mercury    | In progress | 2020-05-15T07:18:56.288996+00:00 |
                 | ncapture   | Complete    | 2020-05-15T07:18:56.881295+00:00 |
                 | pcap-dot1q | In progress | 2020-05-15T07:18:56.880669+00:00 |
-                | pcap-stats | In progress | 2020-05-15T07:18:56.923709+00:00 |
+                | pcap_stats | In progress | 2020-05-15T07:18:56.923709+00:00 |
                 +------------+-------------+----------------------------------+
                 $ lim cafe status
                 +---------------+-------------+----------------------------------+
@@ -143,7 +143,7 @@ class Upload(Command):
                 | pcap-dot1q    | Complete    | 2020-05-15T07:18:59.070603+00:00 |
                 | ncapture      | Complete    | 2020-05-15T07:18:56.881295+00:00 |
                 | pcapplot      | In progress | 2020-05-15T07:19:07.046718+00:00 |
-                | pcap-stats    | Complete    | 2020-05-15T07:18:59.209291+00:00 |
+                | pcap_stats    | Complete    | 2020-05-15T07:18:59.209291+00:00 |
                 | p0f           | In progress | 2020-05-15T07:19:07.994061+00:00 |
                 +---------------+-------------+----------------------------------+
 

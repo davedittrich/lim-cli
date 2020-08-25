@@ -31,12 +31,12 @@ class Tools(Lister):
                 | Name          | Image                     | Version | Labels | Stage         | ViewableOutput | Outputs  | Inputs        |
                 +---------------+---------------------------+---------+--------+---------------+----------------+----------+---------------+
                 | pcapplot      | iqtlabs/pcapplot          | v0.1.5  |        | analysis      | True           | file     | pcap-splitter |
-                | pcap-splitter | iqtlabs/pcap-to-node-pcap | v0.11.8 |        | preprocessing | False          | pcap     | pcap-dot1q    |
+                | pcap-splitter | iqtlabs/pcap_to_node_pcap | v0.11.8 |        | preprocessing | False          | pcap     | pcap-dot1q    |
                 | ncapture      | iqtlabs/ncapture          | v0.11.8 |        | preprocessing | False          | pcap     | pcap,pcapng   |
-                | pcap-dot1q    | iqtlabs/tcprewrite-dot1q  | v0.11.8 |        | preprocessing | False          | pcap     | ncapture      |
+                | pcap-dot1q    | iqtlabs/tcprewrite_dot1q  | v0.11.8 |        | preprocessing | False          | pcap     | ncapture      |
                 | networkml     | iqtlabs/networkml         | v0.5.3  |        | analysis      | True           | rabbitmq | pcap-splitter |
                 | snort         | iqtlabs/snort             | v0.11.8 |        | analysis      | True           | rabbitmq | pcap,pcapng   |
-                | pcap-stats    | iqtlabs/pcap-stats        | v0.11.8 |        | analysis      | True           | rabbitmq | pcap,pcapng   |
+                | pcap_stats    | iqtlabs/pcap_stats        | v0.11.8 |        | analysis      | True           | rabbitmq | pcap,pcapng   |
                 | mercury       | iqtlabs/mercury           | v0.11.8 |        | analysis      | True           | rabbitmq | pcap,pcapng   |
                 | p0f           | iqtlabs/p0f               | v0.11.8 |        | analysis      | True           | rabbitmq | pcap-splitter |
                 +---------------+---------------------------+---------+--------+---------------+----------------+----------+---------------+

@@ -329,7 +329,7 @@ class Packet_Cafe(object):
         #         {
         #             "id": "ab7af73526814d58bf35f1399a5594b2",
         #             "filename": "trace_ab7af73526814d58bf35f1399a5594b2_2020-04-09_23_38_56.pcap",  # noqa
-        #             "tools": ["networkml", "mercury", "pcap-stats", "snort", "p0f", "pcapplot"],   # noqa
+        #             "tools": ["networkml", "mercury", "pcap_stats", "snort", "p0f", "pcapplot"],   # noqa
         #             "original_filename": "smallFlows.pcap"
         #         }
         #     ]
