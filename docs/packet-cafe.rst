@@ -47,8 +47,8 @@ show the URL and also attempt to open a browser to the web page:
     You can also watch the following asciicast to see ``lim cafe``
     commands in action:
 
-    .. image:: https://asciinema.org/a/343477.png
-       :target: https://asciinema.org/a/343477?autoplay=1
+    .. image:: https://asciinema.org/a/353492.png
+       :target: https://asciinema.org/a/353492?autoplay=1
        :align: center
        :alt: ``lim`` subcommands for Packet Café API
        :width: 835px
