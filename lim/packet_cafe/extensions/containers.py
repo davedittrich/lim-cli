@@ -40,8 +40,8 @@ def get_environment(args):
         env["SERVICE_VERSION"] = args.docker_service_version
     if args.docker_tool_namespace is not None:
         env["TOOL_NAMESPACE"] = args.docker_tool_namespace
-    if args.docker_service_version is not None:
-        env["TOOL_VERSION"] = args.docker_service_version
+    if args.docker_tool_version is not None:
+        env["TOOL_VERSION"] = args.docker_tool_version
     env["REPO_DIR"] = args.packet_cafe_repo_dir
     env["GITHUB_URL"] = args.packet_cafe_github_url
     return env
