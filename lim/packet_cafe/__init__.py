@@ -222,6 +222,11 @@ class Packet_Cafe(object):
     CAFE_GITHUB_URL = os.getenv('LIM_CAFE_GITHUB_URL',
                                 'https://github.com/iqtlabs/packet_cafe.git')
     CAFE_DOCS_URL = 'https://iqtlabs.gitbook.io/packet-cafe'
+    CAFE_DATA_DIR = os.getenv('VOL_PREFIX',
+                              os.path.join(
+                                  os.path.expanduser('~'),
+                                  'packet_cafe_data')
+                              )
     CAFE_REPO_DIR = os.getenv('LIM_CAFE_REPO_DIR',
                               os.path.join(
                                   os.path.expanduser('~'),
