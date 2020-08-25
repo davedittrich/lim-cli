@@ -28,7 +28,12 @@ teardown() {
   cafe admin info
   cafe admin results
   cafe admin sessions
-  cafe containers
+  cafe containers build
+  cafe containers down
+  cafe containers images
+  cafe containers pull
+  cafe containers show
+  cafe containers up
   cafe endpoints
   cafe info
   cafe raw

@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.8.4
+VERSION:=20.8.5
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -123,7 +123,6 @@ clean:
 .PHONY: spotless
 spotless: clean
 	rm -rf .eggs .tox
-	rm -f .packet_cafe_last_{request,session}_id
 	(cd docs && make clean)
 	rm -rf tests/libs/{bats,bats-support,bats-assert}
 
@@ -136,6 +135,11 @@ build-packet-cafe:
 		(cd ~/git/packet_cafe && \
 			CURRENT_ID=$(CURRENT_ID) docker-compose up -d --build); \
 	fi
+
+#HELP pull-packet-cafe - Pull packet_cafe service containers
+.PHONY: pull-packet-cafe
+pull-packet-cafe:
+	cd ~/git/packet_cafe && docker-compose pull
 
 #HELP up-packet-cafe - Bring up packet_cafe containers
 .PHONY: up-packet-cafe
@@ -156,7 +160,6 @@ down-packet-cafe:
 	else \
 	       echo '[-] containers are already down'; \
 	fi
-	@rm -f .packet_cafe_last_{request,session}_id
 
 #HELP clean-packet-cafe - remove packet_cafe contents
 .PHONY: clean-packet-cafe
@@ -164,7 +167,6 @@ clean-packet-cafe:
 	if lim -q cafe containers; then \
 		lim cafe admin delete --all || true; \
 	fi
-	@rm -f .packet_cafe_last_{request,session}_id
 
 #HELP spotless-packet-cafe - Remove all packet_cafe files and containers
 .PHONY: spotless-packet-cafe
@@ -174,7 +176,8 @@ spotless-packet-cafe: clean-packet-cafe
 			docker-compose down); \
 	fi
 	[ ! -z "$(VOL_PREFIX)" ] && sudo rm -rf $(VOL_PREFIX)/{definitions,files,id,redis} || true
-	for image in $(shell docker images | grep iqtlabs | awk '{print $$3;}'); \
+	@# Quick hack to include custom images; replace this with new --docker-*-namespace option.
+	for image in $(shell docker images | egrep "iqtlabs|davedittrich/" | awk '{print $$3;}'); \
 	do \
 		docker rmi $$image; \
 	done

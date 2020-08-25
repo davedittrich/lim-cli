@@ -17,6 +17,7 @@ from lim import __release__
 from lim import copyright
 from lim import LIM_DATA_DIR
 from lim.utils import Timer
+from lim.packet_cafe import Packet_Cafe
 
 # External dependencies.
 
@@ -68,6 +69,18 @@ class LiminalApp(App):
             default=LIM_DATA_DIR,
             help=('Root directory for holding data files '
                   f'(Env: ``LIM_DATA_DIR``; default: { LIM_DATA_DIR })')
+        )
+        # This allows VOL_PREFIX to not have to be set in the
+        # shell environment prior to starting containers (as ``lim``
+        # ensures it is set before running ``docker-compose``.)
+        parser.add_argument(
+            '--vol-prefix',
+            metavar='<vol_prefix>',
+            dest='packet_cafe_data_dir',
+            default=Packet_Cafe.CAFE_DATA_DIR,
+            help=('Data volume mount for Packet Café containers '
+                  '(Env: ``VOL_PREFIX``; '
+                  f'default: { Packet_Cafe.CAFE_DATA_DIR })')
         )
         parser.add_argument(
             '-e', '--elapsed',

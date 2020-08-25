@@ -44,7 +44,7 @@ class Files(Lister):
                 files
                 └── 791e1034-fdb9-4fa4-a410-e1dedef7c0b8
                     └── dcfe1b4dd2a04d559f6600902847a11a
-                        ├── tcprewrite-dot1q-2020-06-21-21_44_49.215175-UTC
+                        ├── tcprewrite_dot1q-2020-06-21-21_44_49.215175-UTC
                         │   ├── pcap-node-splitter-2020-06-21-21_44_53.389934-UTC
                         │   │   ├── clients
                         │   │   │   ├── combined.csv.gz

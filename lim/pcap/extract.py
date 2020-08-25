@@ -63,8 +63,8 @@ class PCAPExtract(Command):
                         ip = eth.data
                         src = socket.inet_ntop(socket.AF_INET, ip.src)
                         dst = socket.inet_ntop(socket.AF_INET, ip.dst)
-                    ips[src] = True
-                    ips[dst] = True
+                        ips[src] = True
+                        ips[dst] = True
                 for ip in sorted(ips.keys(),
                                  key=lambda item: socket.inet_aton(item)):
                     f_out.write('{}\n'.format(ip))

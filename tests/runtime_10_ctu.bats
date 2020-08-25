@@ -38,7 +38,7 @@ teardown() {
 }
 
 @test "\"lim -q ctu get Botnet-114-1 pcap\" gets PCAP file in subdir" {
-    run bash -c "[ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114 pcap"
+    run bash -c "[ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114-1 pcap"
     [ -d CTU-Malware-Capture-Botnet-114-1 ]
     [ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ]
 }

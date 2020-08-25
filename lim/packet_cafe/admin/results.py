@@ -74,7 +74,7 @@ class Results(Lister):
                         │   └── metadata.json
                         ├── p0f
                         │   └── metadata.json
-                        ├── pcap-stats
+                        ├── pcap_stats
                         │   └── metadata.json
                         ├── pcapplot
                         │   ├── metadata.json

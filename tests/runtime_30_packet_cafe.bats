@@ -10,7 +10,7 @@ setup_file() {
         echo 'Environment variable "VOL_PREFIX" is not set' >&2
         return 1
     fi
-    if ! $LIM -q cafe containers; then
+    if ! $LIM -q cafe containers show; then
         echo 'Packet Cafe containers are not running ("make build-packet-cafe"?)' >&2
         return 1
     fi
@@ -156,16 +156,16 @@ teardown() {
     assert_output --partial "smallFlows_nopayloads.pcap"
 }
 
-@test "\"lim cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap\" works" {
-    run bash -c "$LIM cafe upload --wait CTU-Malware-Capture-Botnet-48/botnet-capture-20110816-sogou.pcap 22222222-2222-2222-2222-222222222222"
+@test "\"lim cafe upload --wait 2015-04-09_capture-win2.pcap\" works" {
+    run bash -c "$LIM cafe upload --wait 2015-04-09_capture-win2.pcap 22222222-2222-2222-2222-222222222222"
     assert_success
-    assert_output --partial "[+] Upload botnet-capture-20110816-sogou.pcap: success"
+    assert_output --partial "[+] Upload 2015-04-09_capture-win2.pcap: success"
 }
 
-@test "\"lim -q cafe requests\" includes \"botnet-capture-20110816-sogou.pcap\"" {
+@test "\"lim -q cafe requests\" includes \"2015-04-09_capture-win2.pcap\"" {
     run bash -c "$LIM -q cafe requests -f value"
     assert_success
-    assert_output --partial "botnet-capture-20110816-sogou.pcap"
+    assert_output --partial "2015-04-09_capture-win2.pcap"
 }
 
 @test "\"lim -q cafe report --tool poof\" fails" {
@@ -176,7 +176,7 @@ teardown() {
 
 @test "\"lim -q cafe report --tool p0f\" works" {
     run bash -c "$LIM -q cafe report --tool p0f | md5sum -"
-    assert_output --partial "045434a0acfbe01544ea62c610a42357"
+    assert_output --partial "49b5e331b4827878786796e285b9217e"
 }
 
 @test "\"lim cafe results --tool networkml\" works" {
