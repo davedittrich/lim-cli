@@ -1,6 +1,44 @@
 CHANGES
 =======
 
+* Rename network-tools with underscore not hyphen
+* Update documentation for packet\_cafe commands
+* Ensure VOL\_PREFIX set
+* Fix asciinema link (updated asciicast)
+* Handle repo update when pulling containers
+* Ensure VOL\_PREFIX is set for docker-compose
+* Fix bug in environment preparation
+* Collapse function call to one line
+* Fix f strings
+* Add toolspace version support and use .env default
+* Use asyncio coroutine for subprocess output
+* Fix options spelling
+* Switch file being used to match other tests
+* Fix logic error
+* Improve container image removal
+* Add more robust checks for cloning repo
+* Switch to using a smaller CTU file for testing
+* Attempting to fix test that fails on Kali
+* Fix typo in test
+* Complete feature set for managing containers
+* Resolve bandit finding
+* Update test
+* Resolve pep8 finding
+* Left out return call
+* Initial working expansion of container subcommands
+* Update documentation
+* Start supporting multiple namespaces in Makefile
+* Remove obsolete commands
+* Add debugging launch configuration
+* Add target to pull service and worker containers
+* Attempting to minimize runs
+* Add job context for debugging
+* Expose more context for debugging
+
+20.8.4
+------
+
+* Prepare for release
 * Fix conditional syntax
 * Fix conditionals publishing releases
 
