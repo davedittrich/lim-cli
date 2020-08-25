@@ -237,7 +237,7 @@ class ContainersBuild(Command):
             else:
                 raise RuntimeError(
                     f'[-] An update is available from remote "{remote}"\n'
-                    '[-] Use ``-update`` to pull before building')
+                    '[-] Use ``--update`` to pull before building')
         elif parsed_args.update:
             logger.info('[-] No updates available')
         if self.app_args.verbose_level > 0:
