@@ -85,7 +85,7 @@ def clone(url=None, repo_dir=None, branch='master'):
     clone_result = execute(cmd=['git', 'clone', url, repo_dir])
     if clone_result != 0:
         try:
-            os.rmdir(path)
+            os.rmdir(repo_dir)
         except OSError:
             pass
         raise RuntimeError('[-] cloning failed')
@@ -257,10 +257,7 @@ class ContainersBuild(Command):
         if self.app_args.verbose_level <= 1:
             cmd.append('-d')
         cmd.append('--build')
-        result = execute(cmd=cmd,
-                         cwd=repo_dir,
-                         env=env
-        )
+        result = execute(cmd=cmd, cwd=repo_dir, env=env)
         if result != 0:
             raise RuntimeError('[-] docker-compose build failed')
 
