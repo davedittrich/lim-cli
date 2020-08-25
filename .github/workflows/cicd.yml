@@ -6,7 +6,8 @@ jobs:
     name: Test and Build
     if: >-
       github.event_name == 'push' &&
-      startsWith(github.ref, 'refs/heads/')
+      startsWith(github.ref, 'refs/heads/') &&
+      ! contains(github.ref, 'release')
     runs-on: ubuntu-18.04
     env:
       PY_COLORS: 1
