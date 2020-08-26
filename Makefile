@@ -63,6 +63,10 @@ test-bats: bats-libraries
 
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
+	@# Containers must be running
+	@lim cafe containers show >/dev/null || exit 1
+	@# No sessions can be present
+	@[[ $(shell lim cafe admin sessions -f value 2>/dev/null | wc -l) -eq 0 ]] || exit 1
 	@echo "[+] Running bats runtime tests: $(shell cd tests && echo runtime_[0-9][0-9]*.bats)"; \
 	PYTHONWARNINGS="ignore" bats --tap tests/runtime_[0-9][0-9]*.bats
 
