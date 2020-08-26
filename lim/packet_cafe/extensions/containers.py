@@ -181,9 +181,9 @@ def checkout(repo_dir, branch='master'):
     # Apparently different versions of ``git`` produce different
     # results. Go figure... :(
     return (
-        (results_str.find('Your branch is up to date') > 0) ||
-        (results_str.find('Your branch is up-to-date') > 0)
-        )
+        results_str.find('Your branch is up to date') > 0 or
+        results_str.find('Your branch is up-to-date') > 0
+    )
 
 
 def pull(repo_dir, remote='origin', branch='master'):
