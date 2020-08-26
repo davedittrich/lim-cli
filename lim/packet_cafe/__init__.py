@@ -568,6 +568,7 @@ class Packet_Cafe(object):
         req_id=None,
         debug=False,
         wait_only=False,
+        ignore_errors=False,
         elapsed=False
     ):
         """Track the progress of workers similar to the web UI."""
@@ -581,6 +582,8 @@ class Packet_Cafe(object):
         timer.start()
         reported = dict()
         last_status = {}
+        errors = False
+
         while True:
             # Throttle API calls and give extra time to spin up initial workers
             time.sleep(5 if len(reported) == 0 else 2)

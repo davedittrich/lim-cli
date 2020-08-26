@@ -23,6 +23,8 @@ logger = logging.getLogger(__name__)
 
 RUNNING_MSG = '[-] packet-cafe containers are already running'
 NOT_RUNNING_MSG = '[-] packet-cafe containers are not running'
+UPDATE_MSG = ('[-] An update is available from remote "{0}"\n'
+              '[-] Use ``--update`` to pull before building')
 MIN_IMAGE_COLUMNS = ('ID', 'Repository', 'Tag')
 
 
@@ -98,7 +100,8 @@ def clone(url=None, repo_dir=None, branch='master'):
 def needs_update(
     repo_dir=None,
     branch='master',
-    remote='origin'
+    remote='origin',
+    ignore_dirty=True
 ):
     """Check to see if GitHub repo is up to date."""
     remotes = get_remote(repo_dir)
@@ -107,19 +110,20 @@ def needs_update(
         logger.info(f'[-] more than one remote found: {others}')
     if repo_dir is None:
         raise RuntimeError('[-] repo_dir must be specified')
-    if not is_clean(repo_dir):
+    if not is_clean(repo_dir) and not ignore_dirty:
         raise RuntimeError(f'[-] {repo_dir} is not clean')
     fetched_new = fetch(repo_dir, remote=remote)
     if fetched_new:
-        logger.info('[+] fetch recieved new content')
+        logger.info('[+] fetch from remote "{remote}" updated {repo_dir}')
     current_branch = get_branch(repo_dir)
     if current_branch != branch:
         raise RuntimeError(f'[-] branch "{current_branch}" is checked out')
     up_to_date = checkout(repo_dir, branch=branch)
     if not up_to_date:
-        logger.info(f'[!] The branch "{branch}" is not up to date')
+        logger.info(f'[!] branch "{branch}" is not up to date '
+                    '(bring down and use ``--update`` to update)')
     else:
-        logger.debug(f'[+] The branch "{branch}" is up to date')
+        logger.info(f'[+] branch "{branch}" is up to date')
     # results = pull(repo_dir, remote=remote, branch=branch)
     return not up_to_date
 
@@ -227,6 +231,13 @@ class ContainersBuild(Command):
             help=('Update the repository contents before rebuilding '
                   '(default: False)')
         )
+        parser.add_argument(
+            '--ignore-dirty',
+            action='store_true',
+            dest='ignore_dirty',
+            default=False,
+            help=('Ignore a dirty repository (default: False)')
+        )
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Build images from source locally rather than pulling them from Docker Hub.
@@ -252,13 +263,17 @@ class ContainersBuild(Command):
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
                      branch=branch)
-        if needs_update(repo_dir, remote=remote, branch=branch):
+        if needs_update(repo_dir,
+                        remote=remote,
+                        branch=branch,
+                        ignore_dirty=parsed_args.ignore_dirty):
             if parsed_args.update:
                 pull(repo_dir, remote=remote, branch=branch)
             else:
-                raise RuntimeError(
-                    f'[-] An update is available from remote "{remote}"\n'
-                    '[-] Use ``--update`` to pull before building')
+                if parsed_args.ignore_dirty:
+                    logger.info(UPDATE_MSG.format(remote))
+                else:
+                    raise RuntimeError(UPDATE_MSG.format(remote))
         elif parsed_args.update:
             logger.info('[-] No updates available')
         if self.app_args.verbose_level > 0:
@@ -524,6 +539,13 @@ class ContainersUp(Command):
             help=('Update the repository contents before rebuilding '
                   '(default: False)')
         )
+        parser.add_argument(
+            '--ignore-dirty',
+            action='store_true',
+            dest='ignore_dirty',
+            default=False,
+            help=('Ignore a dirty repository (default: False)')
+        )
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Brings up the container and network stack associated with Packet Café
@@ -585,13 +607,17 @@ class ContainersUp(Command):
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
                      branch=parsed_args.packet_cafe_repo_branch)
-        if needs_update(repo_dir, remote=remote, branch=branch):
+        if needs_update(repo_dir,
+                        remote=remote,
+                        branch=branch,
+                        ignore_dirty=parsed_args.ignore_dirty):
             if parsed_args.update:
                 pull(repo_dir, remote=remote, branch=branch)
             else:
-                raise RuntimeError(
-                    f'[-] An update is available from remote "{remote}"\n'
-                    '[-] Use ``-update`` to pull before building')
+                if parsed_args.ignore_dirty:
+                    logger.info(UPDATE_MSG.format(remote))
+                else:
+                    raise RuntimeError(UPDATE_MSG.format(remote))
         elif parsed_args.update:
             logger.info('[-] No updates available')
         if self.app_args.verbose_level > 0:
