@@ -89,6 +89,7 @@ def clone(url=None, repo_dir=None, branch='master'):
         except OSError:
             pass
         raise RuntimeError('[-] cloning failed')
+    logger.info(f'[+] Checking out "{branch}" branch')
     up_to_date = checkout(repo_dir, branch=branch)
     return up_to_date
 
