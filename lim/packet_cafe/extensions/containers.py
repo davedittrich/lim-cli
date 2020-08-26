@@ -25,6 +25,7 @@ RUNNING_MSG = '[-] packet-cafe containers are already running'
 NOT_RUNNING_MSG = '[-] packet-cafe containers are not running'
 MIN_IMAGE_COLUMNS = ('ID', 'Repository', 'Tag')
 
+
 def print_output(results=[]):
     for line in results:
         sys.stdout.write(line)
@@ -332,11 +333,13 @@ class ContainersImages(Lister):
             default=False,
             help='Remove the images from Docker (default: False)'
         )
+        # Enable all columns if user requests specific columns that
+        # might not be in MIN_IMAGE_COLUMNS with ``-c``.
         parser.add_argument(
             '-a', '--all-columns',
             action='store_true',
             dest='all_columns',
-            default=False,
+            default=('-c' in sys.argv),
             help='Include all available columns (default: False)'
         )
         # Text here also copied to docs/packet_cafe.rst
