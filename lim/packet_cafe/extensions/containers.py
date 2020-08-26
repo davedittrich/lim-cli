@@ -94,7 +94,7 @@ def clone(url=None, repo_dir=None, branch='master'):
     return up_to_date
 
 
-def update_available(
+def needs_update(
     repo_dir=None,
     branch='master',
     remote='origin'
@@ -126,7 +126,7 @@ def update_available(
 def is_clean(repo_dir):
     """Return boolean reflecting whether repo directory is clean or not."""
     results = [line for line
-               in get_output(cmd=['git', 'status', '--porcelein'],
+               in get_output(cmd=['git', 'status', '--porcelain'],
                              cwd=repo_dir)
                if not line.startswith('??')
                ]
@@ -251,7 +251,7 @@ class ContainersBuild(Command):
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
                      branch=branch)
-        if update_available(repo_dir, remote=remote, branch=branch):
+        if needs_update(repo_dir, remote=remote, branch=branch):
             if parsed_args.update:
                 pull(repo_dir, remote=remote, branch=branch)
             else:
@@ -367,8 +367,11 @@ class ContainersImages(Lister):
             action = 'Removing' if parsed_args.rm_images else 'Listing'
             logger.info(f'[+] {action} images for {image_set}')
         if parsed_args.rm_images:
-            columns = ('ID', 'Repository')
-            data = ((i['ID'], i['Repository']) for i in rm_images(images))
+            columns = ('ID', 'Repository', 'Tag')
+            data = (
+                    (i['ID'], i['Repository'], i['Tag'])
+                    for i in rm_images(images)
+                   )
         else:
             columns = images[0].keys()
             data = ((i.values()) for i in images)
@@ -410,7 +413,7 @@ class ContainersPull(Command):
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
                      branch=branch)
-        if update_available(repo_dir, remote=remote, branch=branch):
+        if needs_update(repo_dir, remote=remote, branch=branch):
             if parsed_args.update:
                 pull(repo_dir, remote=remote, branch=branch)
             else:
@@ -568,7 +571,7 @@ class ContainersUp(Command):
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
                      branch=parsed_args.packet_cafe_repo_branch)
-        if update_available(repo_dir, remote=remote, branch=branch):
+        if needs_update(repo_dir, remote=remote, branch=branch):
             if parsed_args.update:
                 pull(repo_dir, remote=remote, branch=branch)
             else:

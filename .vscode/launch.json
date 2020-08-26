@@ -781,6 +781,7 @@
             "cwd": "${workspaceFolder}",
             "module": "lim",
             "args": [
+                "-v",
                 "cafe",
                 "containers",
                 "up"
