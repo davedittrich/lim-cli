@@ -105,6 +105,8 @@ def update_available(
         logger.info(f'[-] more than one remote found: {others}')
     if repo_dir is None:
         raise RuntimeError('[-] repo_dir must be specified')
+    if not is_clean(repo_dir):
+        raise RuntimeError(f'[-] {repo_dir} is not clean')
     fetched_new = fetch(repo_dir, remote=remote)
     if fetched_new:
         logger.info('[+] fetch recieved new content')
@@ -114,8 +116,20 @@ def update_available(
     up_to_date = checkout(repo_dir, branch=branch)
     if not up_to_date:
         logger.info(f'[!] The branch "{branch}" is not up to date')
+    else:
+        logger.debug(f'[+] The branch "{branch}" is up to date')
     # results = pull(repo_dir, remote=remote, branch=branch)
     return not up_to_date
+
+
+def is_clean(repo_dir):
+    """Return boolean reflecting whether repo directory is clean or not."""
+    results = [line for line
+               in get_output(cmd=['git', 'status', '--porcelein'],
+                             cwd=repo_dir)
+               if not line.startswith('??')
+               ]
+    return len(results) == 0
 
 
 def get_branch(repo_dir):
@@ -163,7 +177,12 @@ def checkout(repo_dir, branch='master'):
     results = get_output(cmd=['git', 'checkout', branch],
                          cwd=repo_dir)
     results_str = " ".join(results)
-    return results_str.find('Your branch is up to date') > 0
+    # Apparently different versions of ``git`` produce different
+    # results. Go figure... :(
+    return (
+        (results_str.find('Your branch is up to date') > 0) ||
+        (results_str.find('Your branch is up-to-date') > 0)
+        )
 
 
 def pull(repo_dir, remote='origin', branch='master'):
