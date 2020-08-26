@@ -275,7 +275,7 @@ class ContainersBuild(Command):
             'docker-compose',
             'up'
         ]
-        if self.app_args.verbose_level <= 1:
+        if self.app_args.verbose_level <= 1 and not self.app_args.debug:
             cmd.append('-d')
         cmd.append('--build')
         result = execute(cmd=cmd, cwd=repo_dir, env=env)
@@ -600,7 +600,7 @@ class ContainersUp(Command):
             'docker-compose',
             'up'
         ]
-        if self.app_args.verbose_level <= 1:
+        if self.app_args.verbose_level <= 1 and not self.app_args.debug:
             cmd.append('-d')
         cmd.append('--no-build')
         # Ensure VOL_PREFIX environment variable is set
