@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 RUNNING_MSG = '[-] packet-cafe containers are already running'
 NOT_RUNNING_MSG = '[-] packet-cafe containers are not running'
-
+MIN_IMAGE_COLUMNS = ('ID', 'Repository', 'Tag')
 
 def print_output(results=[]):
     for line in results:
@@ -332,6 +332,13 @@ class ContainersImages(Lister):
             default=False,
             help='Remove the images from Docker (default: False)'
         )
+        parser.add_argument(
+            '-a', '--all-columns',
+            action='store_true',
+            dest='all_columns',
+            default=False,
+            help='Include all available columns (default: False)'
+        )
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             List the images associated with Packet Café services and workers.
@@ -366,15 +373,19 @@ class ContainersImages(Lister):
         if self.app_args.verbose_level > 0:
             action = 'Removing' if parsed_args.rm_images else 'Listing'
             logger.info(f'[+] {action} images for {image_set}')
+        columns = MIN_IMAGE_COLUMNS
         if parsed_args.rm_images:
-            columns = ('ID', 'Repository', 'Tag')
             data = (
-                    (i['ID'], i['Repository'], i['Tag'])
+                    tuple(i[c] for c in columns)
                     for i in rm_images(images)
                    )
         else:
-            columns = images[0].keys()
-            data = ((i.values()) for i in images)
+            if parsed_args.all_columns:
+                columns = images[0].keys()
+            data = (
+                    tuple(i[c] for c in columns)
+                    for i in images
+                   )
         return columns, data
 
 
