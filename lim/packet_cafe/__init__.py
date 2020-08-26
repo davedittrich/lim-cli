@@ -435,7 +435,10 @@ class Packet_Cafe(object):
             return [flatten(worker) for worker in
                     json.loads(response.text)['workers']]
         else:
-            return None
+            raise RuntimeError(
+                '[-] packet-cafe returned response: '
+                f'{ response.status_code } { response.reason }'
+            )
 
     def get_status(
         self,
