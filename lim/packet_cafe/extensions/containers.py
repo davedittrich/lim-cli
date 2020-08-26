@@ -33,7 +33,7 @@ def print_output(results=[]):
 
 
 def get_environment(args):
-    env = os.environ.copy()
+    env = dict(os.environ.copy())
     if args.docker_service_namespace is not None:
         env["SERVICE_NAMESPACE"] = args.docker_service_namespace
     if args.docker_service_version is not None:
