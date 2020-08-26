@@ -67,7 +67,7 @@ def ensure_clone(url=None, repo_dir=None, branch='master'):
                                'have a remote "origin" defined')
     else:
         logger.info(f'[-] Directory "{repo_dir}" does not exist')
-        clone(url=url, repo_dir=repo_dir, branch=branch)
+        return clone(url=url, repo_dir=repo_dir, branch=branch)
     return True
 
 
