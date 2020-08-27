@@ -23,8 +23,9 @@ logger = logging.getLogger(__name__)
 
 RUNNING_MSG = '[-] packet-cafe containers are already running'
 NOT_RUNNING_MSG = '[-] packet-cafe containers are not running'
-UPDATE_MSG = ('[-] An update is available from remote "{0}"\n'
-              '[-] Use ``--update`` to pull before building')
+UPDATE_MSG = ("[!] to pull changes, use the '--update' option")
+UI_MSG = "[+] you can now use 'lim cafe ui' to start the UI"
+UP_MSG = "[+] you can use 'lim cafe containers up' to restart the stack"
 MIN_IMAGE_COLUMNS = ('ID', 'Repository', 'Tag')
 
 
@@ -66,10 +67,10 @@ def ensure_clone(url=None, repo_dir=None, branch='master'):
         except RuntimeError:
             remotes = []
         if 'origin' not in remotes:
-            raise RuntimeError(f'[-] Directory "{repo_dir}" does not '
-                               'have a remote "origin" defined')
+            raise RuntimeError(f"[-] directory '{repo_dir}' does not "
+                               "have a remote 'origin' defined")
     else:
-        logger.info(f'[-] Directory "{repo_dir}" does not exist')
+        logger.info(f"[-] directory '{repo_dir}' does not exist")
         return clone(url=url, repo_dir=repo_dir, branch=branch)
     return True
 
@@ -82,7 +83,7 @@ def clone(url=None, repo_dir=None, branch='master'):
     # remote: Total 3999 (delta 0), reused 0 (delta 0), pack-reused 3999
     # Receiving objects: 100% (3999/3999), 13.71 MiB | 1.67 MiB/s, done.
     # Resolving deltas: 100% (2380/2380), done.
-    logger.info(f'[+] Cloning from URL {url}')
+    logger.info(f'[+] cloning from URL {url}')
     sys.stdout.write('[+] ')
     sys.stdout.flush()
     clone_result = execute(cmd=['git', 'clone', url, repo_dir])
@@ -92,7 +93,7 @@ def clone(url=None, repo_dir=None, branch='master'):
         except OSError:
             pass
         raise RuntimeError('[-] cloning failed')
-    logger.info(f'[+] Checking out "{branch}" branch')
+    logger.info(f"[+] checking out '{branch}' branch")
     up_to_date = checkout(repo_dir, branch=branch)
     return up_to_date
 
@@ -106,24 +107,25 @@ def needs_update(
     """Check to see if GitHub repo is up to date."""
     remotes = get_remote(repo_dir)
     if len(remotes) > 1:
-        others = ",".join(remotes)
+        others = ','.join(remotes)
         logger.info(f'[-] more than one remote found: {others}')
     if repo_dir is None:
         raise RuntimeError('[-] repo_dir must be specified')
     if not is_clean(repo_dir) and not ignore_dirty:
-        raise RuntimeError(f'[-] {repo_dir} is not clean')
+        raise RuntimeError(
+                f'[-] directory {repo_dir} is not clean \n'
+                "    (use '--ignore-dirty' if you are testing local changes)")
     fetched_new = fetch(repo_dir, remote=remote)
     if fetched_new:
-        logger.info('[+] fetch from remote "{remote}" updated {repo_dir}')
+        logger.info(f"[+] fetch from remote '{remote}' updated {repo_dir}")
     current_branch = get_branch(repo_dir)
     if current_branch != branch:
-        raise RuntimeError(f'[-] branch "{current_branch}" is checked out')
+        raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
     up_to_date = checkout(repo_dir, branch=branch)
     if not up_to_date:
-        logger.info(f'[!] branch "{branch}" is not up to date '
-                    '(bring down and use ``--update`` to update)')
+        logger.info(f"[!] branch '{branch}' is not up to date!")
     else:
-        logger.info(f'[+] branch "{branch}" is up to date')
+        logger.info(f"[+] branch '{branch}' is up to date")
     # results = pull(repo_dir, remote=remote, branch=branch)
     return not up_to_date
 
@@ -182,7 +184,7 @@ def checkout(repo_dir, branch='master'):
     # Your branch is up to date with 'origin/master'.
     results = get_output(cmd=['git', 'checkout', branch],
                          cwd=repo_dir)
-    results_str = " ".join(results)
+    results_str = ' '.join(results)
     # Apparently different versions of ``git`` produce different
     # results. Go figure... :(
     return (
@@ -207,7 +209,7 @@ def pull(repo_dir, remote='origin', branch='master'):
                               f"'{branch}'"
                               ],
                          cwd=repo_dir)
-    results_str = " ".join(results)
+    results_str = ' '.join(results)
     if not (
         results_str.find('Successfully') or
         results_str.find('Already up to date')
@@ -223,7 +225,8 @@ class ContainersBuild(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
+        update = parser.add_mutually_exclusive_group(required=False)
+        update.add_argument(
             '-u', '--update',
             action='store_true',
             dest='update',
@@ -231,7 +234,7 @@ class ContainersBuild(Command):
             help=('Update the repository contents before rebuilding '
                   '(default: False)')
         )
-        parser.add_argument(
+        update.add_argument(
             '--ignore-dirty',
             action='store_true',
             dest='ignore_dirty',
@@ -271,14 +274,11 @@ class ContainersBuild(Command):
                 pull(repo_dir, remote=remote, branch=branch)
             else:
                 if parsed_args.ignore_dirty:
-                    logger.info(UPDATE_MSG.format(remote))
+                    logger.info(UPDATE_MSG)
                 else:
-                    raise RuntimeError(UPDATE_MSG.format(remote))
+                    raise RuntimeError(UPDATE_MSG)
         elif parsed_args.update:
-            logger.info('[-] No updates available')
-        if self.app_args.verbose_level > 0:
-            logger.info(
-                f'[+] Running "docker-compose up --build" in {repo_dir}')
+            logger.info('[-] no updates available')
         # Ensure VOL_PREFIX environment variable is set
         os.environ['VOL_PREFIX'] = self.app_args.packet_cafe_data_dir
         env = get_environment(parsed_args)
@@ -293,9 +293,14 @@ class ContainersBuild(Command):
         if self.app_args.verbose_level <= 1 and not self.app_args.debug:
             cmd.append('-d')
         cmd.append('--build')
+        if self.app_args.verbose_level > 0:
+            logger.info(
+                f"[+] running '{' '.join(cmd)}' in {repo_dir}")
         result = execute(cmd=cmd, cwd=repo_dir, env=env)
         if result != 0:
             raise RuntimeError('[-] docker-compose build failed')
+        else:
+            logger.info(UI_MSG)
 
 
 class ContainersDown(Command):
@@ -307,6 +312,14 @@ class ContainersDown(Command):
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Bring down the container stack associated with Packet Café services.
+
+            After bringing the containers down, you can generally bring them
+            back up without having to rebuild them.
+
+            If you are just standing things up for the first time, are
+            doing local development editing files in your clone, or are
+            updating the repository with ``--update``, you will need to
+            rebuild the containers.
             """)  # noqa
         return add_docker_global_options(parser)
 
@@ -320,19 +333,18 @@ class ContainersDown(Command):
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
                      branch=parsed_args.packet_cafe_repo_branch)
-        if self.app_args.verbose_level > 0:
-            logger.info(f'[+] Running "docker-compose down" in {repo_dir}')
         cmd = ['docker-compose']
         if self.app_args.verbose_level > 1:
             cmd.append('--verbose')
         cmd.append('down')
-        result = execute(
-            cmd=cmd,
-            cwd=repo_dir,
-            env=get_environment(parsed_args)
-        )
+        if self.app_args.verbose_level > 0:
+            logger.info(f"[+] running '{' '.join(cmd)}' in {repo_dir}")
+        env = get_environment(parsed_args)
+        result = execute(cmd=cmd, cwd=repo_dir, env=env)
         if result != 0:
             raise RuntimeError('[-] docker-compose down failed')
+        else:
+            logger.info(UP_MSG)
 
 
 class ContainersImages(Lister):
@@ -389,7 +401,7 @@ class ContainersImages(Lister):
         if not len(images):
             raise RuntimeError(f'[-] no images found for {image_set}')
         if self.app_args.verbose_level > 0:
-            action = 'Removing' if parsed_args.rm_images else 'Listing'
+            action = 'removing' if parsed_args.rm_images else 'listing'
             logger.info(f'[+] {action} images for {image_set}')
         columns = MIN_IMAGE_COLUMNS
         if parsed_args.rm_images:
@@ -413,13 +425,21 @@ class ContainersPull(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
+        update = parser.add_mutually_exclusive_group(required=False)
+        update.add_argument(
             '-u', '--update',
             action='store_true',
             dest='update',
             default=False,
             help=('Update the repository contents before pulling '
                   '(default: False)')
+        )
+        update.add_argument(
+            '--ignore-dirty',
+            action='store_true',
+            dest='ignore_dirty',
+            default=False,
+            help=('Ignore a dirty repository (default: False)')
         )
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
@@ -442,15 +462,17 @@ class ContainersPull(Command):
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
                      branch=branch)
-        if needs_update(repo_dir, remote=remote, branch=branch):
+        if needs_update(repo_dir,
+                        remote=remote,
+                        branch=branch,
+                        ignore_dirty=parsed_args.ignore_dirty):
             if parsed_args.update:
                 pull(repo_dir, remote=remote, branch=branch)
             else:
-                raise RuntimeError(
-                    f'[-] An update is available from remote "{remote}"\n'
-                    '[-] Use ``-update`` to pull before building')
-        if self.app_args.verbose_level > 0:
-            logger.info(f'[+] Running "docker-compose pull" in {repo_dir}')
+                if parsed_args.ignore_dirty:
+                    logger.info(UPDATE_MSG)
+                else:
+                    raise RuntimeError(UPDATE_MSG)
         # Ensure VOL_PREFIX environment variable is set
         os.environ['VOL_PREFIX'] = self.app_args.packet_cafe_data_dir
         env = get_environment(parsed_args)
@@ -458,11 +480,10 @@ class ContainersPull(Command):
         # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
         #
         env['COMPOSE_HTTP_TIMEOUT'] = '200'
-        result = execute(
-            cmd=['docker-compose', 'pull'],
-            cwd=repo_dir,
-            env=env
-        )
+        cmd = ['docker-compose', 'pull']
+        if self.app_args.verbose_level > 0:
+            logger.info(f"[+] running '{' '.join(cmd)}' in {repo_dir}")
+        result = execute(cmd=cmd, cwd=repo_dir, env=env)
         if result != 0:
             raise RuntimeError('[-] failed to pull containers')
 
@@ -531,7 +552,8 @@ class ContainersUp(Command):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
+        update = parser.add_mutually_exclusive_group(required=False)
+        update.add_argument(
             '-u', '--update',
             action='store_true',
             dest='update',
@@ -539,7 +561,7 @@ class ContainersUp(Command):
             help=('Update the repository contents before rebuilding '
                   '(default: False)')
         )
-        parser.add_argument(
+        update.add_argument(
             '--ignore-dirty',
             action='store_true',
             dest='ignore_dirty',
@@ -556,7 +578,7 @@ class ContainersUp(Command):
             .. code-block:: console
 
                 $ lim cafe containers up
-                [+] Running "docker-compose up" in /Users/dittrich/git/packet_cafe
+                [+] running "docker-compose up" in /Users/dittrich/git/packet_cafe
                 Creating network "packet_cafe_default" with the default driver
                 Creating network "frontend" with the default driver
                 Creating network "results" with the default driver
@@ -587,9 +609,21 @@ class ContainersUp(Command):
             return.
 
             Adding ``-v`` or ``--debug`` will run the containers in the foreground and
-            produce log output from all of the containers, which assists in debugging
-            and development testing.
+            produce a stream of log output from all of the containers. This assists in
+            debugging and development testing. If you interrupt with CTRL-C, the
+            containers will be halted and you will need to bring them back up.
 
+            If new updates are available in the remote repository, you will see
+            messages about this and ``lim`` will suggest using the ``--update``
+            option and exit before starting the containers.  You can skip the
+            update and bring the containers up with the ``--ignore-dirty``
+            option.
+
+            Note that if you are building containers locally, you may not be
+            able to use the ``--update`` option with ``up``. It depends on what
+            was changed during the update. In some cases, the local containers
+            will not need to be rebuilt. In other cases, they will. Docker will
+            let you know if a rebuild is necessary.
             """)  # noqa
         # TODO(dittrich): Add a debugging section to docs and reference here.
         return add_docker_global_options(parser)
@@ -615,13 +649,11 @@ class ContainersUp(Command):
                 pull(repo_dir, remote=remote, branch=branch)
             else:
                 if parsed_args.ignore_dirty:
-                    logger.info(UPDATE_MSG.format(remote))
+                    logger.info(UPDATE_MSG)
                 else:
-                    raise RuntimeError(UPDATE_MSG.format(remote))
+                    raise RuntimeError(UPDATE_MSG)
         elif parsed_args.update:
-            logger.info('[-] No updates available')
-        if self.app_args.verbose_level > 0:
-            logger.info(f'[+] Running "docker-compose up" in {repo_dir}')
+            logger.info('[-] no updates available')
         cmd = [
             'docker-compose',
             'up'
@@ -636,15 +668,15 @@ class ContainersUp(Command):
         # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
         #
         env['COMPOSE_HTTP_TIMEOUT'] = '200'
-        result = execute(
-            cmd=cmd,
-            cwd=repo_dir,
-            env=env
-        )
+        if self.app_args.verbose_level > 0:
+            logger.info(f"[+] running '{' '.join(cmd)}' in {repo_dir}")
+        result = execute(cmd=cmd, cwd=repo_dir, env=env)
         if result != 0:
             raise RuntimeError(
                 '[-] docker-compose failed to bring containers up'
             )
+        else:
+            logger.info(UI_MSG)
 
 
 # vim: set ts=4 sw=4 tw=0 et :
