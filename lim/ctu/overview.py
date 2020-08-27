@@ -3,9 +3,10 @@
 import argparse
 import logging
 import textwrap
-import webbrowser
 
 from cliff.command import Command
+from lim import add_browser_options
+from lim import open_browser
 from lim.ctu import CTU_Dataset
 
 
@@ -14,23 +15,10 @@ class CTUOverview(Command):
 
     log = logging.getLogger(__name__)
 
-    __BROWSERS__ = ['firefox', 'chrome', 'safari']
-
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
-        parser.add_argument(
-            '--browser',
-            action='store',
-            dest='browser',
-            choices=self.__BROWSERS__,
-            # default=self.__BROWSERS__[0],
-            # help="Browser to use for viewing " +
-            #      "(default: {})".format(self.__BROWSERS__[0])
-            default=None,
-            help="Browser to use for viewing " +
-                 "(default: {})".format(None)
-        )
+        parser = add_browser_options(parser)
         cache_file = CTU_Dataset.get_cache_file()
         parser.add_argument(
             '--cache-file',
@@ -53,16 +41,19 @@ class CTUOverview(Command):
             nargs='*',
             default=None)
         parser.epilog = textwrap.dedent("""\
-           Opens a browser for the web page containing the scenario
-           descriptions and data links.
+            Opens a browser for the web page containing the scenario
+            descriptions and data links.
 
-           Arguments are scenario names using either the full name
-           form (e.g., ``CTU-Malware-Capture-Botnet-123-1``) or an
-           abbreviated form (e.g., ``Botnet-123-1``).
+            Arguments are scenario names using either the full name
+            form (e.g., ``CTU-Malware-Capture-Botnet-123-1``) or an
+            abbreviated form (e.g., ``Botnet-123-1``).
 
-           The URL to use is the one seen in the ``SCENARIO_URL`` column
-           of the output of the ``lim ctu list`` command.
-           """)
+            The URL to use is the one seen in the ``SCENARIO_URL`` column
+            of the output of the ``lim ctu list`` command.
+
+            To see help information about how the browser option works and
+            how you can configure it, see ``lim about --help``.
+            """)
         return parser
 
     def take_action(self, parsed_args):
@@ -88,10 +79,9 @@ class CTUOverview(Command):
                 if page is not None:
                     pages.append(page)
         for page in pages:
-            if parsed_args.browser is not None:
-                webbrowser.get(parsed_args.browser).open_new_tab(page)
-            else:
-                webbrowser.open(page, new=1)
+            open_browser(page=page,
+                         browser=parsed_args.browser,
+                         force=parsed_args.force)
 
 
 # vim: set ts=4 sw=4 tw=0 et :

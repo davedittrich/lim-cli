@@ -110,7 +110,13 @@ class LiminalApp(App):
                  "(0 means no limit; default: 0)"
         )
         parser.epilog = textwrap.dedent(f"""
-        { copyright() }""")
+        For help information on individual commands, use ``lim <command> --help``.
+
+        Several commands have features that will attempt to open a browser. See
+        ``lim about --help`` to see help information about this feature and how
+        to control which browser(s) will be used.
+
+        { copyright() }""")  # noqa
         return parser
 
     def initialize_app(self, argv):
