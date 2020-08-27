@@ -435,7 +435,10 @@ class Packet_Cafe(object):
             return [flatten(worker) for worker in
                     json.loads(response.text)['workers']]
         else:
-            return None
+            raise RuntimeError(
+                '[-] packet-cafe returned response: '
+                f'{ response.status_code } { response.reason }'
+            )
 
     def get_status(
         self,
@@ -565,6 +568,7 @@ class Packet_Cafe(object):
         req_id=None,
         debug=False,
         wait_only=False,
+        ignore_errors=False,
         elapsed=False
     ):
         """Track the progress of workers similar to the web UI."""
@@ -578,6 +582,8 @@ class Packet_Cafe(object):
         timer.start()
         reported = dict()
         last_status = {}
+        errors = False
+
         while True:
             # Throttle API calls and give extra time to spin up initial workers
             time.sleep(5 if len(reported) == 0 else 2)
@@ -593,9 +599,10 @@ class Packet_Cafe(object):
                     pass
                 last_status = status
             for worker in workers_reporting:
-                states[status[worker]['state']] = True
+                worker_state = status[worker]['state']
+                states[worker_state] = True
                 if (
-                    status[worker]['state'] not in ["Queued", "In progress"]
+                    worker_state not in ["Queued", "In progress"]
                     and worker not in reported
                 ):
                     timer.lap(lap='now')
@@ -603,7 +610,7 @@ class Packet_Cafe(object):
                         status_line = (
                             "[+] {0:{1}}".format(worker + ':',
                                                  max_worker_len + 2) +
-                            f"{ status[worker]['state'].lower() } " +
+                            f"{ worker_state.lower() } " +
                             f"{ status[worker]['timestamp'] }" +
                             (f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
                         )
@@ -612,8 +619,14 @@ class Packet_Cafe(object):
                         except BrokenPipeError:
                             pass
                     reported[worker] = True
-            if len(reported) == len(workers):
+                if worker_state == "Error":
+                    errors = True
+            if (
+                len(reported) == len(workers) or
+                (errors and not ignore_errors)
+            ):
                 break
+        return not errors
 
     def get_session_id(
         self,

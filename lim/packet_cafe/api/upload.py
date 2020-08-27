@@ -27,6 +27,13 @@ class Upload(Command):
             help='Do not track worker status in real time (default: False)'
         )
         parser.add_argument(
+            '--ignore-errors',
+            action='store_true',
+            dest='ignore_errors',
+            default=False,
+            help=('Ignore job failures when tracking status (default: False)')
+        )
+        parser.add_argument(
             '--wait',
             action='store_true',
             dest='wait',
@@ -155,6 +162,11 @@ class Upload(Command):
             for each file is done is done before uploading the next file.  Use the
             ``--wait`` flag to do this.
 
+            By default when waiting for the status of jobs, any failures result in
+            an error message and the program will exit. You can disable this by
+            using the ``--ignore-errors`` flag, but be aware that doing so may
+            cause the program to hang indefinitely.
+
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-upload
             """)  # noqa
         return add_packet_cafe_global_options(parser)
@@ -182,13 +194,15 @@ class Upload(Command):
                 f"[+] Request ID (req_id): { result['uuid'] }")
             logger.info(readable_result)
         if track_status or parsed_args.wait:
-            packet_cafe.track_progress(
+            if not packet_cafe.track_progress(
                 sess_id=result['sess_id'],
                 req_id=result['uuid'],
                 debug=self.app.options.debug,
                 wait_only=parsed_args.wait,
+                ignore_errors=parsed_args.ignore_errors,
                 elapsed=self.app.options.elapsed
-            )
+            ):
+                raise RuntimeError('[-] one or more jobs failed')
 
 
 # vim: set ts=4 sw=4 tw=0 et :

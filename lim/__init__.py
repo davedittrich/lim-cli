@@ -25,7 +25,7 @@ if 'lim-cli' in p.parts or 'lim' in p.parts:
     except Exception:
         pass
 else:
-    __version__ = '20.8.6'
+    __version__ = '20.8.7'
     __release__ = __version__
 
 BUFFER_SIZE = 128 * 1024
@@ -88,7 +88,7 @@ async def _stream_subprocess(
         *cmd,
         cwd=cwd,
         env=env,
-        limit=1024 * 128,  # 128 KiB
+        limit=2**20,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )

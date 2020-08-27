@@ -691,7 +691,7 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}",
-                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+                "LIM_CAFE_REPO_DIR": "${env:HOME}/packet_cafe"
             }
         },
         {
@@ -711,7 +711,7 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}",
-                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+                "LIM_CAFE_REPO_DIR": "${env:HOME}/packet_cafe"
             }
         },
         {
@@ -731,7 +731,7 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}",
-                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+                "LIM_CAFE_REPO_DIR": "${env:HOME}/packet_cafe"
             }
         },
         {
@@ -751,7 +751,7 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}",
-                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+                "LIM_CAFE_REPO_DIR": "${env:HOME}/packet_cafe"
             }
         },
         {
@@ -770,7 +770,7 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}",
-                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+                "LIM_CAFE_REPO_DIR": "${env:HOME}/packet_cafe"
             }
         },
         {
@@ -781,6 +781,7 @@
             "cwd": "${workspaceFolder}",
             "module": "lim",
             "args": [
+                "-v",
                 "cafe",
                 "containers",
                 "up"
@@ -789,7 +790,7 @@
             "env": {
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}",
-                "LIM_CAFE_REPO_DIR": "/Users/dittrich/git/packet_cafe"
+                "LIM_CAFE_REPO_DIR": "${env:HOME}/packet_cafe"
             }
         },
         {
