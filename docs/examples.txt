@@ -4,6 +4,17 @@ lim --version
 lim cafe --help
 clear
 
+# We start with no Docker images at all
+docker images
+lim cafe containers images
+
+# You can bring the Packet Cafe containers up directly with lim
+#
+lim cafe containers build
+lim cafe containers images
+lim cafe containers show
+clear
+
 # The "info" commands show, well, ... info!
 #
 lim cafe info
@@ -17,7 +28,7 @@ clear
 
 # We can check with the CLI
 #
-lim cafe containers
+lim cafe containers show
 clear
 
 # Download a PCAP file to upload into packet_cafe
