@@ -1,6 +1,30 @@
 CHANGES
 =======
 
+* Improve handling of repo updates for containers
+* Abort (or not) on failed job while tracking
+* Increase buffer size for asyncio reads
+* Handle dirty repo directory
+* Handle server error better
+* Ensure packet\_cafe containers ready for testing
+* Disable daemon mode on "up" when --debug used
+* Enable all columns if user passes -c flag
+* Reduce number of default columns for images
+* Fix update check logic
+* Fix conditional
+* Pass along return code on clone
+* Provide feedback when checking out branch
+* Fix bug in setting subprocess environment
+* Don't operate on release branch pushes
+* Improve git repo checks
+* Use environment variable in launch.json
+* Switch to using "production" clone directory
+* Fix error message
+
+20.8.6
+------
+
+* Prepare for release
 * Resolve pep8 findings
 
 20.8.5
