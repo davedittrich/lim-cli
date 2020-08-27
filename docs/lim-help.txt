@@ -1,5 +1,6 @@
 usage: lim [--version] [-v | -q] [--log-file LOG_FILE] [-h] [--debug]
-           [-D <data-directory>] [-e] [-E <environment>] [-n <results_limit>]
+           [-D <data-directory>] [--vol-prefix <vol_prefix>] [-e]
+           [-E <environment>] [-n <results_limit>]
 
 LiminalInfo command line app.
 
@@ -13,6 +14,10 @@ optional arguments:
   -D <data-directory>, --data-dir <data-directory>
                         Root directory for holding data files (Env:
                         ``LIM_DATA_DIR``; default: /path/to/data)
+  --vol-prefix <vol_prefix>
+                        Data volume mount for Packet Café containers (Env:
+                        ``VOL_PREFIX``; default:
+                        /Users/dittrich/packet_cafe_data)
   -e, --elapsed         Include elapsed time (and ASCII bell) on exit
                         (default: False)
   -E <environment>, --environment <environment>
@@ -21,6 +26,12 @@ optional arguments:
   -n <results_limit>, --limit <results_limit>
                         Limit result to no more than this many items (0 means
                         no limit; default: 0)
+
+For help information on individual commands, use ``lim <command> --help``.
+
+Several commands have features that will attempt to open a browser. See
+``lim about --help`` to see help information about this feature and how
+to control which browser(s) will be used.
 
 Author:    Dave Dittrich <dave.dittrich@gmail.com>
 Copyright: 2018-2020, Dave Dittrich. 2019-2020, Liminal Information Corp.
@@ -36,7 +47,12 @@ Commands:
   cafe admin info  Return basic information about the packet-cafe service. (lim-cli)
   cafe admin results  List all files produced by tools. (lim-cli)
   cafe admin sessions  List session IDs in packet-cafe service. (lim-cli)
-  cafe containers  Show status of Packet Café Docker containers. (lim-cli)
+  cafe containers build  Build Packet Café Docker containers. (lim-cli)
+  cafe containers down  Bring down Packet Café Docker containers. (lim-cli)
+  cafe containers images  List Packet Café related Docker images. (lim-cli)
+  cafe containers pull  Pull Packet Café Docker containers. (lim-cli)
+  cafe containers show  Show status of Packet Café Docker containers. (lim-cli)
+  cafe containers up  Bring up Packet Café Docker containers. (lim-cli)
   cafe endpoints  List available packet-cafe API endpoints. (lim-cli)
   cafe info      Return basic information about the packet-cafe service. (lim-cli)
   cafe raw       Get raw output from a specific tool, session, and request. (lim-cli)
