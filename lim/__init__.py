@@ -88,7 +88,7 @@ async def _stream_subprocess(
         *cmd,
         cwd=cwd,
         env=env,
-        limit=1024 * 128,  # 128 KiB
+        limit=2**20,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE
     )
