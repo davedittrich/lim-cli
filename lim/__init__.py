@@ -88,7 +88,8 @@ def open_browser(page=None, browser=None, force=False):
             "[-] use --force to open browser when stdin is not a TTY")
     if page is None:
         raise RuntimeError("[-] not page specified")
-    logger.info(f'[+] opening the {browser} browser for {page}')
+    which = "system default" if browser is None else browser
+    logger.info(f'[+] opening the {which} browser for {page}')
     if browser is not None:
         webbrowser.get(browser).open_new_tab(page)
     else:

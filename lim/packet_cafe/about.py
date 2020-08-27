@@ -31,7 +31,7 @@ class About(Command):
             .. code-block:: console
 
                 $ lim cafe about
-                [+] opening the firefox browser for {Packet_Cafe.CAFE_DOCS_URL}
+                [+] opening the system default browser for {Packet_Cafe.CAFE_DOCS_URL}
 
             ..
 
