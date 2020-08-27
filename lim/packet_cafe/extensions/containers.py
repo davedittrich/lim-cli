@@ -313,6 +313,43 @@ class ContainersDown(Command):
         parser.epilog = textwrap.dedent("""
             Bring down the container stack associated with Packet Café services.
 
+            .. code-block:: none
+
+                $ lim cafe containers down
+                [+] running 'docker-compose down' in /Users/dittrich/packet_cafe
+                Stopping packet_cafe_redis_1     ... done
+                Stopping packet_cafe_web_1       ... done
+                Stopping packet_cafe_workers_1   ... done
+                Stopping packet_cafe_ui_1        ... done
+                Stopping packet_cafe_admin_1     ... done
+                Stopping packet_cafe_messenger_1 ... done
+                Stopping packet_cafe_lb_1        ... done
+                Removing packet_cafe_redis_1         ... done
+                Removing packet_cafe_web_1           ... done
+                Removing packet_cafe_workers_1       ... done
+                Removing packet_cafe_mercury_1       ... done
+                Removing packet_cafe_ui_1            ... done
+                Removing packet_cafe_pcap-dot1q_1    ... done
+                Removing packet_cafe_admin_1         ... done
+                Removing packet_cafe_messenger_1     ... done
+                Removing packet_cafe_pcap-splitter_1 ... done
+                Removing packet_cafe_ncapture_1      ... done
+                Removing packet_cafe_pcapplot_1      ... done
+                Removing packet_cafe_lb_1            ... done
+                Removing packet_cafe_networkml_1     ... done
+                Removing packet_cafe_pcap-stats_1    ... done
+                Removing packet_cafe_snort_1         ... done
+                Removing network packet_cafe_default
+                Removing network admin
+                Removing network frontend
+                Removing network results
+                Removing network backend
+                Removing network analysis
+                Removing network preprocessing
+                [+] you can use 'lim cafe containers up' to restart the stack
+
+            ..
+
             After bringing the containers down, you can generally bring them
             back up without having to rebuild them.
 
@@ -372,6 +409,40 @@ class ContainersImages(Lister):
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             List the images associated with Packet Café services and workers.
+
+            .. code-block:: console
+
+                [+] listing images for service namespace "iqtlabs", tool namespace "iqtlabs"
+                +--------------+-------------------------------+--------+
+                | ID           | Repository                    | Tag    |
+                +--------------+-------------------------------+--------+
+                | 7808ad5f74f5 | iqtlabs/packet_cafe_workers   | latest |
+                | 83fdfb8db32d | iqtlabs/packet_cafe_redis     | latest |
+                | 93fc21bf376a | iqtlabs/packet_cafe_messenger | latest |
+                | 11bb63d0c705 | iqtlabs/packet_cafe_lb        | latest |
+                | d9194c6daf5f | iqtlabs/packet_cafe_web       | latest |
+                | 9fc447bc9fa4 | iqtlabs/packet_cafe_ui        | latest |
+                | 8fe33a5eec27 | iqtlabs/packet_cafe_admin     | latest |
+                | 1a5cec5e1dab | iqtlabs/tcprewrite_dot1q      | latest |
+                | 39c6e9ac53a9 | iqtlabs/pcap_to_node_pcap     | latest |
+                | adcc5b1f4213 | iqtlabs/pcap_stats            | latest |
+                | 6732f33c5b25 | iqtlabs/ncapture              | latest |
+                | 251346bde2eb | iqtlabs/networkml             | v0.6.1 |
+                | 6d2d5d790715 | iqtlabs/mercury               | latest |
+                | cedfd83f10dc | iqtlabs/snort                 | latest |
+                | b56a25f62851 | iqtlabs/pcapplot              | v0.1.7 |
+                +--------------+-------------------------------+--------+
+
+            By default, only three columns are shown. If you wish to see all
+            available columns, use the ``-a`` option.
+
+            You can remove all of these images from Docker's image storage
+            by using the ``--rm`` option.
+
+            If you are doing development and have pushed images to your own
+            namespace on Docker Hub, use the namespace and version selection
+            options or environment variables.
+            ..
             """)  # noqa
         return add_docker_global_options(parser)
 
@@ -575,32 +646,38 @@ class ContainersUp(Command):
             ``docker-compose`` will be output to show progress. This can be
             suppressed with the ``-q`` flag.
 
+            Prior to running ``docker-compose``, the repository directory will
+            be created (if it does not yet exist) or a ``git fetch`` will be
+            attempted to check for updates.
+
             .. code-block:: console
 
                 $ lim cafe containers up
-                [+] running "docker-compose up" in /Users/dittrich/git/packet_cafe
+                [+] branch 'master' is up to date
+                [+] running 'docker-compose up -d --no-build' in /Users/dittrich/packet_cafe
                 Creating network "packet_cafe_default" with the default driver
+                Creating network "admin" with the default driver
                 Creating network "frontend" with the default driver
                 Creating network "results" with the default driver
-                Creating network "admin" with the default driver
                 Creating network "backend" with the default driver
                 Creating network "analysis" with the default driver
                 Creating network "preprocessing" with the default driver
-                Creating packet_cafe_pcap_stats_1    ... done
-                Creating packet_cafe_workers_1       ... done
+                Creating packet_cafe_admin_1         ... done
                 Creating packet_cafe_ncapture_1      ... done
                 Creating packet_cafe_networkml_1     ... done
-                Creating packet_cafe_lb_1            ... done
+                Creating packet_cafe_pcap-dot1q_1    ... done
+                Creating packet_cafe_pcap-splitter_1 ... done
+                Creating packet_cafe_snort_1         ... done
+                Creating packet_cafe_pcap-stats_1    ... done
+                Creating packet_cafe_ui_1            ... done
                 Creating packet_cafe_web_1           ... done
                 Creating packet_cafe_messenger_1     ... done
-                Creating packet_cafe_admin_1         ... done
-                Creating packet_cafe_ui_1            ... done
-                Creating packet_cafe_pcap-splitter_1 ... done
-                Creating packet_cafe_pcap-dot1q_1    ... done
-                Creating packet_cafe_pcapplot_1      ... done
-                Creating packet_cafe_snort_1         ... done
-                Creating packet_cafe_mercury_1       ... done
+                Creating packet_cafe_lb_1            ... done
                 Creating packet_cafe_redis_1         ... done
+                Creating packet_cafe_mercury_1       ... done
+                Creating packet_cafe_workers_1       ... done
+                Creating packet_cafe_pcapplot_1      ... done
+                [+] you can now use 'lim cafe ui' to start the UI
 
             ..
 
