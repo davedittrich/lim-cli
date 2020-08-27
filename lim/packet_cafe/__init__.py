@@ -599,9 +599,10 @@ class Packet_Cafe(object):
                     pass
                 last_status = status
             for worker in workers_reporting:
-                states[status[worker]['state']] = True
+                worker_state = status[worker]['state']
+                states[worker_state] = True
                 if (
-                    status[worker]['state'] not in ["Queued", "In progress"]
+                    worker_state not in ["Queued", "In progress"]
                     and worker not in reported
                 ):
                     timer.lap(lap='now')
@@ -609,7 +610,7 @@ class Packet_Cafe(object):
                         status_line = (
                             "[+] {0:{1}}".format(worker + ':',
                                                  max_worker_len + 2) +
-                            f"{ status[worker]['state'].lower() } " +
+                            f"{ worker_state.lower() } " +
                             f"{ status[worker]['timestamp'] }" +
                             (f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
                         )
@@ -618,8 +619,14 @@ class Packet_Cafe(object):
                         except BrokenPipeError:
                             pass
                     reported[worker] = True
-            if len(reported) == len(workers):
+                if worker_state == "Error":
+                    errors = True
+            if (
+                len(reported) == len(workers) or
+                (errors and not ignore_errors)
+            ):
                 break
+        return not errors
 
     def get_session_id(
         self,
