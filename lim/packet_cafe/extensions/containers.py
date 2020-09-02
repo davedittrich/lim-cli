@@ -51,7 +51,10 @@ def get_environment(args):
     return env
 
 
-def ensure_clone(url=None, repo_dir=None, branch='master'):
+def ensure_clone(url=None,
+                 repo_dir=None,
+                 remote='origin',
+                 branch='master'):
     """Make sure that a clone of packet_cafe exists in repo_dir."""
     if url is None:
         url = Packet_Cafe.CAFE_GITHUB_URL
@@ -66,9 +69,9 @@ def ensure_clone(url=None, repo_dir=None, branch='master'):
             remotes = get_remote(repo_dir)
         except RuntimeError:
             remotes = []
-        if 'origin' not in remotes:
+        if remote not in remotes:
             raise RuntimeError(f"[-] directory '{repo_dir}' does not "
-                               "have a remote 'origin' defined")
+                               f"have a remote '{remote}' defined")
     else:
         logger.info(f"[-] directory '{repo_dir}' does not exist")
         return clone(url=url, repo_dir=repo_dir, branch=branch)
@@ -260,11 +263,11 @@ class ContainersBuild(Command):
                 logger.info(RUNNING_MSG)
             sys.exit(1)
         repo_dir = parsed_args.packet_cafe_repo_dir
-        # TODO(dittrich): Fix this
-        remote = "origin"
+        remote = parsed_args.packet_cafe_repo_remote
         branch = parsed_args.packet_cafe_repo_branch
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
+                     remote=remote,
                      branch=branch)
         if needs_update(repo_dir,
                         remote=remote,

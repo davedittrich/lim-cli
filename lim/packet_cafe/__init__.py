@@ -231,6 +231,7 @@ class Packet_Cafe(object):
                                   os.path.expanduser('~'),
                                   'packet_cafe')
                               )
+    CAFE_REPO_REMOTE = os.getenv('LIM_CAFE_REPO_REMOTE', 'origin')
     CAFE_REPO_BRANCH = os.getenv('LIM_CAFE_REPO_BRANCH', 'master')
     CAFE_UI_PORT = os.getenv('LIM_CAFE_UI_PORT', 80)
     CAFE_SERVICE_NAMESPACE = os.getenv('LIM_CAFE_SERVICE_NAMESPACE', None)
@@ -852,12 +853,22 @@ def add_docker_global_options(parser):
               f'default: { Packet_Cafe.CAFE_REPO_DIR })')
     )
     parser.add_argument(
+        '--packet-cafe-repo-remote',
+        action='store',
+        metavar='<repo_remote>',
+        dest='packet_cafe_repo_remote',
+        default=Packet_Cafe.CAFE_REPO_REMOTE,
+        help=('packet_cafe repository remote '
+              '(Env: ``LIM_CAFE_REPO_REMOTE``; '
+              f'default: { Packet_Cafe.CAFE_REPO_REMOTE })')
+    )
+    parser.add_argument(
         '--packet-cafe-repo-branch',
         action='store',
         metavar='<repo_branch>',
         dest='packet_cafe_repo_branch',
         default=Packet_Cafe.CAFE_REPO_BRANCH,
-        help=('Branch of packet_cafe repository to use '
+        help=('packet_cafe repository branch '
               '(Env: ``LIM_CAFE_REPO_BRANCH``; '
               f'default: { Packet_Cafe.CAFE_REPO_BRANCH })')
     )
