@@ -695,17 +695,17 @@
             }
         },
         {
-            "name": "lim cafe containers build",
+            "name": "lim cafe containers build --update",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
             "cwd": "${workspaceFolder}",
             "module": "lim",
             "args": [
-                "--debug",
                 "cafe",
                 "containers",
-                "build"
+                "build",
+                "--update"
             ],
             "stopOnEntry": false,
             "env": {

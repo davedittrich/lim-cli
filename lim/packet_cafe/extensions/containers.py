@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import re
 import sys
 import textwrap
 
@@ -23,10 +24,15 @@ logger = logging.getLogger(__name__)
 
 RUNNING_MSG = '[-] packet-cafe containers are already running'
 NOT_RUNNING_MSG = '[-] packet-cafe containers are not running'
-UPDATE_MSG = ("[!] to pull changes, use the '--update' option")
+UPDATE_MSG = "[!] to pull changes, use the '--update' option"
+NO_UPDATE_MSG = "[-] '--update' did not have to do anything"
 UI_MSG = "[+] you can now use 'lim cafe ui' to start the UI"
 UP_MSG = "[+] you can use 'lim cafe containers up' to restart the stack"
 MIN_IMAGE_COLUMNS = ('ID', 'Repository', 'Tag')
+
+ON_BRANCH_REGEX = re.compile(r'On branch (\w+) ')
+HEAD_POSITION_REGEX = re.compile(
+    r"Your branch is (.*) [\w/]+ by (\d+) commit")
 
 
 def print_output(results=[]):
@@ -124,6 +130,13 @@ def needs_update(
     current_branch = get_branch(repo_dir)
     if current_branch != branch:
         raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
+    need_checkout, position, commit_delta = get_branch_status(repo_dir,
+                                                              branch=branch)
+    if commit_delta is not None:
+        direction = "away from" if position is None else position
+        logging.debug(f"[-] branch '{branch}' is {commit_delta} "
+                      f"commit{'s' if commit_delta != 1 else ''} "
+                      f"{direction} the remote HEAD")
     up_to_date = checkout(repo_dir, branch=branch)
     if not up_to_date:
         logger.info(f"[!] branch '{branch}' is not up to date!")
@@ -151,6 +164,35 @@ def get_branch(repo_dir):
     if len(branches) != 1:
         raise RuntimeError('[-] failed to identify checked out branch')
     return branches[0]
+
+
+def get_branch_status(repo_dir, branch='master'):
+    """Return branch status information."""
+    # $ git status -b master
+    # On branch master
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #   (use "git pull" to update your local branch)
+    #
+    # nothing to commit, working tree clean
+    cmd = ['git', 'status', '-b', branch]
+    logger.debug(f"running: {' '.join(cmd)}")
+    results_str = '\n'.join(get_output(cmd=cmd,
+                                       cwd=repo_dir))
+    need_checkout = False
+
+    # m = ON_BRANCH_REGEX.search(results_str, re.MULTILINE)
+    # m = re.search(r'On branch (\w+) ', results_str, re.MULTILINE)
+    m = re.search(r'^On branch (\w+)$', results_str, re.MULTILINE)
+    need_checkout = True if (m and (m.groups()[0] != branch)) else False
+    # m = HEAD_POSITION_REGEX.search(results_str, re.MULTILINE)
+    m = re.search(r'^Your branch is (\w+) [\w/\']+ by (\d+)',
+                  results_str,
+                  re.MULTILINE)
+    if m:
+        position, commit_delta = m.groups()
+    else:
+        position, commit_delta = None, None
+    return need_checkout, position, commit_delta
 
 
 def get_remote(repo_dir):
@@ -182,9 +224,23 @@ def checkout(repo_dir, branch='master'):
     # $ git checkout master
     # Switched to branch 'master'
     # Your branch is up to date with 'origin/master'.
+    #
     # $ git checkout master
     # Already on 'master'
     # Your branch is up to date with 'origin/master'.
+    #
+    # $ git checkout master
+    # Switched to branch 'master'
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #  (use "git pull" to update your local branch)
+    #
+    # $ git checkout master
+    # On branch master
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #  (use "git pull" to update your local branch)
+    #
+    # nothing to commit, working tree clean
+    #
     results = get_output(cmd=['git', 'checkout', branch],
                          cwd=repo_dir)
     results_str = ' '.join(results)
@@ -208,8 +264,8 @@ def pull(repo_dir, remote='origin', branch='master'):
     # Already up to date.
     results = get_output(cmd=['git',
                               'pull',
-                              f"'{remote}'",
-                              f"'{branch}'"
+                              f"{remote}",
+                              f"{branch}"
                               ],
                          cwd=repo_dir)
     results_str = ' '.join(results)
@@ -281,7 +337,7 @@ class ContainersBuild(Command):
                 else:
                     raise RuntimeError(UPDATE_MSG)
         elif parsed_args.update:
-            logger.info('[-] no updates available')
+            logger.info(NO_UPDATE_MSG)
         # Ensure VOL_PREFIX environment variable is set
         os.environ['VOL_PREFIX'] = self.app_args.packet_cafe_data_dir
         env = get_environment(parsed_args)
@@ -733,7 +789,7 @@ class ContainersUp(Command):
                 else:
                     raise RuntimeError(UPDATE_MSG)
         elif parsed_args.update:
-            logger.info('[-] no updates available')
+            logger.info(NO_UPDATE_MSG)
         cmd = [
             'docker-compose',
             'up'
