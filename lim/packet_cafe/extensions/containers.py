@@ -662,7 +662,8 @@ class ContainersShow(Lister):
                 0
             ..
             """)  # noqa
-        return add_docker_global_options(add_packet_cafe_global_options(parser))
+        parser = add_packet_cafe_global_options(parser)
+        return add_docker_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] show status on Packet Café Docker containers')
