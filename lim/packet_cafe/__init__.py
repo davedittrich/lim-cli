@@ -103,29 +103,24 @@ def get_packet_cafe(app, parsed_args):
     return app.packet_cafe
 
 
-def containers_are_running():
-    """Return boolean indicating running status of packet_cafe containers.
-
-    NOTE(dittrich): By blindly checking the status of whatever set of
-    containers are returned by Docker, there is a *small* possibility
-    of a false positive here as docker-compose may still be bringing up
-    containers when you check. To be safe, ensure that at minimum the
-    ``ui``, ``web``, and ``admin`` containers are all running.
-
-    See: https://iqtlabs.gitbook.io/packet-cafe/design/api
-    """
-    # TODO(dittrich): identify a way to tell how many containers *should* exist.  # noqa
-    # Check out https://github.com/IQTLabs/packet_cafe/blob/master/workers/workers.json  # noqa
-    #
-    # NOTE(dittrich): Names may change?
-    # This would be more robust if done via an API call.
-    min_containers = [
-        'packet_cafe_ui_1', 'packet_cafe_web_1', 'packet_cafe_admin_1'
+def containers_are_running(service_namespace='iqtlabs',
+                           workers_definitions=None):
+    """Return boolean indicating running status of packet_cafe containers."""
+    # Focus on just service images
+    service_images = [
+        i['Repository'] for i in
+        get_images(service_namespace=service_namespace,
+                   tool_namespace=None,
+                   workers_definitions=workers_definitions)
     ]
+    # get_containers(columns=['image', 'status'])[0]
+    # ['iqtlabs/packet_cafe_...ger:latest', 'running']
+    # get_containers(columns=['image', 'status'])[0][0].split(':')[0]
+    # 'iqtlabs/packet_cafe_messenger'
     status = list(set([
                       c[1]
-                      for c in get_containers(columns=['name', 'status'])
-                      if len(c) == 2 and c[0] in min_containers
+                      for c in get_containers(columns=['image', 'status'])
+                      if len(c) == 2 and c[0].split(':')[0] in service_images
                       ]))
     return len(status) == 1 and 'running' in status
 
@@ -151,7 +146,9 @@ def get_containers(columns=['name', 'status']):
     return containers
 
 
-def get_images(filter=None):
+def get_images(service_namespace=None,
+               tool_namespace=None,
+               workers_definitions=None):
     """Return an array of JSON objects describing Docker images."""
     cmd = ['docker', 'images', '--format="{{json .}}"']
     results = get_output(cmd=cmd)
@@ -166,16 +163,29 @@ def get_images(filter=None):
     # Strip off the quotes at the start and end of the line before converting.
     #
     images = [json.loads(r[1:-1]) for r in results]
-    if filter is None:
-        return images
+
+    # NOTE: "tool" is same as "workers"
+    # Ensure desired namespace is used for worker images
+    if tool_namespace is not None and workers_definitions is not None:
+        worker_image_names = [
+            '/'.join([tool_namespace, worker['image'].split('/')[1]])
+            for worker in workers_definitions['workers']
+        ]
     else:
-        filtered_images = []
-        for f in list(set(filter)):
-            for i in images:
-                if i['Repository'].startswith(f'{f}/'):
-                    filtered_images.append(i)
-                    next
-        return filtered_images
+        worker_image_names = []
+    service_image_names = [
+        '/'.join([service_namespace, image['Repository'].split('/')[1]])
+        for image in images
+        if (
+            service_namespace is not None
+            and image['Repository'].find('packet_cafe_') > 0
+        )
+    ]
+    filter_list = worker_image_names + service_image_names
+    if len(filter_list):
+        return [i for i in images if i['Repository'] in filter_list]
+    else:
+        return images
 
 
 def rm_images(images):
@@ -873,6 +883,20 @@ def add_docker_global_options(parser):
               f'default: { Packet_Cafe.CAFE_REPO_BRANCH })')
     )
     return parser
+
+
+def get_workers_definitions(repo_dir=None):
+    """Get definitions of workers."""
+    if repo_dir is None:
+        raise RuntimeError('[-] must specify repo_dir')
+    workers_json = os.path.join(repo_dir, 'workers', 'workers.json')
+    if not os.path.exists(workers_json):
+        raise RuntimeError(f"[-] file '{workers_json}' not found")
+    else:
+        logger.debug(f"[+] getting worker definitions from '{workers_json}'")
+    with open(workers_json, 'r') as f:
+        workers_definitions = json.loads(f.read())
+    return workers_definitions
 
 
 def get_output_realtime(cmd=['echo', 'NO COMMAND SPECIFIED'],

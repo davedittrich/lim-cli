@@ -16,6 +16,7 @@ from lim.packet_cafe import containers_are_running
 from lim.packet_cafe import get_containers
 from lim.packet_cafe import get_images
 from lim.packet_cafe import get_output
+from lim.packet_cafe import get_workers_definitions
 from lim.packet_cafe import rm_images
 from lim.packet_cafe import Packet_Cafe
 
@@ -517,13 +518,15 @@ class ContainersImages(Lister):
         # ]
         # if result != 0:
         #     raise RuntimeError('[-] failed to list containers')
-        service_namespace = parsed_args.docker_service_namespace
-        if service_namespace is None:
-            service_namespace = 'iqtlabs'
-        tool_namespace = parsed_args.docker_tool_namespace
-        if tool_namespace is None:
-            tool_namespace = 'iqtlabs'
-        images = get_images(filter=[service_namespace, tool_namespace])
+        service_namespace = parsed_args.docker_service_namespace \
+            if parsed_args.docker_service_namespace is not None else 'iqtlabs'
+        tool_namespace = parsed_args.docker_tool_namespace \
+            if parsed_args.docker_tool_namespace is not None else 'iqtlabs'
+        workers_definitions = get_workers_definitions(
+            parsed_args.packet_cafe_repo_dir)
+        images = get_images(service_namespace=service_namespace,
+                            tool_namespace=tool_namespace,
+                            workers_definitions=workers_definitions)
         image_set = (
             f'service namespace "{service_namespace}", '
             f'tool namespace "{tool_namespace}"'
@@ -659,11 +662,15 @@ class ContainersShow(Lister):
                 0
             ..
             """)  # noqa
-        return add_packet_cafe_global_options(parser)
+        return add_docker_global_options(add_packet_cafe_global_options(parser))
 
     def take_action(self, parsed_args):
         logger.debug('[+] show status on Packet Café Docker containers')
-        if not containers_are_running():
+        service_namespace = parsed_args.docker_service_namespace \
+            if parsed_args.docker_service_namespace is not None else 'iqtlabs'
+        if not containers_are_running(
+            service_namespace=service_namespace
+        ):
             if bool(self.app_args.verbose_level):
                 logger.info(NOT_RUNNING_MSG)
             sys.exit(1)
