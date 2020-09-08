@@ -1,6 +1,7 @@
 CHANGES
 =======
 
+* Resolve pep8 finding
 * Get containers list from workers.json file
 * Improve repo update checking
 * Add option control of GitHub remote
