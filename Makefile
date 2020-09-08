@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.8.7
+VERSION:=20.9.0
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -233,6 +233,7 @@ docs/test-bats-runtime.txt:
 docs-help:
 	(export LIM_DATA_DIR='/path/to/data'; \
 	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
+	 unset LIM_BROWSER; \
 	 python -m lim help) > docs/lim-help.txt
 
 #HELP docs - build Sphinx docs (NOT INTEGRATED YET FROM OPENSTACK CODE BASE)
@@ -240,6 +241,7 @@ docs-help:
 docs:
 	(export LIM_DATA_DIR='/path/to/data'; \
 	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
+	 unset LIM_BROWSER; \
 	 cd docs && \
 	 make clean html)
 

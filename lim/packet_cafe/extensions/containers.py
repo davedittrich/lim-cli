@@ -3,6 +3,7 @@
 import argparse
 import logging
 import os
+import re
 import sys
 import textwrap
 
@@ -15,6 +16,7 @@ from lim.packet_cafe import containers_are_running
 from lim.packet_cafe import get_containers
 from lim.packet_cafe import get_images
 from lim.packet_cafe import get_output
+from lim.packet_cafe import get_workers_definitions
 from lim.packet_cafe import rm_images
 from lim.packet_cafe import Packet_Cafe
 
@@ -23,10 +25,15 @@ logger = logging.getLogger(__name__)
 
 RUNNING_MSG = '[-] packet-cafe containers are already running'
 NOT_RUNNING_MSG = '[-] packet-cafe containers are not running'
-UPDATE_MSG = ("[!] to pull changes, use the '--update' option")
+UPDATE_MSG = "[!] to pull changes, use the '--update' option"
+NO_UPDATE_MSG = "[-] '--update' did not have to do anything"
 UI_MSG = "[+] you can now use 'lim cafe ui' to start the UI"
 UP_MSG = "[+] you can use 'lim cafe containers up' to restart the stack"
 MIN_IMAGE_COLUMNS = ('ID', 'Repository', 'Tag')
+
+ON_BRANCH_REGEX = re.compile(r'On branch (\w+) ')
+HEAD_POSITION_REGEX = re.compile(
+    r"Your branch is (.*) [\w/]+ by (\d+) commit")
 
 
 def print_output(results=[]):
@@ -51,7 +58,10 @@ def get_environment(args):
     return env
 
 
-def ensure_clone(url=None, repo_dir=None, branch='master'):
+def ensure_clone(url=None,
+                 repo_dir=None,
+                 remote='origin',
+                 branch='master'):
     """Make sure that a clone of packet_cafe exists in repo_dir."""
     if url is None:
         url = Packet_Cafe.CAFE_GITHUB_URL
@@ -66,9 +76,9 @@ def ensure_clone(url=None, repo_dir=None, branch='master'):
             remotes = get_remote(repo_dir)
         except RuntimeError:
             remotes = []
-        if 'origin' not in remotes:
+        if remote not in remotes:
             raise RuntimeError(f"[-] directory '{repo_dir}' does not "
-                               "have a remote 'origin' defined")
+                               f"have a remote '{remote}' defined")
     else:
         logger.info(f"[-] directory '{repo_dir}' does not exist")
         return clone(url=url, repo_dir=repo_dir, branch=branch)
@@ -121,6 +131,13 @@ def needs_update(
     current_branch = get_branch(repo_dir)
     if current_branch != branch:
         raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
+    need_checkout, position, commit_delta = get_branch_status(repo_dir,
+                                                              branch=branch)
+    if commit_delta is not None:
+        direction = "away from" if position is None else position
+        logging.debug(f"[-] branch '{branch}' is {commit_delta} "
+                      f"commit{'s' if commit_delta != 1 else ''} "
+                      f"{direction} the remote HEAD")
     up_to_date = checkout(repo_dir, branch=branch)
     if not up_to_date:
         logger.info(f"[!] branch '{branch}' is not up to date!")
@@ -148,6 +165,35 @@ def get_branch(repo_dir):
     if len(branches) != 1:
         raise RuntimeError('[-] failed to identify checked out branch')
     return branches[0]
+
+
+def get_branch_status(repo_dir, branch='master'):
+    """Return branch status information."""
+    # $ git status -b master
+    # On branch master
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #   (use "git pull" to update your local branch)
+    #
+    # nothing to commit, working tree clean
+    cmd = ['git', 'status', '-b', branch]
+    logger.debug(f"running: {' '.join(cmd)}")
+    results_str = '\n'.join(get_output(cmd=cmd,
+                                       cwd=repo_dir))
+    need_checkout = False
+
+    # m = ON_BRANCH_REGEX.search(results_str, re.MULTILINE)
+    # m = re.search(r'On branch (\w+) ', results_str, re.MULTILINE)
+    m = re.search(r'^On branch (\w+)$', results_str, re.MULTILINE)
+    need_checkout = True if (m and (m.groups()[0] != branch)) else False
+    # m = HEAD_POSITION_REGEX.search(results_str, re.MULTILINE)
+    m = re.search(r'^Your branch is (\w+) [\w/\']+ by (\d+)',
+                  results_str,
+                  re.MULTILINE)
+    if m:
+        position, commit_delta = m.groups()
+    else:
+        position, commit_delta = None, None
+    return need_checkout, position, commit_delta
 
 
 def get_remote(repo_dir):
@@ -179,9 +225,23 @@ def checkout(repo_dir, branch='master'):
     # $ git checkout master
     # Switched to branch 'master'
     # Your branch is up to date with 'origin/master'.
+    #
     # $ git checkout master
     # Already on 'master'
     # Your branch is up to date with 'origin/master'.
+    #
+    # $ git checkout master
+    # Switched to branch 'master'
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #  (use "git pull" to update your local branch)
+    #
+    # $ git checkout master
+    # On branch master
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #  (use "git pull" to update your local branch)
+    #
+    # nothing to commit, working tree clean
+    #
     results = get_output(cmd=['git', 'checkout', branch],
                          cwd=repo_dir)
     results_str = ' '.join(results)
@@ -205,8 +265,8 @@ def pull(repo_dir, remote='origin', branch='master'):
     # Already up to date.
     results = get_output(cmd=['git',
                               'pull',
-                              f"'{remote}'",
-                              f"'{branch}'"
+                              f"{remote}",
+                              f"{branch}"
                               ],
                          cwd=repo_dir)
     results_str = ' '.join(results)
@@ -260,11 +320,11 @@ class ContainersBuild(Command):
                 logger.info(RUNNING_MSG)
             sys.exit(1)
         repo_dir = parsed_args.packet_cafe_repo_dir
-        # TODO(dittrich): Fix this
-        remote = "origin"
+        remote = parsed_args.packet_cafe_repo_remote
         branch = parsed_args.packet_cafe_repo_branch
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
+                     remote=remote,
                      branch=branch)
         if needs_update(repo_dir,
                         remote=remote,
@@ -278,7 +338,7 @@ class ContainersBuild(Command):
                 else:
                     raise RuntimeError(UPDATE_MSG)
         elif parsed_args.update:
-            logger.info('[-] no updates available')
+            logger.info(NO_UPDATE_MSG)
         # Ensure VOL_PREFIX environment variable is set
         os.environ['VOL_PREFIX'] = self.app_args.packet_cafe_data_dir
         env = get_environment(parsed_args)
@@ -312,6 +372,43 @@ class ContainersDown(Command):
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Bring down the container stack associated with Packet Café services.
+
+            .. code-block:: none
+
+                $ lim cafe containers down
+                [+] running 'docker-compose down' in /Users/dittrich/packet_cafe
+                Stopping packet_cafe_redis_1     ... done
+                Stopping packet_cafe_web_1       ... done
+                Stopping packet_cafe_workers_1   ... done
+                Stopping packet_cafe_ui_1        ... done
+                Stopping packet_cafe_admin_1     ... done
+                Stopping packet_cafe_messenger_1 ... done
+                Stopping packet_cafe_lb_1        ... done
+                Removing packet_cafe_redis_1         ... done
+                Removing packet_cafe_web_1           ... done
+                Removing packet_cafe_workers_1       ... done
+                Removing packet_cafe_mercury_1       ... done
+                Removing packet_cafe_ui_1            ... done
+                Removing packet_cafe_pcap-dot1q_1    ... done
+                Removing packet_cafe_admin_1         ... done
+                Removing packet_cafe_messenger_1     ... done
+                Removing packet_cafe_pcap-splitter_1 ... done
+                Removing packet_cafe_ncapture_1      ... done
+                Removing packet_cafe_pcapplot_1      ... done
+                Removing packet_cafe_lb_1            ... done
+                Removing packet_cafe_networkml_1     ... done
+                Removing packet_cafe_pcap-stats_1    ... done
+                Removing packet_cafe_snort_1         ... done
+                Removing network packet_cafe_default
+                Removing network admin
+                Removing network frontend
+                Removing network results
+                Removing network backend
+                Removing network analysis
+                Removing network preprocessing
+                [+] you can use 'lim cafe containers up' to restart the stack
+
+            ..
 
             After bringing the containers down, you can generally bring them
             back up without having to rebuild them.
@@ -372,6 +469,40 @@ class ContainersImages(Lister):
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             List the images associated with Packet Café services and workers.
+
+            .. code-block:: console
+
+                [+] listing images for service namespace "iqtlabs", tool namespace "iqtlabs"
+                +--------------+-------------------------------+--------+
+                | ID           | Repository                    | Tag    |
+                +--------------+-------------------------------+--------+
+                | 7808ad5f74f5 | iqtlabs/packet_cafe_workers   | latest |
+                | 83fdfb8db32d | iqtlabs/packet_cafe_redis     | latest |
+                | 93fc21bf376a | iqtlabs/packet_cafe_messenger | latest |
+                | 11bb63d0c705 | iqtlabs/packet_cafe_lb        | latest |
+                | d9194c6daf5f | iqtlabs/packet_cafe_web       | latest |
+                | 9fc447bc9fa4 | iqtlabs/packet_cafe_ui        | latest |
+                | 8fe33a5eec27 | iqtlabs/packet_cafe_admin     | latest |
+                | 1a5cec5e1dab | iqtlabs/tcprewrite_dot1q      | latest |
+                | 39c6e9ac53a9 | iqtlabs/pcap_to_node_pcap     | latest |
+                | adcc5b1f4213 | iqtlabs/pcap_stats            | latest |
+                | 6732f33c5b25 | iqtlabs/ncapture              | latest |
+                | 251346bde2eb | iqtlabs/networkml             | v0.6.1 |
+                | 6d2d5d790715 | iqtlabs/mercury               | latest |
+                | cedfd83f10dc | iqtlabs/snort                 | latest |
+                | b56a25f62851 | iqtlabs/pcapplot              | v0.1.7 |
+                +--------------+-------------------------------+--------+
+
+            By default, only three columns are shown. If you wish to see all
+            available columns, use the ``-a`` option.
+
+            You can remove all of these images from Docker's image storage
+            by using the ``--rm`` option.
+
+            If you are doing development and have pushed images to your own
+            namespace on Docker Hub, use the namespace and version selection
+            options or environment variables.
+            ..
             """)  # noqa
         return add_docker_global_options(parser)
 
@@ -387,13 +518,15 @@ class ContainersImages(Lister):
         # ]
         # if result != 0:
         #     raise RuntimeError('[-] failed to list containers')
-        service_namespace = parsed_args.docker_service_namespace
-        if service_namespace is None:
-            service_namespace = 'iqtlabs'
-        tool_namespace = parsed_args.docker_tool_namespace
-        if tool_namespace is None:
-            tool_namespace = 'iqtlabs'
-        images = get_images(filter=[service_namespace, tool_namespace])
+        service_namespace = parsed_args.docker_service_namespace \
+            if parsed_args.docker_service_namespace is not None else 'iqtlabs'
+        tool_namespace = parsed_args.docker_tool_namespace \
+            if parsed_args.docker_tool_namespace is not None else 'iqtlabs'
+        workers_definitions = get_workers_definitions(
+            parsed_args.packet_cafe_repo_dir)
+        images = get_images(service_namespace=service_namespace,
+                            tool_namespace=tool_namespace,
+                            workers_definitions=workers_definitions)
         image_set = (
             f'service namespace "{service_namespace}", '
             f'tool namespace "{tool_namespace}"'
@@ -529,11 +662,16 @@ class ContainersShow(Lister):
                 0
             ..
             """)  # noqa
-        return add_packet_cafe_global_options(parser)
+        parser = add_packet_cafe_global_options(parser)
+        return add_docker_global_options(parser)
 
     def take_action(self, parsed_args):
         logger.debug('[+] show status on Packet Café Docker containers')
-        if not containers_are_running():
+        service_namespace = parsed_args.docker_service_namespace \
+            if parsed_args.docker_service_namespace is not None else 'iqtlabs'
+        if not containers_are_running(
+            service_namespace=service_namespace
+        ):
             if bool(self.app_args.verbose_level):
                 logger.info(NOT_RUNNING_MSG)
             sys.exit(1)
@@ -575,32 +713,38 @@ class ContainersUp(Command):
             ``docker-compose`` will be output to show progress. This can be
             suppressed with the ``-q`` flag.
 
+            Prior to running ``docker-compose``, the repository directory will
+            be created (if it does not yet exist) or a ``git fetch`` will be
+            attempted to check for updates.
+
             .. code-block:: console
 
                 $ lim cafe containers up
-                [+] running "docker-compose up" in /Users/dittrich/git/packet_cafe
+                [+] branch 'master' is up to date
+                [+] running 'docker-compose up -d --no-build' in /Users/dittrich/packet_cafe
                 Creating network "packet_cafe_default" with the default driver
+                Creating network "admin" with the default driver
                 Creating network "frontend" with the default driver
                 Creating network "results" with the default driver
-                Creating network "admin" with the default driver
                 Creating network "backend" with the default driver
                 Creating network "analysis" with the default driver
                 Creating network "preprocessing" with the default driver
-                Creating packet_cafe_pcap_stats_1    ... done
-                Creating packet_cafe_workers_1       ... done
+                Creating packet_cafe_admin_1         ... done
                 Creating packet_cafe_ncapture_1      ... done
                 Creating packet_cafe_networkml_1     ... done
-                Creating packet_cafe_lb_1            ... done
+                Creating packet_cafe_pcap-dot1q_1    ... done
+                Creating packet_cafe_pcap-splitter_1 ... done
+                Creating packet_cafe_snort_1         ... done
+                Creating packet_cafe_pcap-stats_1    ... done
+                Creating packet_cafe_ui_1            ... done
                 Creating packet_cafe_web_1           ... done
                 Creating packet_cafe_messenger_1     ... done
-                Creating packet_cafe_admin_1         ... done
-                Creating packet_cafe_ui_1            ... done
-                Creating packet_cafe_pcap-splitter_1 ... done
-                Creating packet_cafe_pcap-dot1q_1    ... done
-                Creating packet_cafe_pcapplot_1      ... done
-                Creating packet_cafe_snort_1         ... done
-                Creating packet_cafe_mercury_1       ... done
+                Creating packet_cafe_lb_1            ... done
                 Creating packet_cafe_redis_1         ... done
+                Creating packet_cafe_mercury_1       ... done
+                Creating packet_cafe_workers_1       ... done
+                Creating packet_cafe_pcapplot_1      ... done
+                [+] you can now use 'lim cafe ui' to start the UI
 
             ..
 
@@ -653,7 +797,7 @@ class ContainersUp(Command):
                 else:
                     raise RuntimeError(UPDATE_MSG)
         elif parsed_args.update:
-            logger.info('[-] no updates available')
+            logger.info(NO_UPDATE_MSG)
         cmd = [
             'docker-compose',
             'up'

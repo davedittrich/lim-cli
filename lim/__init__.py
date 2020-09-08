@@ -2,12 +2,15 @@
 
 import asyncio
 import datetime
+import logging
 import os
 import pathlib
 import platform
 import pbr.version
 import sys
 import textwrap
+import webbrowser
+
 
 # PBR has a bug that produces incorrect version numbers
 # if you run ``psec --version`` in another Git repo.
@@ -25,10 +28,11 @@ if 'lim-cli' in p.parts or 'lim' in p.parts:
     except Exception:
         pass
 else:
-    __version__ = '20.8.7'
+    __version__ = '20.9.0'
     __release__ = __version__
 
 BUFFER_SIZE = 128 * 1024
+BROWSER = os.getenv('LIM_BROWSER', None)
 DAY = os.environ.get('DAY', 5)
 DEFAULT_PROTOCOLS = ['icmp', 'tcp', 'udp']
 KEEPALIVE = 5.0
@@ -42,6 +46,9 @@ SYSLOG = False
 __author__ = 'Dave Dittrich'
 __email__ = 'dave.dittrich@gmail.com'
 
+# Initialize a logger for this module.
+logger = logging.getLogger(__name__)
+
 
 def copyright():
     """Copyright string"""
@@ -52,6 +59,41 @@ def copyright():
         License:   Apache 2.0 License
         URL:       https://pypi.python.org/pypi/lim-cli""")  # noqa
     return copyright
+
+
+def add_browser_options(parser):
+    """Add web browser options."""
+    parser.add_argument(
+        '--browser',
+        action='store',
+        dest='browser',
+        default=BROWSER,
+        help=f'Browser to use for viewing (default: {BROWSER}).'
+    )
+    parser.add_argument(
+        '--force',
+        action='store_true',
+        dest='force',
+        default=False,
+        help=("Open the browser even if process has no TTY "
+              "(default: False)")
+    )
+    return parser
+
+
+def open_browser(page=None, browser=None, force=False):
+    """Open web browser to page."""
+    if not sys.stdin.isatty() and not force:
+        raise RuntimeError(
+            "[-] use --force to open browser when stdin is not a TTY")
+    if page is None:
+        raise RuntimeError("[-] not page specified")
+    which = "system default" if browser is None else browser
+    logger.info(f'[+] opening the {which} browser for {page}')
+    if browser is not None:
+        webbrowser.get(browser).open_new_tab(page)
+    else:
+        webbrowser.open(page, new=1)
 
 
 def stdout_callback(x):
