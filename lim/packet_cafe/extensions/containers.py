@@ -589,8 +589,7 @@ class ContainersPull(Command):
             sys.exit(1)
         env = get_environment(parsed_args)
         repo_dir = parsed_args.packet_cafe_repo_dir
-        # TODO(dittrich): Fix this
-        remote = "origin"
+        remote = parsed_args.packet_cafe_repo_remote
         branch = parsed_args.packet_cafe_repo_branch
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
@@ -779,8 +778,7 @@ class ContainersUp(Command):
                 logger.info(RUNNING_MSG)
             sys.exit(1)
         repo_dir = parsed_args.packet_cafe_repo_dir
-        # TODO(dittrich): Fix this
-        remote = "origin"
+        remote = parsed_args.packet_cafe_repo_remote
         branch = parsed_args.packet_cafe_repo_branch
         ensure_clone(url=parsed_args.packet_cafe_github_url,
                      repo_dir=repo_dir,
