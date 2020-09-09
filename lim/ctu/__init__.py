@@ -413,8 +413,8 @@ class CTU_Dataset(object):
         name = CTU_Dataset.get_fullname(name)
         url = self.get_scenario_attribute(name, attribute)
         if url in ['', None]:
-            logger.info('[-] scenario "{}" does not have '.format(name) +
-                        '"{}" data: skipping'.format(attribute))
+            logger.info(f"[-] scenario '{name}' does not have "
+                        f"'{attribute}' data: skipping")
         else:
             # 'https://mcfp.felk.cvut.cz/publicDatasets/CTU-Mixed-Capture-1/2015-07-28_mixed.pcap'
             if filename is None:
@@ -512,8 +512,7 @@ class CTU_Dataset(object):
                                 semaphore, group, url, session))
                         tasks.append(task)
                 responses = asyncio.gather(*tasks)
-                logger.info('[+] queued {} pages '.format(len(tasks)) +
-                            'for processing')
+                logger.info(f'[+] queued {len(tasks)} pages for processing')
                 await responses
         except KeyboardInterrupt:
             session.close()
