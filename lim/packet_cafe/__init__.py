@@ -78,7 +78,7 @@ def check_remind_defaulting(arg=None, thing="argument"):
     return arg
 
 
-def flatten(dict_item):
+def flatten_lists(dict_item):
     """Flatten lists in dictionary values for better formatting."""
     flat_dict = {}
     for k, v in dict_item.items():
@@ -348,7 +348,7 @@ class Packet_Cafe(object):
         response = requests.request("GET", url)
         if response.status_code == 200:
             results = json.loads(response.text)
-            return [(flatten(i)) for i in results]
+            return [(flatten_lists(i)) for i in results]
         else:
             return None
 
@@ -442,7 +442,7 @@ class Packet_Cafe(object):
         """Get details about workers."""
         response = requests.request("GET", f'{ self.get_api_url() }/tools')
         if response.status_code == 200:
-            return [flatten(worker) for worker in
+            return [flatten_lists(worker) for worker in
                     json.loads(response.text)['workers']]
         else:
             raise RuntimeError(
@@ -885,7 +885,7 @@ def add_docker_global_options(parser):
     return parser
 
 
-def get_workers_definitions(repo_dir=None):
+def get_workers_definitions(repo_dir=None, flatten=False):
     """Get definitions of workers."""
     if repo_dir is None:
         raise RuntimeError('[-] must specify repo_dir')
@@ -894,8 +894,15 @@ def get_workers_definitions(repo_dir=None):
         raise RuntimeError(f"[-] file '{workers_json}' not found")
     else:
         logger.debug(f"[+] getting worker definitions from '{workers_json}'")
+    workers_definitions = dict()
     with open(workers_json, 'r') as f:
-        workers_definitions = json.loads(f.read())
+        if flatten:
+            workers_definitions['workers'] = [
+                flatten_lists(worker) for worker in
+                json.loads(f.read())['workers']
+            ]
+        else:
+            workers_definitions = json.loads(f.read())
     return workers_definitions
 
 
