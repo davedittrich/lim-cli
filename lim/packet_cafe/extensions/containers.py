@@ -169,14 +169,14 @@ def get_branch(repo_dir):
 
 def get_branch_status(repo_dir, branch='master'):
     """Return branch status information."""
-    # $ git status -b master
+    # $ git status -b
     # On branch master
     # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
     #   (use "git pull" to update your local branch)
     #
     # nothing to commit, working tree clean
-    cmd = ['git', 'status', '-b', branch]
-    logger.debug(f"running: {' '.join(cmd)}")
+    cmd = ['git', 'status', '-b']
+    logger.debug(f"[+] running '{' '.join(cmd)}'")
     results_str = '\n'.join(get_output(cmd=cmd,
                                        cwd=repo_dir))
     need_checkout = False
@@ -244,13 +244,10 @@ def checkout(repo_dir, branch='master'):
     #
     results = get_output(cmd=['git', 'checkout', branch],
                          cwd=repo_dir)
-    results_str = ' '.join(results)
     # Apparently different versions of ``git`` produce different
     # results. Go figure... :(
-    return (
-        results_str.find('Your branch is up to date') > 0 or
-        results_str.find('Your branch is up-to-date') > 0
-    )
+    results_str = ' '.join(results).replace('-', ' ')
+    return results_str.find('Your branch is up to date') > 0
 
 
 def pull(repo_dir, remote='origin', branch='master'):
