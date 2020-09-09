@@ -6,7 +6,7 @@ jobs:
     name: Test and Build
     if: >-
       (github.event_name == 'push' || github.event_name == 'pull-request') &&
-      startsWith(github.ref, 'refs/heads/')
+      startsWith(github.ref, 'refs/heads/') == true
     runs-on: ubuntu-18.04
     env:
       PY_COLORS: 1
@@ -60,24 +60,30 @@ jobs:
     - name: Build artifacts
       run: make bdist_wheel sdist twine-check
     if: >-
-      (contains(github.ref, '/release') || contains(github.ref, '.RC'))
+      contains(github.ref, '/release') == true ||
+      contains(github.ref, '.RC') == true
     - name: Display artifacts
       run: ls -lR dist
     if: >-
-      (contains(github.ref, '/release') || contains(github.ref, '.RC'))
+      contains(github.ref, '/release') == true ||
+      contains(github.ref, '.RC')) == true
     - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
     if: >-
-      (contains(github.ref, '/release') || contains(github.ref, '.RC'))
+      contains(github.ref, '/release' == true ||
+      contains(github.ref, '.RC') == true
 
   deploy:
     name: Publish
     if: >-
       github.event_name == 'push' &&
-      (contains(github.ref, '/release') || contains(github.ref, '.RC'))
+      (
+        contains(github.ref, '/release' == true ||
+        contains(github.ref, '.RC') == true
+      )
     needs:
       - build-test
     runs-on: ubuntu-18.04
@@ -109,7 +115,7 @@ jobs:
     - name: Publish artifacts to TestPyPI
       if: >-
         github.event_name == 'push' &&
-        contains(github.ref, '.RC')
+        contains(github.ref, '.RC') == true
       uses: pypa/gh-action-pypi-publish@master
       with:
         repository_url: https://test.pypi.org/legacy/
@@ -118,7 +124,7 @@ jobs:
     - name: Publish artifacts to PyPI
       if: >-
         github.event_name == 'push' &&
-        contains(github.ref, '/release')
+        contains(github.ref, '/release') == true
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
