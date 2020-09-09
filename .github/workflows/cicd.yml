@@ -17,8 +17,10 @@ jobs:
     steps:
     - name: Dump select GitHub event context
       run: |
-        echo github.ref=${{ github.ref }}
-        echo github.event.head_commit=${{ toJson(github.event.head_commit) }}
+        echo "github.ref=${{ github.ref }}"
+        echo "github.event.head_commit=$HEAD_COMMIT"
+      env:
+        HEAD_COMMIT: toJson(github.event.head_commit)
     - name: Check out src from GitHub
       uses: actions/checkout@v2
       with:
