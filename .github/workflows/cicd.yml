@@ -59,22 +59,22 @@ jobs:
       run: make test
     - name: Build artifacts
       run: make bdist_wheel sdist twine-check
-    if: >-
-      contains(github.ref, '/release') == true ||
-      contains(github.ref, '.RC') == true
+      if: >-
+        contains(github.ref, '/release') == true ||
+        contains(github.ref, '.RC') == true
     - name: Display artifacts
       run: ls -lR dist
-    if: >-
-      contains(github.ref, '/release') == true ||
-      contains(github.ref, '.RC')) == true
+      if: >-
+        contains(github.ref, '/release') == true ||
+        contains(github.ref, '.RC')) == true
     - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
-    if: >-
-      contains(github.ref, '/release' == true ||
-      contains(github.ref, '.RC') == true
+      if: >-
+        contains(github.ref, '/release' == true ||
+        contains(github.ref, '.RC') == true
 
   deploy:
     name: Publish
