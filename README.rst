@@ -25,10 +25,9 @@ and data sources, or allowing you to do so from your own scripts
 or from existing security event processing and automation platforms.
 
 ``lim`` uses the `openstack/cliff`_ framework to organize features into related
-groups, some accessing local files, or the RESTful API of a network-based
-service, or the web site archiving data. It produces output in clean tabular
-form, or in several other data formats that can feed into yet other network
-security tools or automation platforms.
+groups of subcommands with lots of built-in help internally documenting their use.
+It produces output in clean tabular form, or in several other data formats that
+can feed into yet other network security tools or automation platforms.
 
 Using ``lim``, you can learn skills a SOC analyst needs to understand how
 malicious software communicates on the network, or script the post-processing
