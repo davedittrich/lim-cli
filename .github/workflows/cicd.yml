@@ -5,9 +5,8 @@ jobs:
   build-test:
     name: Test and Build
     if: >-
-      github.event_name == 'push' &&
-      startsWith(github.ref, 'refs/heads/') &&
-      ! contains(github.ref, 'release')
+      (github.event_name == 'push' || github.event_name == 'pull-request') &&
+      startsWith(github.ref, 'refs/heads/')
     runs-on: ubuntu-18.04
     env:
       PY_COLORS: 1
@@ -60,26 +59,22 @@ jobs:
       run: make test
     - name: Build artifacts
       run: make bdist_wheel sdist twine-check
+    if: contains(github.ref, '/release') || contains(github.ref, '.RC')
     - name: Display artifacts
       run: ls -lR dist
+    if: contains(github.ref, '/release') || contains(github.ref, '.RC')
     - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
+    if: contains(github.ref, '/release') || contains(github.ref, '.RC')
 
   deploy:
     name: Publish
     if: >-
       github.event_name == 'push' &&
-      (
-        (
-          startsWith(github.event.head_commit.message, 'Merge branch ') &&
-          contains(github.event.head_commit.message, 'release/') &&
-          endsWith(github.event.head_commit.message, ' into master')
-        ) ||
-        contains(github.ref, '.RC')
-      )
+      (contains(github.ref, '/release') || contains(github.ref, '.RC'))
     needs:
       - build-test
     runs-on: ubuntu-18.04
@@ -120,11 +115,7 @@ jobs:
     - name: Publish artifacts to PyPI
       if: >-
         github.event_name == 'push' &&
-        (
-          startsWith(github.event.head_commit.message, 'Merge branch ') &&
-          contains(github.event.head_commit.message, 'release/') &&
-          endsWith(github.event.head_commit.message, ' into master')
-        )
+        contains(github.ref, '/release')
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
