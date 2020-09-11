@@ -10,12 +10,12 @@ setup_file() {
         echo 'Environment variable "VOL_PREFIX" is not set' >&2
         return 1
     fi
-    if ! $LIM -q cafe containers show; then
-        echo 'Packet Cafe containers are not running ("make build-packet-cafe"?)' >&2
+    if ! $LIM -q cafe docker ps; then
+        echo "Packet Cafe containers are not running ('lim cafe docker up'?)" >&2
         return 1
     fi
     if $LIM -q cafe admin sessions; then
-        echo 'Packet Cafe has existing sessions ("lim cafe admin delete --all"?)' >&2
+        echo "Packet Cafe has existing sessions ('lim cafe admin delete --all'?)" >&2
         return 1
     fi
     # Make sure needed PCAP file is present (don't rely on earlier tests)
@@ -42,7 +42,12 @@ teardown() {
 # cafe admin info        Yes
 # cafe admin results     Yes
 # cafe admin sessions    Yes
-# cafe containers        Yes
+# cafe docker build      No
+# cafe docker down       No
+# cafe docker images     Yes
+# cafe docker pull       No
+# cafe docker ps         Yes
+# cafe docker up         No
 # cafe endpoints         Yes
 # cafe info              Yes
 # cafe raw               Yes
@@ -54,6 +59,33 @@ teardown() {
 # cafe tools             Yes
 # cafe ui                Yes
 # cafe upload            Yes
+
+@test "\"lim cafe docker up\" fails" {
+    run bash -c "$LIM cafe docker up"
+    assert_failure
+    assert_output "[-] packet-cafe containers are already running"
+}
+
+@test "\"lim cafe docker images\" succeeds" {
+    run bash -c "$LIM cafe docker images"
+    assert_success
+    assert_output --partial '[+] listing images for service namespace "iqtlabs", tool namespace "iqtlabs"'
+    assert_output --partial 'Repository'
+    assert_output --partial 'packet_cafe_admin'
+}
+
+@test "\"lim -q cafe docker ps\" succeeds w/o output" {
+    run bash -c "$LIM -q cafe docker ps"
+    assert_success
+    assert_output ""
+}
+
+@test "\"lim cafe docker ps\" succeeds w/ output" {
+    run bash -c "$LIM cafe docker ps"
+    assert_success
+    assert_output --partial "short_id"
+    assert_output --partial "packet_cafe_admin_"
+}
 
 @test "\"lim cafe endpoints\" includes \"/api/v1/info\"" {
     run bash -c "$LIM cafe endpoints"

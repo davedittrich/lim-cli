@@ -675,7 +675,7 @@
             }
         },
         {
-            "name": "lim cafe containers show",
+            "name": "lim cafe docker ps",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -684,8 +684,8 @@
             "args": [
                 "--debug",
                 "cafe",
-                "containers",
-                "show"
+                "docker",
+                "ps"
             ],
             "stopOnEntry": false,
             "env": {
@@ -695,7 +695,7 @@
             }
         },
         {
-            "name": "lim cafe containers build --update",
+            "name": "lim cafe docker build --update",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -703,7 +703,7 @@
             "module": "lim",
             "args": [
                 "cafe",
-                "containers",
+                "docker",
                 "build",
                 "--update"
             ],
@@ -715,7 +715,7 @@
             }
         },
         {
-            "name": "lim cafe containers pull",
+            "name": "lim cafe docker pull",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -724,7 +724,7 @@
             "args": [
                 "--debug",
                 "cafe",
-                "containers",
+                "docker",
                 "pull"
             ],
             "stopOnEntry": false,
@@ -735,7 +735,7 @@
             }
         },
         {
-            "name": "lim cafe containers images",
+            "name": "lim cafe docker images",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -744,7 +744,7 @@
             "args": [
                 "--debug",
                 "cafe",
-                "containers",
+                "docker",
                 "images"
             ],
             "stopOnEntry": false,
@@ -755,7 +755,7 @@
             }
         },
         {
-            "name": "lim cafe containers down",
+            "name": "lim cafe docker down",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -763,7 +763,7 @@
             "module": "lim",
             "args": [
                 "cafe",
-                "containers",
+                "docker",
                 "down"
             ],
             "stopOnEntry": false,
@@ -774,7 +774,7 @@
             }
         },
         {
-            "name": "lim cafe containers up",
+            "name": "lim cafe docker up",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -783,7 +783,7 @@
             "args": [
                 "-v",
                 "cafe",
-                "containers",
+                "docker",
                 "up"
             ],
             "stopOnEntry": false,

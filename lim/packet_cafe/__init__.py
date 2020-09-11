@@ -136,9 +136,8 @@ def get_containers(columns=['name', 'status']):
     containers = []
     for container_id in container_ids:
         container = client.containers.get(container_id)
-        if container.labels.get(
-            'com.docker.compose.project', ''
-        ) == 'packet_cafe':
+        if container.labels.get('com.docker.compose.project',
+                                '') == 'packet_cafe':
             containers.append([get_container_metadata(
                                  getattr(container, attr, None)
                                )
@@ -259,7 +258,7 @@ class Packet_Cafe(object):
         if not containers_are_running():
             raise RuntimeError(
                 '[-] the packet-cafe Docker containers do not appear to '
-                'all be running\n[-] try "lim cafe containers show" command?'
+                'all be running\n[-] try "lim cafe docker show" command?'
             )
         self.sess_id = sess_id
         self.last_session_id = None
@@ -808,7 +807,7 @@ def add_docker_global_options(parser):
         metavar='<service_namespace>',
         dest='docker_service_namespace',
         default=Packet_Cafe.CAFE_SERVICE_NAMESPACE,
-        help=('Namespace for Packet Café service containers '
+        help=('Namespace for Packet Café service images '
               '(Env: ``LIM_CAFE_SERVICE_NAMESPACE``; '
               f'default: { Packet_Cafe.CAFE_SERVICE_NAMESPACE })')
     )
@@ -818,7 +817,7 @@ def add_docker_global_options(parser):
         metavar='<service_version>',
         dest='docker_service_version',
         default=Packet_Cafe.CAFE_SERVICE_VERSION,
-        help=('Version (tag) for Packet Café service containers '
+        help=('Version (tag) for Packet Café service images '
               '(Env: ``LIM_CAFE_SERVICE_VERSION``; '
               'default: "latest")')
     )
@@ -828,7 +827,7 @@ def add_docker_global_options(parser):
         metavar='<tool_namespace>',
         dest='docker_tool_namespace',
         default=Packet_Cafe.CAFE_TOOL_NAMESPACE,
-        help=('Namespace for Packet Café tool containers '
+        help=('Namespace for Packet Café tool images '
               '(Env: ``LIM_CAFE_TOOL_NAMESPACE``; '
               f'default: { Packet_Cafe.CAFE_TOOL_NAMESPACE })')
     )
@@ -838,7 +837,7 @@ def add_docker_global_options(parser):
         metavar='<tool_version>',
         dest='docker_tool_version',
         default=Packet_Cafe.CAFE_TOOL_VERSION,
-        help=('Version (tag) for Packet Café tool containers '
+        help=('Version (tag) for Packet Café tool images '
               '(Env: ``LIM_CAFE_TOOL_VERSION``; '
               'default: "latest")')
     )
