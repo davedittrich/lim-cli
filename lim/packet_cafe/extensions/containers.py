@@ -129,7 +129,7 @@ def needs_update(
     if fetched_new:
         logger.info(f"[+] fetch from remote '{remote}' updated {repo_dir}")
     current_branch = get_branch(repo_dir)
-    if current_branch != branch:
+    if (current_branch != branch) and not ignore_dirty:
         raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
     need_checkout, position, commit_delta = get_branch_status(repo_dir,
                                                               branch=branch)
