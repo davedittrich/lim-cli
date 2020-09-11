@@ -814,7 +814,7 @@ class ContainersUp(Command):
             raise RuntimeError(
                 '[-] docker-compose failed to bring containers up'
             )
-        else:
+        elif self.app_args.verbose_level <= 1 and not self.app_args.debug:
             logger.info(UI_MSG)
 
 
