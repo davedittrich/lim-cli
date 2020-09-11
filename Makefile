@@ -11,7 +11,10 @@ endif
 PROJECT:=$(shell basename $(CWD))
 CURRENT_ID=root:root
 
+.PHONY: all
 all: help
+
+.PHONY: help
 help:
 	@echo 'usage: make [VARIABLE=value] [target [target..]]'
 	@echo ''
