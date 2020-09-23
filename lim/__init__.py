@@ -32,7 +32,11 @@ else:
     __release__ = __version__
 
 BUFFER_SIZE = 128 * 1024
-BROWSER = os.getenv('LIM_BROWSER', None)
+# NOTE: The following is a bit of a hack. On Windows 10 WSL, the
+# environment variable ``BROWSER`` can be set to a path and it
+# will take precedence over the ``webbrowser`` module identifier.
+# It does not seem to work the same way on Mac OSX?
+BROWSER = os.getenv('LIM_BROWSER', os.getenv('BROWSER', None))
 DAY = os.environ.get('DAY', 5)
 DEFAULT_PROTOCOLS = ['icmp', 'tcp', 'udp']
 KEEPALIVE = 5.0
@@ -89,7 +93,7 @@ def open_browser(page=None, browser=None, force=False):
     if page is None:
         raise RuntimeError("[-] not page specified")
     which = "system default" if browser is None else browser
-    logger.info(f'[+] opening the {which} browser for {page}')
+    logger.info(f"[+] opening browser '{which}' for {page}")
     if browser is not None:
         webbrowser.get(browser).open_new_tab(page)
     else:

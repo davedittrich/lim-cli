@@ -58,11 +58,18 @@ class About(Command):
             a graphical browser application, it may open the ``lynx`` text
             browser.
 
-            You can choose which browser will open using the identifier
-            from the set in the ``webbrowser`` documentation. Either specify
-            the browser using the ``--browser`` option on the command line,
-            or export the environment variable ``LIM_BROWSER`` set to the
-            identifier (e.g., ``export LIM_BROWSER=firefox``)
+            You can choose which browser ``webbrowser`` will open using the
+            identifier from the set in the ``webbrowser`` documentation.
+            Either specify the browser using the ``--browser`` option on the
+            command line, or export the environment variable ``LIM_BROWSER``
+            set to the identifier (e.g., ``export LIM_BROWSER=firefox``).
+
+            On Windows 10 with Windows Subsystem for Linux, you can specify
+            path to the browser executable you want to run for browsing by
+            setting the ``BROWSER`` environment variable (e.g., ``export
+            BROWSER='/c/Program Files/Mozilla Firefox/firefox.exe'``). When
+            using this mechanism, you will also need to unset the
+            ``LIM_BROWSER`` environment variable.
 
             Also note that when this program attempts to open a browser,
             an exception may be thrown if the process has no TTY. If this
