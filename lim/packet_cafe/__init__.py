@@ -107,12 +107,16 @@ def containers_are_running(service_namespace='iqtlabs',
                            workers_definitions=None):
     """Return boolean indicating running status of packet_cafe containers."""
     # Focus on just service images
-    service_images = [
-        i['Repository'] for i in
-        get_images(service_namespace=service_namespace,
-                   tool_namespace=None,
-                   workers_definitions=workers_definitions)
-    ]
+    try:
+        service_images = [
+            i['Repository'] for i in
+                get_images(service_namespace=service_namespace,
+                           tool_namespace=None,
+                           workers_definitions=workers_definitions)
+        ]
+    except subprocess.CalledProcessError:
+        service_images = []
+
     # get_containers(columns=['image', 'status'])[0]
     # ['iqtlabs/packet_cafe_...ger:latest', 'running']
     # get_containers(columns=['image', 'status'])[0][0].split(':')[0]
