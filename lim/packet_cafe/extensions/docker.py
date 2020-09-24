@@ -667,7 +667,8 @@ class ContainersList(Lister):
         return add_docker_global_options(parser)
 
     def take_action(self, parsed_args):
-        logger.debug('[+] show running status of Packet Café Docker containers')
+        logger.debug(
+            '[+] show running status of Packet Café Docker containers')
         service_namespace = parsed_args.docker_service_namespace \
             if parsed_args.docker_service_namespace is not None else 'iqtlabs'
         if not containers_are_running(

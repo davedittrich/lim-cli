@@ -110,9 +110,11 @@ def containers_are_running(service_namespace='iqtlabs',
     try:
         service_images = [
             i['Repository'] for i in
-                get_images(service_namespace=service_namespace,
-                           tool_namespace=None,
-                           workers_definitions=workers_definitions)
+            get_images(
+                service_namespace=service_namespace,
+                tool_namespace=None,
+                workers_definitions=workers_definitions
+                )
         ]
     except subprocess.CalledProcessError:
         service_images = []

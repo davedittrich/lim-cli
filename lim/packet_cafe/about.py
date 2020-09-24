@@ -24,14 +24,14 @@ class About(Command):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser = add_browser_options(parser)
-        # NOTE(dittrich): The browser text is coupled with lim/__init__.py
+        # NOTE(dittrich): Text here is coupled w/ lim/__init__.py
         parser.epilog = textwrap.dedent(f"""
             Opens up the packet-cafe documenation in a browser.
 
             .. code-block:: console
 
                 $ lim cafe about
-                [+] opening the system default browser for {Packet_Cafe.CAFE_DOCS_URL}
+                [+] opening browser 'system default' for {Packet_Cafe.CAFE_DOCS_URL}
 
             ..
 

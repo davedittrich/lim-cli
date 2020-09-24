@@ -32,11 +32,7 @@ else:
     __release__ = __version__
 
 BUFFER_SIZE = 128 * 1024
-# NOTE: The following is a bit of a hack. On Windows 10 WSL, the
-# environment variable ``BROWSER`` can be set to a path and it
-# will take precedence over the ``webbrowser`` module identifier.
-# It does not seem to work the same way on Mac OSX?
-BROWSER = os.getenv('LIM_BROWSER', os.getenv('BROWSER', None))
+BROWSER = os.getenv('BROWSER', None)
 DAY = os.environ.get('DAY', 5)
 DEFAULT_PROTOCOLS = ['icmp', 'tcp', 'udp']
 KEEPALIVE = 5.0
