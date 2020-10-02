@@ -7,6 +7,7 @@ import docker
 import logging
 import json
 import os
+import re
 import requests
 # >> Issue: [B404:blacklist] Consider possible security implications associated
 #           with subprocess module.
@@ -20,6 +21,7 @@ import time
 import uuid
 
 
+from lim import execute
 from lim.utils import Timer
 from urllib3.exceptions import ProtocolError
 
@@ -945,5 +947,228 @@ def get_output(
             shell=shell
         ).decode('UTF-8').splitlines()
     return output
+
+
+def ensure_clone(url=None,
+                 repo_dir=None,
+                 remote='origin',
+                 branch='master'):
+    """Make sure that a clone of Packet Café exists in repo_dir."""
+    if url is None:
+        url = Packet_Cafe.CAFE_GITHUB_URL
+    if os.path.exists(repo_dir):
+        if not os.path.exists(os.path.join(repo_dir, '.git')):
+            raise RuntimeError(f'[-] Directory "{repo_dir}" does not '
+                               'look like a Git repository clone')
+        elif not os.path.exists(os.path.join(repo_dir, 'docker-compose.yml')):
+            raise RuntimeError(f'[-] Directory "{repo_dir}" does not '
+                               'contain a docker-compose.yml file')
+        try:
+            remotes = get_remote(repo_dir)
+        except RuntimeError:
+            remotes = []
+        if remote not in remotes:
+            raise RuntimeError(f"[-] directory '{repo_dir}' does not "
+                               f"have a remote '{remote}' defined")
+    else:
+        logger.info(f"[-] directory '{repo_dir}' does not exist")
+        return clone(url=url, repo_dir=repo_dir, branch=branch)
+    return True
+
+
+def clone(url=None, repo_dir=None, branch='master'):
+    """Clone Git repository."""
+    # $ git clone https://github.com/iqtlabs/packet_cafe.git /tmp/packet_cafe
+    # Cloning into '/tmp/packet_cafe'...
+    # remote: Enumerating objects: 3999, done.
+    # remote: Total 3999 (delta 0), reused 0 (delta 0), pack-reused 3999
+    # Receiving objects: 100% (3999/3999), 13.71 MiB | 1.67 MiB/s, done.
+    # Resolving deltas: 100% (2380/2380), done.
+    logger.info(f'[+] cloning from URL {url}')
+    sys.stdout.write('[+] ')
+    sys.stdout.flush()
+    clone_result = execute(cmd=['git', 'clone', url, repo_dir])
+    if clone_result != 0:
+        try:
+            os.rmdir(repo_dir)
+        except OSError:
+            pass
+        raise RuntimeError('[-] cloning failed')
+    logger.info(f"[+] checking out '{branch}' branch")
+    up_to_date = checkout(repo_dir, branch=branch)
+    return up_to_date
+
+
+def needs_update(
+    repo_dir=None,
+    branch='master',
+    remote='origin',
+    ignore_dirty=True
+):
+    """Check to see if GitHub repo is up to date."""
+    remotes = get_remote(repo_dir)
+    if len(remotes) > 1:
+        others = ','.join(remotes)
+        logger.info(f'[-] more than one remote found: {others}')
+    if repo_dir is None:
+        raise RuntimeError('[-] repo_dir must be specified')
+    if not is_clean(repo_dir) and not ignore_dirty:
+        raise RuntimeError(
+                f'[-] directory {repo_dir} is not clean \n'
+                "    (use '--ignore-dirty' if you are testing local changes)")
+    fetched_new = fetch(repo_dir, remote=remote)
+    if fetched_new:
+        logger.info(f"[+] fetch from remote '{remote}' updated {repo_dir}")
+    current_branch = get_branch(repo_dir)
+    if (current_branch != branch) and not ignore_dirty:
+        raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
+    need_checkout, position, commit_delta = get_branch_status(repo_dir,
+                                                              branch=branch)
+    if commit_delta is not None:
+        direction = "away from" if position is None else position
+        logging.debug(f"[-] branch '{branch}' is {commit_delta} "
+                      f"commit{'s' if commit_delta != 1 else ''} "
+                      f"{direction} the remote HEAD")
+    if parsed_args.ignore_dirty:
+        logger.info("[+] --ignore-dirty skipping branch status check.")
+        up_to_date = True
+    else:
+        up_to_date = checkout(repo_dir, branch=branch)
+        if not up_to_date:
+            logger.info(f"[!] branch '{branch}' is not up to date!")
+        else:
+            logger.info(f"[+] branch '{branch}' is up to date")
+        # results = pull(repo_dir, remote=remote, branch=branch)
+    return not up_to_date
+
+
+def is_clean(repo_dir):
+    """Return boolean reflecting whether repo directory is clean or not."""
+    results = [line for line
+               in get_output(cmd=['git', 'status', '--porcelain'],
+                             cwd=repo_dir)
+               if not line.startswith('??')
+               ]
+    return len(results) == 0
+
+
+def get_branch(repo_dir):
+    """Return the name of the checked out branch."""
+    results = get_output(cmd=['git', 'branch'],
+                         cwd=repo_dir)
+    branches = [row[2:] for row in results if row.startswith('* ')]
+    if len(branches) != 1:
+        raise RuntimeError('[-] failed to identify checked out branch')
+    return branches[0]
+
+
+def get_branch_status(repo_dir, branch='master'):
+    """Return branch status information."""
+    # $ git status -b
+    # On branch master
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #   (use "git pull" to update your local branch)
+    #
+    # nothing to commit, working tree clean
+    cmd = ['git', 'status', '-b']
+    logger.debug(f"[+] running '{' '.join(cmd)}'")
+    results_str = '\n'.join(get_output(cmd=cmd,
+                                       cwd=repo_dir))
+    need_checkout = False
+
+    # m = ON_BRANCH_REGEX.search(results_str, re.MULTILINE)
+    # m = re.search(r'On branch (\w+) ', results_str, re.MULTILINE)
+    m = re.search(r'^On branch (\w+)$', results_str, re.MULTILINE)
+    need_checkout = True if (m and (m.groups()[0] != branch)) else False
+    # m = HEAD_POSITION_REGEX.search(results_str, re.MULTILINE)
+    m = re.search(r'^Your branch is (\w+) [\w/\']+ by (\d+)',
+                  results_str,
+                  re.MULTILINE)
+    if m:
+        position, commit_delta = m.groups()
+    else:
+        position, commit_delta = None, None
+    return need_checkout, position, commit_delta
+
+
+def get_remote(repo_dir):
+    """Return the remotes for this repo."""
+    remotes = get_output(cmd=['git', 'remote'],
+                         cwd=repo_dir)
+    if not len(remotes):
+        raise RuntimeError('[-] failed to get remotes')
+    return remotes
+
+
+def fetch(repo_dir, remote='origin'):
+    """Fetch from remote."""
+    # $ git fetch upstream
+    # remote: Enumerating objects: 2, done.
+    # remote: Counting objects: 100% (2/2), done.
+    # remote: Compressing objects: 100% (2/2), done.
+    # remote: Total 2 (delta 0), reused 0 (delta 0), pack-reused 0
+    # Unpacking objects: 100% (2/2), 1.57 KiB | 1.57 MiB/s, done.
+    # From https://github.com/iqtlabs/packet_cafe
+    #   152ec36..cc895f5  master     -> upstream/master
+    results = get_output(cmd=['git', 'fetch', remote],
+                         cwd=repo_dir)
+    return bool(len(results))
+
+
+def checkout(repo_dir, branch='master'):
+    """Checkout branch."""
+    # $ git checkout master
+    # Switched to branch 'master'
+    # Your branch is up to date with 'origin/master'.
+    #
+    # $ git checkout master
+    # Already on 'master'
+    # Your branch is up to date with 'origin/master'.
+    #
+    # $ git checkout master
+    # Switched to branch 'master'
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #  (use "git pull" to update your local branch)
+    #
+    # $ git checkout master
+    # On branch master
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #  (use "git pull" to update your local branch)
+    #
+    # nothing to commit, working tree clean
+    #
+    results = get_output(cmd=['git', 'checkout', branch],
+                         cwd=repo_dir)
+    # Apparently different versions of ``git`` produce different
+    # results. Go figure... :(
+    results_str = ' '.join(results).replace('-', ' ')
+    return results_str.find('Your branch is up to date') > 0
+
+
+def pull(repo_dir, remote='origin', branch='master'):
+    """Return the remotes for this repo."""
+    # $ git pull upstream master
+    # From https://github.com/CyberReboot/packet_cafe
+    # * branch            master     -> FETCH_HEAD
+    # Successfully rebased and updated refs/heads/master.
+    # $ git pull upstream master
+    # From https://github.com/CyberReboot/packet_cafe
+    # * branch            master     -> FETCH_HEAD
+    # Already up to date.
+    results = get_output(cmd=['git',
+                              'pull',
+                              f"{remote}",
+                              f"{branch}"
+                              ],
+                         cwd=repo_dir)
+    results_str = ' '.join(results)
+    if not (
+        results_str.find('Successfully') or
+        results_str.find('Already up to date')
+    ):
+        raise RuntimeError(
+            f'[-] pull from "{remote}" to branch "{branch}" had problems')
+    return True
+
 
 # vim: set ts=4 sw=4 tw=0 et :
