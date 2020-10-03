@@ -30,7 +30,7 @@ class Tools(Lister):
             action='store_true',
             dest='definitions',
             default=False,
-            help=('Show definitions from workers.json file, not live '
+            help=('Show definitions from JSON files, not live '
                   '(default: False)')
         )
 
@@ -56,17 +56,17 @@ class Tools(Lister):
 
             ..
 
-            The ``--definitions`` option will show the definitions as found in
-            the ``workers.json`` file from the repository directory, rather
+            The ``--definitions`` option will show the definitions as found in the
+            ``workers.d`` drop-in directory within the repository directory, rather
             than from the running system via the API. The ``--packet-cafe-repo-dir``
-            option controls which directory is used.  This option is most useful
+            option controls which directory is used. This option is most useful
             when developing and testing your own images to verify what images
             will be used by workers after bringing up the stack.
 
             .. code-block:: console
 
                 $ lim cafe tools --definitions
-                [+] definitions from workers.json file in '/Users/dittrich/packet_cafe' (branch 'master')
+                [+] definitions '/Users/dittrich/packet_cafe/workers/workers.d' (branch 'master')
                 . . .
 
             ..
@@ -82,10 +82,12 @@ class Tools(Lister):
         columns = ['Name', 'Image', 'Version', 'Labels',
                    'Stage', 'ViewableOutput', 'Outputs', 'Inputs']
         repo_dir = parsed_args.packet_cafe_repo_dir
-        branch = parsed_args.packet_cafe_repo_branch
+        branch = get_branch(repo_dir)
         if parsed_args.definitions:
-            logger.info("[+] definitions from workers.json file "
-                        f"in '{repo_dir}' (branch '{branch}')")
+            logger.info(
+                "[+] definitions from "
+                f"{os.path.join(repo_dir, 'workers', 'workers.d')} "
+                f"(branch '{branch}')")
             workers_definitions = get_workers_definitions(
                 repo_dir=repo_dir,
                 flatten=True)

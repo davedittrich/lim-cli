@@ -232,16 +232,15 @@ teardown() {
 @test "\"lim cafe admin delete --all\" leaves storage directory empty" {
     run bash -c "$LIM cafe admin delete --all"
     assert_success
-    run bash -c "(cd $VOL_PREFIX && tree .)"
+    run bash -c "(cd $VOL_PREFIX && tree -d .)"
     assert_output ".
 ├── definitions
-│   └── workers.json
+│   └── workers.d
 ├── files
 ├── id
 └── redis
-    └── appendonly.aof
 
-4 directories, 2 files"
+5 directories"
 }
 
 @test "\"lim cafe admin delete --all\" fails when repeated" {

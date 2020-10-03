@@ -896,21 +896,23 @@ def get_workers_definitions(repo_dir=None, flatten=False):
     """Get definitions of workers."""
     if repo_dir is None:
         raise RuntimeError('[-] must specify repo_dir')
-    workers_json = os.path.join(repo_dir, 'workers', 'workers.json')
-    if not os.path.exists(workers_json):
-        raise RuntimeError(f"[-] file '{workers_json}' not found")
+    tools_dir = os.path.join(repo_dir, 'workers', 'workers.d')
+    if not os.path.exists(tools_dir):
+        raise RuntimeError(f"[-] directory '{tools_dir}' not found")
     else:
-        logger.debug(f"[+] getting worker definitions from '{workers_json}'")
-    workers_definitions = dict()
-    with open(workers_json, 'r') as f:
-        if flatten:
-            workers_definitions['workers'] = [
-                flatten_lists(worker) for worker in
-                json.loads(f.read())['workers']
-            ]
-        else:
-            workers_definitions = json.loads(f.read())
-    return workers_definitions
+        logger.debug(f"[+] getting worker definitions from '{tools_dir}'")
+    workers = []
+    (_, _, filenames) = next(os.walk(tools_dir))
+    for file_name in [name for name in filenames if name.endswith('.json')]:
+        with open(os.path.join(tools_dir, file_name)) as json_file:
+            if flatten:
+                description = flatten_lists(json.load(json_file))
+            else:
+                description = json.load(json_file)
+        # Inherit worker/tool name from file name
+        description['name'] = os.path.splitext(file_name)[0]
+        workers.append(description)
+    return {'workers': workers}
 
 
 def get_output_realtime(cmd=['echo', 'NO COMMAND SPECIFIED'],
