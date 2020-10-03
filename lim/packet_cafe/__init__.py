@@ -1029,7 +1029,7 @@ def needs_update(
         logging.debug(f"[-] branch '{branch}' is {commit_delta} "
                       f"commit{'s' if commit_delta != 1 else ''} "
                       f"{direction} the remote HEAD")
-    if parsed_args.ignore_dirty:
+    if ignore_dirty:
         logger.info("[+] --ignore-dirty skipping branch status check.")
         up_to_date = True
     else:

@@ -2,13 +2,11 @@
 
 import argparse
 import logging
-import os
 import textwrap
 
 from cliff.lister import Lister
 from lim.packet_cafe import add_docker_global_options
 from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import get_branch
 from lim.packet_cafe import get_packet_cafe
 from lim.packet_cafe import get_workers_definitions
 
