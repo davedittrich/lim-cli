@@ -1032,6 +1032,24 @@
                 "PYTHONUNBUFFERED": "1",
                 "PYTHONPATH": "${workspaceFolder}"
             }
+        },
+        {
+            "name": "lim range about",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "range",
+                "about"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }

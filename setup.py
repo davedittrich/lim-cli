@@ -136,6 +136,7 @@ setup(
             'pcap extract ips = lim.pcap.extract:PCAPExtract',
             'pcap shift network = lim.pcap.shift:PCAPShift',
             'pcap shift time = lim.pcap.shift:PCAPShift',
+            'range about = lim.attack_range.about:About',
             'version = lim.about:About',
         ],
     },
