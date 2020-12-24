@@ -6,6 +6,7 @@ dpkt
 beautifulsoup4
 cliff
 future
+gitpython
 pandas
 python_secrets
 pyreadline
