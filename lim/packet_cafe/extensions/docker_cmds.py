@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import git
 import logging
 import os
 import re
@@ -18,7 +19,7 @@ from lim.packet_cafe import get_containers
 from lim.packet_cafe import get_images
 from lim.packet_cafe import get_workers_definitions
 from lim.packet_cafe import needs_update
-from lim.packet_cafe import pull
+from lim.packet_cafe import require_files
 from lim.packet_cafe import rm_images
 
 
@@ -102,16 +103,13 @@ class ImagesBuild(Command):
         repo_dir = parsed_args.packet_cafe_repo_dir
         remote = parsed_args.packet_cafe_repo_remote
         branch = parsed_args.packet_cafe_repo_branch
-        ensure_clone(url=parsed_args.packet_cafe_github_url,
-                     repo_dir=repo_dir,
-                     remote=remote,
-                     branch=branch)
-        if needs_update(repo_dir,
-                        remote=remote,
-                        branch=branch,
-                        ignore_dirty=parsed_args.ignore_dirty):
+        repo = ensure_clone(url=parsed_args.packet_cafe_github_url,
+                            repo_dir=repo_dir,
+                            remote=remote,
+                            branch=branch)
+        if needs_update(repo, ignore_dirty=parsed_args.ignore_dirty):
             if parsed_args.update:
-                pull(repo_dir, remote=remote, branch=branch)
+                repo.remotes.origin.pull()
             else:
                 if parsed_args.ignore_dirty:
                     logger.info(HINT_USE_UPDATE_MSG)
@@ -211,17 +209,21 @@ class ContainersDown(Command):
                 logger.info(CONTAINERS_NOT_RUNNING_MSG)
             sys.exit(1)
         repo_dir = parsed_args.packet_cafe_repo_dir
-        ensure_clone(url=parsed_args.packet_cafe_github_url,
-                     repo_dir=repo_dir,
-                     branch=parsed_args.packet_cafe_repo_branch)
+        try:
+            repo = git.Repo(repo_dir)
+        except git.exc.NoSuchPathError:
+            sys.exit(f"[-] Directory '{repo_dir}' does not exist")
+        except git.exc.InvalidGitRepositoryError:
+            sys.exit(f"[-] Directory '{repo_dir}' does not "
+                     "look like a Git clone")
         cmd = ['docker-compose']
         if self.app_args.verbose_level > 1:
             cmd.append('--verbose')
         cmd.append('down')
         if self.app_args.verbose_level > 0:
-            logger.info(f"[+] running '{' '.join(cmd)}' in {repo_dir}")
+            logger.info(f"[+] running '{' '.join(cmd)}' in {repo.working_dir}")
         env = get_environment(parsed_args)
-        result = execute(cmd=cmd, cwd=repo_dir, env=env)
+        result = execute(cmd=cmd, cwd=repo.working_dir, env=env)
         if result != 0:
             raise RuntimeError('[-] docker-compose down failed')
         else:
@@ -374,17 +376,13 @@ class ImagesPull(Command):
             sys.exit(1)
         env = get_environment(parsed_args)
         repo_dir = parsed_args.packet_cafe_repo_dir
-        remote = parsed_args.packet_cafe_repo_remote
-        branch = parsed_args.packet_cafe_repo_branch
-        ensure_clone(url=parsed_args.packet_cafe_github_url,
-                     repo_dir=repo_dir,
-                     branch=branch)
-        if needs_update(repo_dir,
-                        remote=remote,
-                        branch=branch,
-                        ignore_dirty=parsed_args.ignore_dirty):
+        repo = ensure_clone(url=parsed_args.packet_cafe_github_url,
+                            repo_dir=repo_dir,
+                            remote=parsed_args.packet_cafe_repo_remote,
+                            branch=parsed_args.packet_cafe_repo_branch)
+        if needs_update(repo, ignore_dirty=parsed_args.ignore_dirty):
             if parsed_args.update:
-                pull(repo_dir, remote=remote, branch=branch)
+                repo.remotes.origin.pull()
             else:
                 if parsed_args.ignore_dirty:
                     logger.info(HINT_USE_UPDATE_MSG)
@@ -569,17 +567,13 @@ class ContainersUp(Command):
                 logger.info(CONTAINERS_RUNNING_MSG)
             sys.exit(1)
         repo_dir = parsed_args.packet_cafe_repo_dir
-        remote = parsed_args.packet_cafe_repo_remote
-        branch = parsed_args.packet_cafe_repo_branch
-        ensure_clone(url=parsed_args.packet_cafe_github_url,
-                     repo_dir=repo_dir,
-                     branch=parsed_args.packet_cafe_repo_branch)
-        if needs_update(repo_dir,
-                        remote=remote,
-                        branch=branch,
-                        ignore_dirty=parsed_args.ignore_dirty):
+        repo = ensure_clone(url=parsed_args.packet_cafe_github_url,
+                            repo_dir=repo_dir,
+                            remote=parsed_args.packet_cafe_repo_remote,
+                            branch=parsed_args.packet_cafe_repo_branch)
+        if needs_update(repo, ignore_dirty=parsed_args.ignore_dirty):
             if parsed_args.update:
-                pull(repo_dir, remote=remote, branch=branch)
+                repo.remotes.origin.pull()
             else:
                 if parsed_args.ignore_dirty:
                     logger.info(HINT_USE_UPDATE_MSG)
@@ -587,6 +581,7 @@ class ContainersUp(Command):
                     raise RuntimeError(HINT_USE_UPDATE_MSG)
         elif parsed_args.update:
             logger.info(UPDATE_DID_NOTHING_MSG)
+        require_files(repo, ['docker-compose.yml'])
         cmd = [
             'docker-compose',
             'up'
