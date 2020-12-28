@@ -8,6 +8,7 @@ cliff
 future
 gitpython
 pandas
+pony
 python_secrets
 pyreadline
 six
