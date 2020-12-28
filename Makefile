@@ -12,7 +12,8 @@ PROJECT:=$(shell basename $(CWD))
 CURRENT_ID=root:root
 
 .PHONY: all
-all: help
+all: install-active
+	@lim help
 
 .PHONY: help
 help:
