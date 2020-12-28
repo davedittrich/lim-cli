@@ -120,6 +120,7 @@ twine-check: sdist
 .PHONY: clean
 clean:
 	find . -name '*.pyc' -delete
+	find . -name '__pycache__' -delete
 	rm -rf docs/_build/{html,doctrees}
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
