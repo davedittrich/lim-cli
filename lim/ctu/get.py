@@ -135,11 +135,11 @@ class CTUGet(Command):
         result = ""
         try:
             result = subprocess.check_output(  # nosec
-                    cmd,
-                    cwd=cwd,
-                    stderr=stderr,
-                    shell=shell
-                ).decode('UTF-8').splitlines()
+                cmd,
+                cwd=cwd,
+                stderr=stderr,
+                shell=shell
+            ).decode('UTF-8').splitlines()
         except Exception as err:
             message = f'[-] cannot run "wget": { err }'
         else:
@@ -148,7 +148,7 @@ class CTUGet(Command):
             raise RuntimeError(message)
 
         url = self.ctu_metadata.get_scenario_attribute(
-                name=name, attribute='URL')
+            name=name, attribute='URL')
         cmd = ['wget',
                '-r',
                '--no-parent',
@@ -161,11 +161,11 @@ class CTUGet(Command):
                       f'from { url } ')
         try:
             result = subprocess.check_output(  # nosec
-                    cmd,
-                    cwd=cwd,
-                    stderr=stderr,
-                    shell=shell
-                ).decode('UTF-8').splitlines()
+                cmd,
+                cwd=cwd,
+                stderr=stderr,
+                shell=shell
+            ).decode('UTF-8').splitlines()
         except subprocess.CalledProcessError as err:
             sys.stderr.write('\n'.join([line for line in result]) + '\n')
             sys.stderr.write(str(err.output) + '\n')
@@ -178,11 +178,11 @@ class CTUGet(Command):
                '-delete']
         try:
             result = subprocess.check_output(  # nosec
-                    cmd,
-                    cwd=cwd,
-                    stderr=stderr,
-                    shell=shell
-                ).decode('UTF-8').splitlines()
+                cmd,
+                cwd=cwd,
+                stderr=stderr,
+                shell=shell
+            ).decode('UTF-8').splitlines()
         except subprocess.CalledProcessError as err:
             sys.stderr.write('\n'.join([line for line in result]) + '\n')
             sys.stderr.write(str(err.output) + '\n')

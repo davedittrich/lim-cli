@@ -25,6 +25,7 @@ class PeopleHelp(Command):
             assigning cloud instances to people involved in a purpleteam
             exercise, conference training session, or CTF event.
             """)  # noqa
+
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter

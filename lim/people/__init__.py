@@ -8,7 +8,7 @@ PEOPLE_ROLES = [
     'STUDENT',
     'PROCTOR',
     'INSTRUCTOR',
-    ]
+]
 PEOPLE_ATTRIBUTES = OrderedDict(
     {
         'person_id': 'Id',

@@ -2,10 +2,7 @@
 
 import argparse
 import logging
-import os
 import textwrap
-import subprocess  # nosec
-import sys
 
 from cliff.command import Command
 from lim.people.pony import *
@@ -37,7 +34,7 @@ class PeopleRemove(Command):
 
     def take_action(self, parsed_args):
         self.log.debug('[+] removing people')
-        db = db_connect(self.app_args.debug)
+        db_connect(self.app_args.debug)
         attrs = dict()
         for arg in parsed_args.arg:
             key, value = arg.split('=')

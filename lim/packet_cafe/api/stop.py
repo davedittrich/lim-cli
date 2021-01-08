@@ -35,14 +35,16 @@ class Stop(Command):
         if not len(ids):
             raise RuntimeError(NO_SESSIONS_MSG)
         sess_id = packet_cafe.get_session_id(
-                sess_id=parsed_args.sess_id,
-                choose=parsed_args.choose)
+            sess_id=parsed_args.sess_id,
+            choose=parsed_args.choose
+        )
         if sess_id not in ids:
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
         req_id = packet_cafe.get_request_id(
-                req_id=parsed_args.req_id,
-                choose=parsed_args.choose)
+            req_id=parsed_args.req_id,
+            choose=parsed_args.choose
+        )
         status = packet_cafe.stop(sess_id=sess_id, req_id=req_id)
         if status is None:
             raise RuntimeError('[-] failed to stop '

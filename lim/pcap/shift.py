@@ -127,9 +127,11 @@ class PCAPShift(Command):
                                         'following with these fields:')
                             logger.info('[+] PACKET_NUMBER OLD_TIMESTAMP '
                                         'NEW_TIMESTAMP')
-                        logger.info('{} {} {}'.format(packet_number,
-                                                      str(arrow.get(ts)),
-                                                      str(arrow.get(newts))))
+                        logger.info(
+                            f'{packet_number} '
+                            f'{str(arrow.get(ts))} '
+                            f'{str(arrow.get(newts))}'
+                        )
                     writer.writepkt(newbuf, newts)
                     packet_number += 1
 

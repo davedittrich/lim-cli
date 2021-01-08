@@ -98,15 +98,17 @@ class Report(Lister):
                         f"[-] no reportable output for tool '{ tool }'\n"
                         f'[-] use one or more of: { ",".join(all_tools) }')
         sess_id = packet_cafe.get_session_id(
-                sess_id=parsed_args.sess_id,
-                choose=parsed_args.choose)
+            sess_id=parsed_args.sess_id,
+            choose=parsed_args.choose
+        )
         if sess_id not in ids:
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
         req_id = packet_cafe.get_request_id(
-                sess_id=sess_id,
-                req_id=parsed_args.req_id,
-                choose=parsed_args.choose)
+            sess_id=sess_id,
+            req_id=parsed_args.req_id,
+            choose=parsed_args.choose
+        )
         try:
             request = [r for r in packet_cafe.get_requests(sess_id=sess_id)
                        if r['id'] == req_id][0]

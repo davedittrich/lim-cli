@@ -31,7 +31,7 @@ class PeopleUpdate(Command):
 
     def take_action(self, parsed_args):
         self.log.debug('[+] updating people')
-        db = db_connect(self.app_args.debug)
+        db_connect(self.app_args.debug)
         person_id = parsed_args.id[0]
         update_person(person_id=person_id,
                       args=parsed_args.arg)

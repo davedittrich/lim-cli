@@ -50,7 +50,7 @@ class LiminalApp(App):
                 namespace='lim'
             ),
             deferred_help=True,
-            )
+        )
         self.environment = None
         self.timer = Timer()
         self.packet_cafe = None
@@ -87,17 +87,17 @@ class LiminalApp(App):
             action='store_true',
             dest='elapsed',
             default=False,
-            help="Include elapsed time (and ASCII bell) " +
-                 "on exit (default: False)"
+            help=('Include elapsed time (and ASCII bell) '
+                  'on exit (default: False)')
         )
         parser.add_argument(
             '-E', '--environment',
             metavar='<environment>',
             dest='environment',
             default=default_environment(),
-            help="Deployment environment selector " +
-            "(Env: ``LIM_ENVIRONMENT``; default: {})".format(
-                default_environment())
+            help=('Deployment environment selector '
+                  '(Env: ``LIM_ENVIRONMENT``; '
+                  f'default: {default_environment()})')
         )
         parser.add_argument(
             '-n', '--limit',
@@ -106,8 +106,8 @@ class LiminalApp(App):
             metavar='<results_limit>',
             dest='limit',
             default=0,
-            help="Limit result to no more than this many items " +
-                 "(0 means no limit; default: 0)"
+            help=('Limit result to no more than this many items '
+                  '(0 means no limit; default: 0)')
         )
         parser.epilog = textwrap.dedent(f"""
         For help information on individual commands, use ``lim <command> --help``.

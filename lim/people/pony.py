@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from operator import truediv
 import os
 import sys
 
@@ -11,6 +10,7 @@ from lim.people import (
     PEOPLE_DATABASE,
     PEOPLE_ROLES,
 )
+
 
 def valid_email(address=''):
     """Simple email validator.
@@ -24,7 +24,7 @@ def valid_email(address=''):
       address (str): Candidate email address.
 
     Returns:
-      bool: Boolean value with test result. 
+      bool: Boolean value with test result.
     """
 
     try:
@@ -47,6 +47,7 @@ logger = logging.getLogger(__name__)
 
 db = Database()
 
+
 class Person(db.Entity):
     person_id = PrimaryKey(int, auto=True)
     short_name = Required(str, unique=True)
@@ -54,6 +55,7 @@ class Person(db.Entity):
     role = Required(str)
     email = Required(str)
     machine = Optional('Machine', cascade_delete=True)
+
 
 class Machine(db.Entity):
     machine_id = PrimaryKey(int, auto=True)
@@ -87,11 +89,12 @@ def get_people_data():
         for pd in people_dicts
     ]
 
+
 @db_session
 def add_person(**attrs):
     if 'role' not in attrs:
         attrs['role'] = get_default_role()
-    for key, value in attrs.items(): 
+    for key, value in attrs.items():
         if key not in PEOPLE_ATTRIBUTES:
             raise RuntimeError(f"[-] '{key}' is not a valid attribute")
         if key == 'email' and not valid_email(value):
@@ -107,15 +110,17 @@ def add_person(**attrs):
                      # email=email,
                      returning='person_id')
 
+
 @db_session
 def delete_person(**attrs):
-    for key, value in attrs.items(): 
+    for key, value in attrs.items():
         if key not in PEOPLE_ATTRIBUTES:
             raise RuntimeError(f"[-] '{key}' is not a valid attribute")
         try:
             delete(p for p in Person if getattr(p, key) == value)
         except Exception as err:
             sys.exit(str(err))
+
 
 @db_session
 def update_person(person_id=None, args=[]):
@@ -131,6 +136,7 @@ def update_person(person_id=None, args=[]):
     except Exception as err:
         sys.exit(str(err))
 
+
 @db_session
 def get_people_columns():
     return PEOPLE_ATTRIBUTES.keys()
@@ -143,6 +149,7 @@ def get_people_columns():
 @db_session
 def get_machines():
     return list(Machine.select())
+
 
 @db_session
 def get_machine_columns():

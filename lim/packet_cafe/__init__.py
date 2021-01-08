@@ -116,7 +116,7 @@ def containers_are_running(service_namespace='iqtlabs',
                 service_namespace=service_namespace,
                 tool_namespace=None,
                 workers_definitions=workers_definitions
-                )
+            )
         ]
     except subprocess.CalledProcessError:
         service_images = []
@@ -144,12 +144,14 @@ def get_containers(columns=['name', 'status']):
     containers = []
     for container_id in container_ids:
         container = client.containers.get(container_id)
-        if container.labels.get('com.docker.compose.project',
-                                '') == 'packet_cafe':
-            containers.append([get_container_metadata(
-                                 getattr(container, attr, None)
-                               )
-                               for attr in columns])
+        label = container.labels.get('com.docker.compose.project', '')
+        if label == 'packet_cafe':
+            containers.append(
+                [
+                    get_container_metadata(getattr(container, attr, None))
+                    for attr in columns
+                ]
+            )
     return containers
 
 
@@ -627,10 +629,10 @@ class Packet_Cafe(object):
                     if not wait_only:
                         status_line = (
                             "[+] {0:{1}}".format(worker + ':',
-                                                 max_worker_len + 2) +
-                            f"{ worker_state.lower() } " +
-                            f"{ status[worker]['timestamp'] }" +
-                            (f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
+                                                 max_worker_len + 2)
+                            + f"{worker_state.lower()} "
+                            + f"{status[worker]['timestamp']}"
+                            + (f" ({timer.elapsed(end='now')})" if elapsed else "")  # noqa
                         )
                         try:
                             print(status_line)
@@ -640,8 +642,8 @@ class Packet_Cafe(object):
                 if worker_state == "Error":
                     errors = True
             if (
-                len(reported) == len(workers) or
-                (errors and not ignore_errors)
+                len(reported) == len(workers)
+                or (errors and not ignore_errors)
             ):
                 break
         return not errors
@@ -684,9 +686,10 @@ class Packet_Cafe(object):
         if _sess_id is None and generate:
             _sess_id = uuid.uuid4()
         if sess_id is None and _sess_id is None:
+            msg = "[-] session ID not provided"
+            if sys.stdout.isatty():
+                msg += " - use '--choose'?"
             raise RuntimeError(
-                "[-] session ID not provided" +
-                (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
         return _sess_id
 
@@ -738,10 +741,10 @@ class Packet_Cafe(object):
                     cancel_throws_exception=True
                 )
         if req_id is None and _req_id is None:
-            raise RuntimeError(
-                "[-] request ID not provided" +
-                (" - use '--choose'?" if sys.stdout.isatty() else "")
-            )
+            msg = "[-] request ID not provided"
+            if sys.stdout.isatty():
+                msg += " - use '--choose'?"
+            raise RuntimeError(msg)
         return _req_id
 
     def get_last_request_id(self):
@@ -921,13 +924,13 @@ def get_output_realtime(cmd=['echo', 'NO COMMAND SPECIFIED'],
                         shell=False):
     """Use subprocess.Popen() to track process output in realtime"""
     p = subprocess.Popen(  # nosec
-            cmd,
-            cwd=cwd,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=stderr,
-            shell=shell
-        )
+        cmd,
+        cwd=cwd,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=stderr,
+        shell=shell
+    )
     for char in iter(p.stdout.readline, b''):
         sys.stdout.write(char.decode('utf-8'))
     p.stdout.close()
@@ -942,11 +945,11 @@ def get_output(
 ):
     """Use subprocess.check_ouput to run subcommand"""
     output = subprocess.check_output(  # nosec
-            cmd,
-            cwd=cwd,
-            stderr=stderr,
-            shell=shell
-        ).decode('UTF-8').splitlines()
+        cmd,
+        cwd=cwd,
+        stderr=stderr,
+        shell=shell
+    ).decode('UTF-8').splitlines()
     return output
 
 
@@ -1013,8 +1016,8 @@ def needs_update(
         logger.info(f'[-] more than one remote found: {others}')
     if repo.is_dirty() and not ignore_dirty:
         raise RuntimeError(
-                f'[-] directory {repo.working_dir} is not clean \n'
-                "    (use '--ignore-dirty' if you are testing local changes)")
+            f'[-] directory {repo.working_dir} is not clean \n'
+            "    (use '--ignore-dirty' if you are testing local changes)")
     fetched_new = repo.git.fetch()
     if len(fetched_new):
         logger.info(

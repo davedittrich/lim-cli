@@ -85,8 +85,8 @@ class About(Command):
                          force=parsed_args.force)
         else:
             if (
-                self.app_args.verbose_level == 0 or
-                self.cmd_name == "version"
+                self.app_args.verbose_level == 0
+                or self.cmd_name == "version"
             ):
                 print(f'{ __version__ }')
             else:

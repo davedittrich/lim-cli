@@ -47,7 +47,6 @@ class PeopleShow(ShowOne):
            """)  # noqa
         return parser
 
-
     def take_action(self, parsed_args):
         self.log.debug('[+] listing people')
         if 'all' in parsed_args.roles:

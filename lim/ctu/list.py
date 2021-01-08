@@ -38,16 +38,16 @@ class CTUList(Lister):
             action='store_true',
             dest='fullnames',
             default=False,
-            help="Show full names including the " +
-                 "'{}' prefix".format(CTU_Dataset.__CTU_PREFIX__)
+            help=("Show full names including the "
+                  f"'{CTU_Dataset.__CTU_PREFIX__}' prefix")
         )
         parser.add_argument(
             '--everything',
             action='store_true',
             dest='everything',
             default=False,
-            help="Show all metadata attributes for scenarios " +
-                 "(default : False)"
+            help=("Show all metadata attributes for scenarios "
+                  "(default : False)")
         )
         parser.add_argument(
             '--group',

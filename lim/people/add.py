@@ -33,7 +33,7 @@ class PeopleAdd(Command):
         for arg in parsed_args.arg:
             key, value = arg.split('=')
             attrs[key] = value
-        db = db_connect(self.app_args.debug)
+        db_connect(self.app_args.debug)
         try:
             new_id = add_person(**attrs)
         except IntegrityError as err:
