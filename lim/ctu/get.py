@@ -42,8 +42,8 @@ class CTUGet(Command):
             dest='protocols',
             type=lambda s: [i for i in s.split(',')],
             default=_default_protocols,
-            help='Protocols to include, or "any" ' +
-                 '(default: {})'.format(_default_protocols)
+            help=("Protocols to include, or 'any' "
+                  f"(default: {_default_protocols})")
         )
         parser.add_argument(
             '-L', '--maxlines',

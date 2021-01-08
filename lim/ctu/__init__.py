@@ -125,7 +125,7 @@ def download_ctu_netflow(url=None,
             # count it when comparing maxlines.
             if maxlines is not None and count > int(maxlines):
                 break
-        logger.info('[+] wrote file {}'.format(outfilename))
+        logger.info(f"[+] wrote file {outfilename}")
 
 
 class CTU_Dataset(object):
@@ -338,7 +338,7 @@ class CTU_Dataset(object):
         filename = url.split('/').pop()
         if filename in ['', None]:
             raise RuntimeError(
-                '[-] cannot determine filename from url {}'.format(url))
+                f"[-] cannot determine filename from url {url}")
         return filename
 
     def get_scenarios(self):
@@ -352,7 +352,7 @@ class CTU_Dataset(object):
     def is_valid_scenario(self, name):
         """Returns boolean indicating existence of scenario"""
         if type(name) is not str:
-            raise RuntimeError('[-] "{}" must be type(str)'.format(name))
+            raise RuntimeError(f"[-] '{name} must be type(str)")
         return name in self.scenarios
 
     def get_scenario(self, name):
@@ -521,7 +521,7 @@ class CTU_Dataset(object):
     async def fetch_page(self, semaphore, url, session):
         """Fetch a page"""
         if self.debug:
-            logger.debug('[+] fetch_page({})'.format(url))
+            logger.debug(f"[+] fetch_page({url})")
         page = await self.bound_fetch(semaphore, url, session)
         return page.decode("utf-8")
 
@@ -533,14 +533,14 @@ class CTU_Dataset(object):
     async def fetch(self, url, session):
         """GET a URL asynchronously"""
         with async_timeout.timeout(self.async_timeout):
-            logger.debug('[+] fetch({})'.format(url))
+            logger.debug(f"[+] fetch({url})")
             async with session.get(url) as response:
                 return await response.read()
 
     def immediate_fetch(self, url):
         """GET a page synchronously"""
         if self.debug:
-            logger.debug('[+] immediate_fetch({})'.format(url))
+            logger.debug(f"[+] immediate_fetch({url})")
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             requests.packages.urllib3.disable_warnings(
@@ -570,15 +570,15 @@ class CTU_Dataset(object):
                 self.delete_cache()
             age = now - stat_results.st_mtime
             if age <= cache_timeout:
-                logger.debug('[+] cache {} '.format(self.cache_file) +
-                             'has not yet expired')
+                logger.debug(
+                    f"[+] cache {self.cache_file} has not yet expired")
                 cache_expired = False
             else:
-                logger.debug('[+] cache {} '.format(self.cache_file) +
-                             'has expired')
+                logger.debug(
+                    f"[+] cache {self.cache_file} has expired")
         except FileNotFoundError as err:  # noqa
-            logger.debug('[+] cache {} '.format(self.cache_file) +
-                         'not found')
+            logger.debug(
+                f"[+] cache {self.cache_file} not found")
         self.cache_expired = cache_expired
         return self.cache_expired
 
@@ -594,8 +594,8 @@ class CTU_Dataset(object):
                 _cache = json.load(infile)
             self.scenarios = _cache['scenarios']
             self.columns = _cache['columns']
-            logger.debug('[+] loaded metadata from cache: ' +
-                         '{}'.format(self.cache_file))
+            logger.debug(
+                f"[+] loaded metadata from cache: '{self.cache_file}'")
             return True
         return False
 
@@ -607,15 +607,15 @@ class CTU_Dataset(object):
         _cache['columns'] = self.columns
         with open(self.cache_file, 'w') as outfile:
             json.dump(_cache, outfile)
-        logger.debug('[+] wrote new cache file ' +
-                     '{}'.format(self.cache_file))
+        logger.debug(
+            f"[+] wrote new cache file '{self.cache_file}'")
         return True
 
     def delete_cache(self):
         """Delete cache file"""
 
         os.remove(self.cache_file)
-        logger.debug('[+] deleted cache file {}'.format(self.cache_file))
+        logger.debug(f"[+] deleted cache file '{self.cache_file}'")
         return True
 
     def get_scenarios_for_group(self, group=None):
@@ -630,8 +630,8 @@ class CTU_Dataset(object):
         if group is None:
             raise RuntimeError('[-] no group name provided')
         url = CTU_Dataset.get_url_for_group(group)
-        logger.info('[+] identifying scenarios for ' +
-                    'group {} from {}'.format(group, url))
+        logger.info(
+            f"[+] identifying scenarios for group {group} from {url}")
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             requests.packages.urllib3.disable_warnings(
@@ -647,10 +647,10 @@ class CTU_Dataset(object):
             if href.startswith('?'):
                 continue
             if '/publicDatasets/' in href and href.endswith('/'):
-                logger.debug('[+] found scenario {}'.format(href))
+                logger.debug(f"[+] found scenario {href}")
                 scenarios.append(href)
-        logger.info('[+] group "{}" '.format(group) +
-                    'has {} scenarios'.format(len(scenarios)))
+        logger.info(
+            f"[+] group '{group} has {len(scenarios)} scenarios")
         return scenarios
 
     def get_metadata(self,

@@ -23,14 +23,16 @@ def find(lst, key, value):
 
 def convert_type(t, v):
     """Convert value 'v' to type 't'"""
-    _valid_type = ['int', 'float', 'long', 'complex', 'str']
-    if t not in _valid_type:
-        raise RuntimeError('[-] unsupported type: must be one of: ' +
-                           ",".join([i for i in _valid_type]))
+    valid_types = ['int', 'float', 'long', 'complex', 'str']
+    valid_types_str = ",".join(valid_types)
+    if t not in valid_types:
+        raise RuntimeError(
+            f"[-] unsupported type: must be one of: {valid_types_str}"
+        )
     try:
-        return type(eval("{}()".format(t)))(v)   # nosec
+        return type(eval(f"{t}({v})"))   # nosec
     except ValueError:
-        raise ValueError('type={}, value="{}"'.format(t, v))
+        raise ValueError(f"type={t}, value='{v}'")
 
 
 def check_natural(value):

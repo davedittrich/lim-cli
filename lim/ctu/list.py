@@ -56,8 +56,8 @@ class CTUList(Lister):
             type=str,
             choices=CTU_Dataset.get_groups() + ['all'],
             default=None,
-            help="Dataset group to incldue or 'all' " +
-                 "(default: '{}')".format(CTU_Dataset.get_default_group())
+            help=("Dataset group to incldue or 'all' "
+                  f"(default: '{CTU_Dataset.get_default_group()}')")
         )
         find = parser.add_mutually_exclusive_group(required=False)
         find.add_argument(
