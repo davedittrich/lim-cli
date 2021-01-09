@@ -82,10 +82,14 @@ def db_connect(debug=False):
 
 
 @db_session
-def get_people_data():
+def get_people_data(skip=[]):
     people_dicts = list(p.to_dict() for p in Person.select())
     return [
-        list(pd.get(key, None) for key in PEOPLE_ATTRIBUTES)
+        list(
+            pd.get(key, None)
+            for key in PEOPLE_ATTRIBUTES
+            if key not in skip
+        )
         for pd in people_dicts
     ]
 
@@ -138,8 +142,11 @@ def update_person(person_id=None, args=[]):
 
 
 @db_session
-def get_people_columns():
-    return PEOPLE_ATTRIBUTES.keys()
+def get_people_columns(skip=[]):
+    return [
+        item for item in PEOPLE_ATTRIBUTES.keys()
+        if item not in skip
+    ]
     # list(
     #     getattr(c, 'name')
     #     for c in db.schema.names['Person'].column_list

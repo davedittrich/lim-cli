@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+from lim.people import PEOPLE_ATTRIBUTES_SKIP
 import logging
 import textwrap
 import sys
@@ -25,6 +26,14 @@ class PeopleList(Lister):
             default=get_default_role(),
             help=f"Role to include or 'all' (default: '{get_default_role()}'"
         )
+        parser.add_argument(
+            '--roster',
+            action='store_true',
+            dest='roster',
+            default=False,
+            help=('Only include fields necessary for a '
+                  'roster file (default: None).')
+        )
         find = parser.add_mutually_exclusive_group(required=False)
         find.add_argument(
             '--name-includes',
@@ -42,10 +51,12 @@ class PeopleList(Lister):
         parser.add_argument(
             'id',
             nargs='*',
-            default=None)
-        parser.epilog = textwrap.dedent(f"""\
-            List people.
-            """)  # noqa
+            default=None
+        )
+        parser.epilog = textwrap.dedent(
+            """List people.
+            """
+        )
         return parser
 
     def take_action(self, parsed_args):
@@ -53,8 +64,9 @@ class PeopleList(Lister):
         if 'all' in parsed_args.role:
             parsed_args.role = PEOPLE_ROLES
         db_connect(debug=self.app_args.debug)
-        columns = get_people_columns()
-        data = get_people_data()
+        skip = PEOPLE_ATTRIBUTES_SKIP if parsed_args.roster else []
+        columns = get_people_columns(skip=skip)
+        data = get_people_data(skip=skip)
         if not len(data):
             sys.exit(1)
         return columns, data

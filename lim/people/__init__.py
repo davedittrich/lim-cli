@@ -19,7 +19,10 @@ PEOPLE_ATTRIBUTES = OrderedDict(
         'machine': 'Machine Id',
     }
 )
-
+PEOPLE_ATTRIBUTES_SKIP = [
+    'person_id',
+    'machine',
+]
 
 logger = logging.getLogger(__name__)
 

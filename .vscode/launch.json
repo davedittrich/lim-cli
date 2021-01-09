@@ -1053,6 +1053,26 @@
             }
         },
         {
+            "name": "lim people add --roster-file tests/participants.json",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "people",
+                "add",
+                "--roster-file",
+                "tests/participants.json"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "lim people add short_name=dittrich ...",
             "type": "python",
             "request": "launch",
@@ -1066,7 +1086,7 @@
                 "short_name=dittrich",
                 "full_name=Dave Dittrich",
                 "role=PROCTOR",
-                "email=dave.dittrich@gmail.com",
+                "email=dave.dittrich@gmail.com"
             ],
             "stopOnEntry": false,
             "env": {
