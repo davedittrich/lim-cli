@@ -3,6 +3,7 @@
 import aiohttp
 import async_timeout
 import asyncio
+import email.utils
 import ipaddress
 import json
 import logging
@@ -23,6 +24,17 @@ from lim.utils import LineReader
 from urllib3.exceptions import InsecureRequestWarning
 
 logger = logging.getLogger(__name__)
+
+
+def httpdate_to_timestamp(date_time):
+    time_tuple = email.utils.parsedate_tz(date_time)
+    return 0 if time_tuple is None else email.utils.mktime_tz(time_tuple)
+
+
+def timestamp_to_httpdate(timestamp):
+    return email.utils.formatdate(timeval=timestamp,
+                                  localtime=False,
+                                  usegmt=True)
 
 
 def unhex(x):
@@ -165,6 +177,7 @@ class CTU_Dataset(object):
         'malware': 'https://www.stratosphereips.org/datasets-malware',
         'iot': 'https://www.stratosphereips.org/datasets-iot',
     }
+    __CTU_DATASET_INDEX_URL__ = 'https://mcfp.felk.cvut.cz/publicDatasets/datasets.json'
     __CTU_PREFIX__ = 'CTU-Malware-Capture-'
     __DEFAULT_GROUP__ = 'malware'
     __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
@@ -200,6 +213,14 @@ class CTU_Dataset(object):
         'PCAP',
         'WEBLOGNG'
     ]
+    __INDEX_COLUMNS__ = [
+        'Infection_Date',
+        'Capture_Name',
+        'Malware',
+        'MD5',
+        'SHA256',
+        'URL',
+    ]
     __MIN_COLUMNS__ = 4
     __DISCLAIMER__ = textwrap.dedent("""\
        When using this data, make sure to respect the Disclaimer at the bottom of
@@ -231,7 +252,6 @@ class CTU_Dataset(object):
     """)  # noqa
 
     def __init__(self,
-                 cache_timeout=__CACHE_TIMEOUT__,
                  async_timeout=__ASYNC_TIMEOUT__,
                  semaphore_limit=__SEMAPHORE_LIMIT__,
                  cache_file=None,
@@ -239,7 +259,6 @@ class CTU_Dataset(object):
                  debug=False):
         """Initialize object."""
 
-        self.cache_timeout = cache_timeout
         self.semaphore_limit = semaphore_limit
         self.async_timeout = async_timeout
         self.cache_file = \
@@ -248,8 +267,11 @@ class CTU_Dataset(object):
         self.debug = debug
 
         # Attributes
-        self.cache_expired = None
+        # NEW
+        self.datasets = None
+        # DEPRECATED?
         self.scenarios = OrderedDict()
+        # DEPRECATED?
         self.columns = self.get_columns()
         self.groups = self.get_groups()
         pass
@@ -295,7 +317,8 @@ class CTU_Dataset(object):
     @classmethod
     def get_columns(cls):
         """Returns list of columns"""
-        return cls.__COLUMNS__
+        # return cls.__COLUMNS__
+        return cls.__INDEX_COLUMNS__
 
     @classmethod
     def get_disclaimer(cls):
@@ -429,11 +452,12 @@ class CTU_Dataset(object):
         if not self.cache_has_expired() and not self.ignore_cache:
             self.read_cache()
         else:
-            loop = asyncio.get_event_loop()
-            loop.add_signal_handler(signal.SIGINT, loop.stop)
-            future = asyncio.ensure_future(self.run_fetch())
-            loop.run_until_complete(future)
-            self.write_cache()
+            raise RuntimeError('[!] BUG with new index code?')
+            # loop = asyncio.get_event_loop()
+            # loop.add_signal_handler(signal.SIGINT, loop.stop)
+            # future = asyncio.ensure_future(self.run_fetch())
+            # loop.run_until_complete(future)
+            # self.write_cache()
 
     async def record_scenario_metadata(self, semaphore, group, url, session):
         if url is None:
@@ -501,6 +525,7 @@ class CTU_Dataset(object):
     async def run_fetch(self):
         tasks = []
         semaphore = asyncio.Semaphore(self.semaphore_limit)
+        session = None
         try:
             async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=False)) as session:  # noqa
@@ -515,7 +540,8 @@ class CTU_Dataset(object):
                 logger.info(f'[+] queued {len(tasks)} pages for processing')
                 await responses
         except KeyboardInterrupt:
-            session.close()
+            if session is not None:
+                session.close()
 
     async def fetch_page(self, semaphore, url, session):
         """Fetch a page"""
@@ -547,7 +573,30 @@ class CTU_Dataset(object):
             response = requests.get(url, verify=False)  # nosec
         return response
 
-    def cache_has_expired(self, cache_timeout=__CACHE_TIMEOUT__):
+    def get_cache_last_mtime(self, clean=True):
+        """Return the last modified time of the cache file.
+
+        Returns:
+            Last modified timestamp in Unix epoch time or
+            0 if no cache file exists.
+        """
+
+        last_mtime = 0
+        try:
+            stat_results = os.stat(self.cache_file)
+            if stat_results.st_size == 0 and clean:
+                logger.debug(
+                    f"[!] found empty cache '{self.cache_file}'")
+                self.delete_cache()
+            last_mtime = stat_results.st_mtime
+        except FileNotFoundError as err:  # noqa
+            pass
+        return last_mtime
+
+    def cache_has_expired(
+        self,
+        source_mtime=0,
+    ):
         """
         Returns True if cache_file is expired or does not exist.
         Returns False if file exists and is not expired.
@@ -557,58 +606,113 @@ class CTU_Dataset(object):
         """
 
         if self.cache_file.startswith('test'):
-            self.cache_expired = False
-        if self.cache_expired is not None:
-            return self.cache_expired
+            return False
         cache_expired = True
         now = time.time()
         try:
-            stat_results = os.stat(self.cache_file)
-            if stat_results.st_size == 0:
-                logger.debug('[!] found empty cache')
-                self.delete_cache()
-            age = now - stat_results.st_mtime
-            if age <= cache_timeout:
-                logger.debug('[+] cache {} '.format(self.cache_file) +
-                             'has not yet expired')
+            cache_mtime = self.get_cache_last_mtime()
+            if source_mtime <= cache_mtime:
+                logger.debug(
+                    f"[+] cache '{self.cache_file}' has not yet expired")
                 cache_expired = False
             else:
-                logger.debug('[+] cache {} '.format(self.cache_file) +
-                             'has expired')
+                logger.debug(
+                    f"[+] cache '{self.cache_file}' has expired")
         except FileNotFoundError as err:  # noqa
-            logger.debug('[+] cache {} '.format(self.cache_file) +
-                         'not found')
-        self.cache_expired = cache_expired
-        return self.cache_expired
+            logger.debug(
+                f"[+] cache '{self.cache_file}' not found")
+        return cache_expired
 
     def read_cache(self):
         """
-        Load cached data (if any). Returns True if read
-        was successful, otherwise False.
+        Load index metadata from a local cache.
+
+        In order to minimize load on the CTU dataset server, the
+        metadata index and related information is cached locally
+        and only refreshed if it is considered expired. If there is
+        no cache, or if the last modification time of the remote index
+        is greater (newer) than the last modified time local cache, the
+        cache is refreshed.
+
+        Returns:
+            None
         """
 
         _cache = dict()
-        if not self.cache_has_expired():
-            with open(self.cache_file, 'r') as infile:
-                _cache = json.load(infile)
-            self.scenarios = _cache['scenarios']
-            self.columns = _cache['columns']
-            logger.debug('[+] loaded metadata from cache: ' +
-                         '{}'.format(self.cache_file))
-            return True
-        return False
+        # NEW
+        url = self.__CTU_DATASET_INDEX_URL__
+        index_last_mtime = self.get_index_last_modified(url)
+        cache_last_mtime = self.get_cache_last_mtime()
+        if self.cache_has_expired(source_mtime=index_last_mtime):
+            datasets_json = self.get_if_newer(url,
+                                              cache_last_mtime)
+            self.datasets = json.loads(datasets_json)
+            self.write_cache()
+
+        with open(self.cache_file, 'r') as infile:
+            _cache = json.load(infile)
+        # DEPRECATED?
+        self.scenarios = _cache.get('scenarios', {})
+        # self.columns = _cache.get('columns', [])
+        # NEW
+        self.datasets = _cache.get('datasets', [])
+        columns = set()
+        for d in self.datasets:
+            columns.update([k for k in d.keys()])
+        extra_keys = [
+            c for c in self.columns
+            if c not in self.__INDEX_COLUMNS__)
+        ]
+        if len(extra_keys) > 0:
+            raise RuntimeError(
+                '[!] incorrect or new index key'
+                f"{'s' if len(extra_keys) != 1}: "
+                f"{','.join(extra_keys)}"
+            )
+        logger.debug(
+            f"[+] loaded metadata from cache: '{self.cache_file}'")
 
     def write_cache(self):
         """Save metadata to local cache as JSON"""
 
         _cache = dict()
+        # DEPRECATED
         _cache['scenarios'] = self.scenarios
-        _cache['columns'] = self.columns
+        # NEW
+        _cache['datasets'] = self.datasets
         with open(self.cache_file, 'w') as outfile:
             json.dump(_cache, outfile)
-        logger.debug('[+] wrote new cache file ' +
-                     '{}'.format(self.cache_file))
+        logger.debug(
+            f"[+] wrote new cache file '{self.cache_file}'")
         return True
+
+    def get_index_last_modified(self, url=None):
+        if self.debug:
+            logger.debug('[+] immediate_fetch({})'.format(url))
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            requests.packages.urllib3.disable_warnings(
+                category=InsecureRequestWarning)
+            response = requests.head(url, verify=False)  # nosec
+        return httpdate_to_timestamp(response.headers['Last-Modified'])
+
+    def get_if_newer(self, url=None, timestamp=None):
+        """GET a page if last modified after a specified time.
+        """
+
+        last_mtime = timestamp_to_httpdate(timestamp)
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            # Bypass warning about certificate failure
+            requests.packages.urllib3.disable_warnings(
+                category=InsecureRequestWarning)
+            response = requests.get(
+                url,
+                headers = {
+                    'If-Modified-Since': last_mtime
+                },
+                verify=False)  # nosec
+        return response.text
 
     def delete_cache(self):
         """Delete cache file"""
@@ -663,6 +767,8 @@ class CTU_Dataset(object):
         Return a list of lists of data suitable for use by
         cliff, following the order of elements in 'columns'.
         """
+        if columns is None:
+            columns = self.__INDEX_COLUMNS__
         data = []
         if groups is None:
             groups = self.groups

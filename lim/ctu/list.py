@@ -131,7 +131,8 @@ class CTUList(Lister):
                 cache_file=parsed_args.cache_file,
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
-        self.ctu_metadata.load_ctu_metadata()
+        self.ctu_metadata.read_cache()
+        # self.ctu_metadata.load_ctu_metadata()
 
         if parsed_args.everything:
             columns = self.ctu_metadata.columns
