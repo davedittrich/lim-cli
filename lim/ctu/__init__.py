@@ -27,18 +27,24 @@ logger = logging.getLogger(__name__)
 
 
 def httpdate_to_timestamp(date_time):
+    """Convert an HTTP format date string to a Unix epoch timestamp.
+    """
+
     time_tuple = email.utils.parsedate_tz(date_time)
     return 0 if time_tuple is None else email.utils.mktime_tz(time_tuple)
 
 
 def timestamp_to_httpdate(timestamp):
+    """Convert a Unix epoch timestamp to an HTTP format date string.
+    """
+
     return email.utils.formatdate(timeval=timestamp,
                                   localtime=False,
                                   usegmt=True)
 
 
 def unhex(x):
-    """Ensure hexidecimal strings are converted to decimal form"""
+    """Ensure hexidecimal strings are converted to decimal form."""
     if x == '':
         return '0'
     elif x.startswith('0x'):
@@ -223,30 +229,31 @@ class CTU_Dataset(object):
     ]
     __MIN_COLUMNS__ = 4
     __DISCLAIMER__ = textwrap.dedent("""\
-       When using this data, make sure to respect the Disclaimer at the bottom of
-       the scenario ``Readme.*`` files:
+       When using this data, make sure to respect the Disclaimer at the bottom
+       of the scenario ``Readme.*`` files:
 
        .. code-block:: console
 
           These files were generated in the Stratosphere Lab as part of the Malware
           Capture Facility Project in the CVUT University, Prague, Czech Republic.
-          The goal is to store long-lived real botnet traffic and to generate labeled
-          netflows files.
+          The goal is to store long-lived real botnet traffic and to generate
+          labeled netflows files.
 
           Any question feel free to contact us:
           Sebastian Garcia: sebastian.garcia@agents.fel.cvut.cz
 
-          You are free to use these files as long as you reference this project and
-          the authors as follows:
+          You are free to use these files as long as you reference this project
+          and the authors as follows:
 
           Garcia, Sebastian. Malware Capture Facility Project. Retrieved
           from https://stratosphereips.org
 
        ..
 
-       To cite the [CTU13] dataset please cite the paper "An empirical comparison of
-       botnet detection methods" Sebastian Garcia, Martin Grill, Jan Stiborek and Alejandro
-       Zunino. Computers and Security Journal, Elsevier. 2014. Vol 45, pp 100-123.
+       To cite the [CTU13] dataset please cite the paper "An empirical
+       comparison of botnet detection methods" Sebastian Garcia, Martin Grill,
+       Jan Stiborek and Alejandro Zunino. Computers and Security Journal,
+       Elsevier. 2014. Vol 45, pp 100-123.
        http://dx.doi.org/10.1016/j.cose.2014.05.011
 
     """)  # noqa
