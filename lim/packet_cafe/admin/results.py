@@ -161,7 +161,7 @@ class Results(Lister):
             data = [
                 [row] for row in results
                 if match(line=row, contains=contains)
-             ]
+            ]
             return (columns, data)
 
 

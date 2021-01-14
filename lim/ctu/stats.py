@@ -59,9 +59,11 @@ class CTUStats(Lister):
         self.ctu_metadata.load_ctu_metadata()
         columns = (parsed_args.attribute, 'COUNT')
         count = {}
-        results = [item[0] for item in self.ctu_metadata.get_metadata(
-                      columns=[parsed_args.attribute],
-                      fullnames=True)]
+        results = [
+            item[0] for item in self.ctu_metadata.get_metadata(
+                columns=[parsed_args.attribute],
+                fullnames=True)
+        ]
         for item in results:
             # Handle null values vs. no key (either way, be consistent)
             if item == '':

@@ -70,11 +70,11 @@ def get_output(cmd=['echo', 'NO COMMAND SPECIFIED'],
                shell=False):
     """Use subprocess.check_ouput to run subcommand"""
     output = subprocess.check_output(  # nosec
-            cmd,
-            cwd=cwd,
-            stderr=stderr,
-            shell=shell
-        ).decode('UTF-8').splitlines()
+        cmd,
+        cwd=cwd,
+        stderr=stderr,
+        shell=shell
+    ).decode('UTF-8').splitlines()
     return output
 
 
@@ -172,8 +172,10 @@ def safe_to_open(filename, overwrite=False):
     if os.path.exists(filename):
         statinfo = os.stat(filename)
         if statinfo.st_size > 0 and not overwrite:
-            raise RuntimeError('[-] file "{}" exists; '.format(filename) +
-                               'use --force to overwrite.')
+            raise RuntimeError(
+                f"[-] file '{filename}' exists; "
+                'use --force to overwrite.'
+            )
     return True
 
 
@@ -183,7 +185,7 @@ class BZ2_LineReader(object):
     BZ2 compressed data hosted at a specific URL. Based on code example from:
     https://stackoverflow.com/questions/47778579/how-to-read-lines-from-arbitrary-bz2-streams-for-csv
     """
-    def __init__(self, url=None, buffer_size=6*1024, verify=True):
+    def __init__(self, url=None, buffer_size=(6 * 1024), verify=True):
         self.url = url
         self.buffer_size = buffer_size
         self.verify = verify
@@ -239,7 +241,7 @@ class LineReader(object):
     uncompressed data hosted at a specific URL. Based on code example from:
     https://stackoverflow.com/questions/47778579/how-to-read-lines-from-arbitrary-bz2-streams-for-csv
     """
-    def __init__(self, url=None, buffer_size=6*1024, verify=True):
+    def __init__(self, url=None, buffer_size=(6 * 1024), verify=True):
         self.url = url
         self.buffer_size = buffer_size
         self.verify = verify

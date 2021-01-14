@@ -113,8 +113,10 @@ def download_ctu_netflow(url=None,
         # header = linereader.get_header()
         # fp.write(header.encode('UTF-8') + '\n')
         count = 0
-        _filter_protocols = len(protocols) > 0 or \
-            (len(protocols) == 1 and 'any' in protocols)
+        _filter_protocols = (
+            len(protocols) > 0
+            or (len(protocols) == 1 and 'any' in protocols)
+        )
         for record in [line.strip() for line in linereader.readlines()]:
             # Skip all lines after first (header) line that we don't want.
             fields = record.strip().split(',')
@@ -183,7 +185,8 @@ class CTU_Dataset(object):
         'malware': 'https://www.stratosphereips.org/datasets-malware',
         'iot': 'https://www.stratosphereips.org/datasets-iot',
     }
-    __CTU_DATASET_INDEX_URL__ = 'https://mcfp.felk.cvut.cz/publicDatasets/datasets.json'
+    __CTU_DATASET_INDEX_URL__ = ('https://mcfp.felk.cvut.cz/'
+                                 'publicDatasets/datasets.json')
     __CTU_PREFIX__ = 'CTU-Malware-Capture-'
     __DEFAULT_GROUP__ = 'malware'
     __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
@@ -193,8 +196,9 @@ class CTU_Dataset(object):
     __CACHE_FILE__ = os.environ.get(
         'LIM_CTU_CACHE',
         os.path.join(os.getenv('HOME', os.getcwd()),
-                     '.lim-ctu-cache.json')
+                     '.lim-ctu-cache.json'
         )
+    )
     __CACHE_TIMEOUT__ = 60 * 60 * 24 * 30  # secs * mins * hours * days
     # These are fields associated with files that can be downloaded.
     __ATTRIBUTES__ = [
@@ -668,11 +672,11 @@ class CTU_Dataset(object):
             columns.update([k for k in d.keys()])
         extra_keys = [
             c for c in self.columns
-            if c not in self.__INDEX_COLUMNS__)
+            if c not in self.__INDEX_COLUMNS__
         ]
         if len(extra_keys) > 0:
             raise RuntimeError(
-                '[!] incorrect or new index key'
+                "[!] incorrect or new index key"
                 f"{'s' if len(extra_keys) != 1}: "
                 f"{','.join(extra_keys)}"
             )
@@ -800,9 +804,11 @@ class CTU_Dataset(object):
                 find = page.find(description_includes.lower())
                 match = match and (find != -1)
             if has_hash is not None:
-                match = match and (has_hash == attributes.get('MD5', '') or
-                                   has_hash == attributes.get('SHA1', '') or
-                                   has_hash == attributes.get('SHA256', ''))
+                match = match and (
+                    has_hash == attributes.get('MD5', '')
+                    or has_hash == attributes.get('SHA1', '')
+                    or has_hash == attributes.get('SHA256', '')
+                )
             if not match:
                 continue
             row = dict()

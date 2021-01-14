@@ -326,16 +326,16 @@ class ImagesList(Lister):
         columns = MIN_IMAGE_COLUMNS
         if parsed_args.rm_images:
             data = (
-                    tuple(i[c] for c in columns)
-                    for i in rm_images(images)
-                   )
+                tuple(i[c] for c in columns)
+                for i in rm_images(images)
+            )
         else:
             if parsed_args.all_columns:
                 columns = images[0].keys()
             data = (
-                    tuple(i[c] for c in columns)
-                    for i in images
-                   )
+                tuple(i[c] for c in columns)
+                for i in images
+            )
         return columns, data
 
 
