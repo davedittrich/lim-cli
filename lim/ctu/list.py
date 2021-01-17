@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import sys
 import textwrap
 
 from cliff.lister import Lister
@@ -154,6 +155,8 @@ class CTUList(Lister):
                 data = results[0:min(self.app_args.limit, len(results))]
             else:
                 data = results
+        if not len(data):
+            sys.exit(1)
         return columns, data
 
 # vim: set ts=4 sw=4 tw=0 et :
