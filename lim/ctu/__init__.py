@@ -9,14 +9,12 @@ import json
 import logging
 import os
 import requests
-import signal
 import six
 import textwrap
-import time
+# import time
 import warnings
 
 from bs4 import BeautifulSoup
-from collections import OrderedDict
 from datetime import datetime
 from lim import BUFFER_SIZE
 from lim.utils import safe_to_open
@@ -87,12 +85,18 @@ def download_ctu_netflow(url=None,
     row and/or column to produce "clean" data for use
     without further post-load processing.
 
-    Examples of (randomly sampled) first lines:
-    Botnet 17-1:  'StartTime,Dur,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,State,sTos,dTos,TotPkts,TotBytes,SrcBytes,srcUdata,dstUdata,Label\n'
-    Botnet 50:    'StartTime,Dur,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,State,sTos,dTos,TotPkts,TotBytes,SrcBytes,Label\n'
-    Botnet 367-1: 'StartTime,Dur,Proto,SrcAddr,Sport,Dir,DstAddr,Dport,State,sTos,dTos,TotPkts,TotBytes,SrcBytes,SrcPkts,Label\n'
+    Examples of (randomly sampled) first lines
+    Botnet 17-1:  'StartTime,Dur,Proto,SrcAddr,Sport,Dir,
+                   DstAddr,Dport,State,sTos,dTos,TotPkts,
+                   TotBytes,SrcBytes,srcUdata,dstUdata,Label\n'
+    Botnet 50:    'StartTime,Dur,Proto,SrcAddr,Sport,Dir,
+                   DstAddr,Dport,State,sTos,dTos,TotPkts,
+                   TotBytes,SrcBytes,Label\n'
+    Botnet 367-1: 'StartTime,Dur,Proto,SrcAddr,Sport,Dir,
+                   DstAddr,Dport,State,sTos,dTos,TotPkts,
+                   TotBytes,SrcBytes,SrcPkts,Label\n'
 
-    """  # noqa
+    """
 
     infilename = url.split('/')[-1]
     outfilename = os.path.join(datadir, infilename)
@@ -179,25 +183,18 @@ class CTU_Dataset(object):
     # network flows ('BINETFLOW') in a subdirectory specified by
     # __NETFLOW_DATA_DIR__.
     # https://mcfp.felk.cvut.cz/publicDatasets/
-    __CTU_DATASET_GROUPS__ = {
-        'mixed': 'https://www.stratosphereips.org/datasets-mixed',
-        'normal': 'https://www.stratosphereips.org/datasets-normal',
-        'malware': 'https://www.stratosphereips.org/datasets-malware',
-        'iot': 'https://www.stratosphereips.org/datasets-iot',
-    }
     __CTU_DATASET_INDEX_URL__ = ('https://mcfp.felk.cvut.cz/'
                                  'publicDatasets/datasets.json')
     __CTU_PREFIX__ = 'CTU-Malware-Capture-'
     __DEFAULT_GROUP__ = 'malware'
-    __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
+    # __DATASETS_URL__ = __CTU_DATASET_GROUPS__[__DEFAULT_GROUP__]
     __NETFLOW_DATA_DIR__ = 'detailed-bidirectional-flow-labels/'
     # Put the cache file in user's home directory by default
     # (or fall back to cwd, just to be robust).
     __CACHE_FILE__ = os.environ.get(
         'LIM_CTU_CACHE',
-        os.path.join(os.getenv('HOME', os.getcwd()),
-                     '.lim-ctu-cache.json'
-        )
+        os.path.join(
+            os.getenv('HOME', os.getcwd()), '.lim-ctu-cache.json')
     )
     __CACHE_TIMEOUT__ = 60 * 60 * 24 * 30  # secs * mins * hours * days
     # These are fields associated with files that can be downloaded.
@@ -229,7 +226,7 @@ class CTU_Dataset(object):
         'Malware',
         'MD5',
         'SHA256',
-        'URL',
+        'Capture_URL',
     ]
     __MIN_COLUMNS__ = 4
     __DISCLAIMER__ = textwrap.dedent("""\
@@ -238,10 +235,10 @@ class CTU_Dataset(object):
 
        .. code-block:: console
 
-          These files were generated in the Stratosphere Lab as part of the Malware
-          Capture Facility Project in the CVUT University, Prague, Czech Republic.
-          The goal is to store long-lived real botnet traffic and to generate
-          labeled netflows files.
+          These files were generated in the Stratosphere Lab as part of the
+          Malware Capture Facility Project in the CVUT University, Prague,
+          Czech Republic.  The goal is to store long-lived real botnet traffic
+          and to generate labeled netflows files.
 
           Any question feel free to contact us:
           Sebastian Garcia: sebastian.garcia@agents.fel.cvut.cz
@@ -280,11 +277,11 @@ class CTU_Dataset(object):
         # Attributes
         # NEW
         self.datasets = None
-        # DEPRECATED?
-        self.scenarios = OrderedDict()
+        self.descriptions = dict()
+        # # DEPRECATED?
+        # self.scenarios = OrderedDict()
         # DEPRECATED?
         self.columns = self.get_columns()
-        self.groups = self.get_groups()
         pass
 
     @classmethod
@@ -303,7 +300,7 @@ class CTU_Dataset(object):
     @classmethod
     def get_groups(cls):
         """Return list of valid group names"""
-        return [g for g in cls.__CTU_DATASET_GROUPS__.keys()]
+        raise RuntimeError('[!] DEPRECATED: fix call to this function')
 
     @classmethod
     def get_attributes(cls):
@@ -314,16 +311,6 @@ class CTU_Dataset(object):
     def get_attributes_lower(cls):
         """Return list of lowercase dataset attributes"""
         return [a.lower() for a in cls.__ATTRIBUTES__]
-
-    @classmethod
-    def get_url_for_group(cls, group):
-        """Return URL for group"""
-        return cls.__CTU_DATASET_GROUPS__.get(group)
-
-    @classmethod
-    def get_default_group(cls):
-        """Returns default group name"""
-        return cls.__DEFAULT_GROUP__
 
     @classmethod
     def get_columns(cls):
@@ -371,63 +358,63 @@ class CTU_Dataset(object):
         filename = url.split('/').pop()
         if filename in ['', None]:
             raise RuntimeError(
-                '[-] cannot determine filename from url {}'.format(url))
+                f"[-] cannot determine filename from url {url}")
         return filename
 
-    def get_scenarios(self):
-        """Returns CTU dataset scenarios"""
-        return self.scenarios
+    # def get_scenarios(self):
+    #     """Returns CTU dataset scenarios"""
+    #     return self.scenarios
 
-    def get_scenario_names(self):
-        """Returns CTU dataset scenario names"""
-        return [s for s in self.scenarios.keys()]
+    # def get_scenario_names(self):
+    #     """Returns CTU dataset scenario names"""
+    #     return [s for s in self.scenarios.keys()]
 
-    def is_valid_scenario(self, name):
-        """Returns boolean indicating existence of scenario"""
-        if type(name) is not str:
-            raise RuntimeError('[-] "{}" must be type(str)'.format(name))
-        return name in self.scenarios
+    # def is_valid_scenario(self, name):
+    #     """Returns boolean indicating existence of scenario"""
+    #     if type(name) is not str:
+    #         raise RuntimeError(f"[-] '{name}' must be type(str)")
+    #     return name in self.scenarios
 
-    def get_scenario(self, name):
-        """Returns CTU dataset scenario"""
-        return self.scenarios.get(name)
+    # def get_scenario(self, name):
+    #     """Returns CTU dataset scenario"""
+    #     return self.scenarios.get(name)
 
-    def get_scenario_page(self, name):
-        """Returns CTU dataset scenario HTML page"""
-        try:
-            return self.scenarios[name].get('_PAGE')
-        except Exception as err:  # noqa
-            return None
+    # def get_scenario_page(self, name):
+    #     """Returns CTU dataset scenario HTML page"""
+    #     try:
+    #         return self.scenarios[name].get('_PAGE')
+    #     except Exception as err:  # noqa
+    #         return None
 
-    def get_scenario_attribute(self, name, attribute):
-        """
-        Returns CTU scenario dataset attribute.
+    # def get_scenario_attribute(self, name, attribute):
+    #     """
+    #     Returns CTU scenario dataset attribute.
 
-        Discrete attributes are returned as they are.
+    #     Discrete attributes are returned as they are.
 
-        Compound attributes (i.e., files) are composed of the
-        base URL plus the attribute's name (which may include path
-        information).
-        """
-        if name not in self.scenarios:
-            return None
-        attribute = attribute.upper()
-        attributes = self.get_attributes()
-        if attribute in ['GROUP', 'URL']:
-            try:
-                result = self.scenarios[name].get(attribute)
-            except Exception as err:  # noqa
-                result = None
-        elif attribute in attributes:
-            try:
-                url = self.scenarios[name]['URL']
-                result = url + self.scenarios[name].get(attribute)
-            except Exception as err:  # noqa
-                result = None
-        else:
-            raise RuntimeError(
-                f'[-] getting attribute "{ attribute }" is not supported')
-        return result
+    #     Compound attributes (i.e., files) are composed of the
+    #     base URL plus the attribute's name (which may include path
+    #     information).
+    #     """
+    #     if name not in self.scenarios:
+    #         return None
+    #     attribute = attribute.upper()
+    #     attributes = self.get_attributes()
+    #     if attribute in ['GROUP', 'URL']:
+    #         try:
+    #             result = self.scenarios[name].get(attribute)
+    #         except Exception as err:  # noqa
+    #             result = None
+    #     elif attribute in attributes:
+    #         try:
+    #             url = self.scenarios[name]['URL']
+    #             result = url + self.scenarios[name].get(attribute)
+    #         except Exception as err:  # noqa
+    #             result = None
+    #     else:
+    #         raise RuntimeError(
+    #             f'[-] getting attribute "{ attribute }" is not supported')
+    #     return result
 
     def fetch_scenario_content_byurl(self,
                                      url,
@@ -540,6 +527,7 @@ class CTU_Dataset(object):
         try:
             async with aiohttp.ClientSession(
                 connector=aiohttp.TCPConnector(verify_ssl=False)) as session:  # noqa
+                # TODO(dittrich): Re-write to use datasets attribute instead of groups  # noqa
                 for group in CTU_Dataset.get_groups():
                     scenarios = self.get_scenarios_for_group(group)
                     for url in scenarios:
@@ -619,7 +607,7 @@ class CTU_Dataset(object):
         if self.cache_file.startswith('test'):
             return False
         cache_expired = True
-        now = time.time()
+        # now = time.time()
         try:
             cache_mtime = self.get_cache_last_mtime()
             if source_mtime <= cache_mtime:
@@ -634,7 +622,7 @@ class CTU_Dataset(object):
                 f"[+] cache '{self.cache_file}' not found")
         return cache_expired
 
-    def read_cache(self):
+    def read_cache(self, force_refresh=False):
         """
         Load index metadata from a local cache.
 
@@ -654,16 +642,18 @@ class CTU_Dataset(object):
         url = self.__CTU_DATASET_INDEX_URL__
         index_last_mtime = self.get_index_last_modified(url)
         cache_last_mtime = self.get_cache_last_mtime()
-        if self.cache_has_expired(source_mtime=index_last_mtime):
+        if force_refresh or self.cache_has_expired(
+            source_mtime=index_last_mtime
+        ):
             datasets_json = self.get_if_newer(url,
                                               cache_last_mtime)
             self.datasets = json.loads(datasets_json)
+            self.read_descriptions()
             self.write_cache()
-
         with open(self.cache_file, 'r') as infile:
             _cache = json.load(infile)
-        # DEPRECATED?
-        self.scenarios = _cache.get('scenarios', {})
+        # # DEPRECATED?
+        # self.scenarios = _cache.get('scenarios', {})
         # self.columns = _cache.get('columns', [])
         # NEW
         self.datasets = _cache.get('datasets', [])
@@ -719,9 +709,7 @@ class CTU_Dataset(object):
                 category=InsecureRequestWarning)
             response = requests.get(
                 url,
-                headers = {
-                    'If-Modified-Since': last_mtime
-                },
+                headers={'If-Modified-Since': last_mtime},
                 verify=False)  # nosec
         return response.text
 
@@ -729,46 +717,10 @@ class CTU_Dataset(object):
         """Delete cache file"""
 
         os.remove(self.cache_file)
-        logger.debug('[+] deleted cache file {}'.format(self.cache_file))
+        logger.debug(f"[+] deleted cache file '{self.cache_file}'")
         return True
 
-    def get_scenarios_for_group(self, group=None):
-        """Scrape CTU web site for metadata about binetflow
-        files that are available."""
-
-        # See "verify=False" comment in download_netflow() function.
-        # See also: https://stackoverflow.com/questions/15445981/how-do-i-disable-the-security-certificate-check-in-python-requests  # noqa
-        # requests.packages.urllib3.disable_warnings(
-        #     category=InsecureRequestWarning)
-
-        if group is None:
-            raise RuntimeError('[-] no group name provided')
-        url = CTU_Dataset.get_url_for_group(group)
-        logger.info('[+] identifying scenarios for ' +
-                    'group {} from {}'.format(group, url))
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
-            requests.packages.urllib3.disable_warnings(
-                category=InsecureRequestWarning)
-            response = requests.get(url, verify=False)  # nosec
-        soup = BeautifulSoup(response.text, 'html.parser')
-        scenarios = []
-        for item in soup.findAll('a'):
-            try:
-                href = item['href']
-            except KeyError:
-                href = ''
-            if href.startswith('?'):
-                continue
-            if '/publicDatasets/' in href and href.endswith('/'):
-                logger.debug('[+] found scenario {}'.format(href))
-                scenarios.append(href)
-        logger.info('[+] group "{}" '.format(group) +
-                    'has {} scenarios'.format(len(scenarios)))
-        return scenarios
-
     def get_metadata(self,
-                     groups=None,
                      columns=None,
                      name_includes=None,
                      fullnames=False,
@@ -781,48 +733,49 @@ class CTU_Dataset(object):
         if columns is None:
             columns = self.__INDEX_COLUMNS__
         data = []
-        if groups is None:
-            groups = self.groups
-        for (scenario, attributes) in self.scenarios.items():
-            if '_SUCCESS' in attributes and not attributes['_SUCCESS']:
-                continue
-            if 'GROUP' in attributes and attributes['GROUP'] not in groups:
-                continue
+        # for (scenario, attributes) in self.scenarios.items():
+        #     if '_SUCCESS' in attributes and not attributes['_SUCCESS']:
+        #         continue
+        for dataset in self.datasets:
             match = True
             if name_includes is not None:
                 # Can't look for something that doesn't exist.
-                if 'PROBABLE_NAME' not in attributes:
+                if 'Capture_Name' not in dataset:
                     continue
-                probable_name = attributes['PROBABLE_NAME'].lower()
+                probable_name = str(dataset.get('Capture_Name')).lower()
                 find = probable_name.find(name_includes.lower())
                 match = match and (find != -1)
             elif description_includes is not None:
                 # Can't look for something that doesn't exist.
-                if '_PAGE' not in attributes:
+                if '_PAGE' not in dataset:
                     continue
-                page = attributes['_PAGE'].lower()
+                page = dataset['_PAGE'].lower()
                 find = page.find(description_includes.lower())
                 match = match and (find != -1)
             if has_hash is not None:
                 match = match and (
-                    has_hash == attributes.get('MD5', '')
-                    or has_hash == attributes.get('SHA1', '')
-                    or has_hash == attributes.get('SHA256', '')
+                    has_hash == dataset.get('MD5', '')
+                    or has_hash == dataset.get('SHA1', '')
+                    or has_hash == dataset.get('SHA256', '')
                 )
-            if not match:
-                continue
-            row = dict()
+            # if not match:
+            #     continue
+            # row = dict()
             # Support short names for Malware scenarios.
-            if fullnames:
-                row['SCENARIO'] = scenario
-            else:
-                row['SCENARIO'] = CTU_Dataset.get_shortname(scenario)
-            row['SCENARIO_URL'] = attributes['URL']
-            # Get remaining attributes
-            for c in columns:
-                if c not in row:
-                    row[c] = attributes.get(c)
-            data.append([row.get(c) for c in columns])
+            # if fullnames:
+            #     row['SCENARIO'] = scenario
+            # else:
+            #     row['SCENARIO'] = CTU_Dataset.get_shortname(scenario)
+            # row['Capture_URL'] = dataset.get('Capture_URL')
+            # # Get remaining attributes
+            # for c in columns:
+            #     if c not in row:
+            #         row[c] = dataset.get(c)
+            # data.append([row.get(c) for c in columns])
+            if match:
+                data.append(
+                    [dataset.get(c, None) for c in columns]
+                )
         return data
 
 

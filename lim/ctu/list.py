@@ -50,16 +50,6 @@ class CTUList(Lister):
             help=("Show all metadata attributes for scenarios "
                   "(default : False)")
         )
-        parser.add_argument(
-            '--group',
-            action='append',
-            dest='groups',
-            type=str,
-            choices=CTU_Dataset.get_groups() + ['all'],
-            default=None,
-            help="Dataset group to incldue or 'all' " +
-                 "(default: '{}')".format(CTU_Dataset.get_default_group())
-        )
         find = parser.add_mutually_exclusive_group(required=False)
         find.add_argument(
             '--hash',
@@ -90,9 +80,6 @@ class CTUList(Lister):
             nargs='*',
             default=None)
         parser.epilog = textwrap.dedent(f"""\
-           The ``--group`` option can be repeated multiple times to include multiple
-           subgroups, or you can use ``--group all`` to include all groups.
-
            The ``--hash`` option makes an exact match on any one of the stored hash
            values.  This is the hash of the executable binary referenced in the
            ``ZIP`` column.
@@ -123,24 +110,19 @@ class CTUList(Lister):
                      for s in parsed_args.scenario]
         # Defaulting doesn't work right with append, so set
         # default here.
-        if parsed_args.groups is None:
-            parsed_args.groups = 'all'
-        if 'all' in parsed_args.groups:
-            parsed_args.groups = CTU_Dataset.get_groups()
         if 'ctu_metadata' not in dir(self):
             self.ctu_metadata = CTU_Dataset(
                 cache_file=parsed_args.cache_file,
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
-        self.ctu_metadata.read_cache()
-        # self.ctu_metadata.load_ctu_metadata()
+        self.ctu_metadata.load_ctu_metadata()
 
-        if parsed_args.everything:
-            columns = self.ctu_metadata.columns
-        else:
-            columns = self.ctu_metadata.columns[:self.ctu_metadata.__MIN_COLUMNS__]  # noqa
+        # if parsed_args.everything:
+        #     columns = self.ctu_metadata.columns
+        # else:
+        #     columns = self.ctu_metadata.columns[:self.ctu_metadata.__MIN_COLUMNS__]  # noqa
+        columns = self.ctu_metadata.columns
         results = self.ctu_metadata.get_metadata(
-            groups=parsed_args.groups,
             columns=columns,
             name_includes=parsed_args.name_includes,
             fullnames=parsed_args.fullnames,
