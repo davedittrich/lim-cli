@@ -143,7 +143,7 @@ def download_ctu_netflow(url=None,
             # count it when comparing maxlines.
             if maxlines is not None and count > int(maxlines):
                 break
-        logger.info('[+] wrote file {}'.format(outfilename))
+        logger.info(f"[+] wrote file '{outfilename}'")
 
 
 class CTU_Dataset(object):
@@ -557,7 +557,7 @@ class CTU_Dataset(object):
     async def fetch_page(self, semaphore, url, session):
         """Fetch a page"""
         if self.debug:
-            logger.debug('[+] fetch_page({})'.format(url))
+            logger.debug(f'[+] fetch_page({url})')
         page = await self.bound_fetch(semaphore, url, session)
         return page.decode("utf-8")
 
@@ -569,14 +569,14 @@ class CTU_Dataset(object):
     async def fetch(self, url, session):
         """GET a URL asynchronously"""
         with async_timeout.timeout(self.async_timeout):
-            logger.debug('[+] fetch({})'.format(url))
+            logger.debug(f'[+] fetch({url})')
             async with session.get(url) as response:
                 return await response.read()
 
     def immediate_fetch(self, url):
         """GET a page synchronously"""
         if self.debug:
-            logger.debug('[+] immediate_fetch({})'.format(url))
+            logger.debug(f'[+] immediate_fetch({url})')
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             requests.packages.urllib3.disable_warnings(
@@ -677,7 +677,7 @@ class CTU_Dataset(object):
         if len(extra_keys) > 0:
             raise RuntimeError(
                 "[!] incorrect or new index key"
-                f"{'s' if len(extra_keys) != 1}: "
+                f"{'' if len(extra_keys) == 1 else 's'}: "
                 f"{','.join(extra_keys)}"
             )
         logger.debug(
@@ -699,7 +699,7 @@ class CTU_Dataset(object):
 
     def get_index_last_modified(self, url=None):
         if self.debug:
-            logger.debug('[+] immediate_fetch({})'.format(url))
+            logger.debug(f'[+] get_index_last_modified({url})')
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             requests.packages.urllib3.disable_warnings(

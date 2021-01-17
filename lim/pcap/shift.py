@@ -66,13 +66,13 @@ class PCAPShift(Command):
             if self.time_delta is None:
                 ats = arrow.get(ts)
                 self.time_delta = self.start_time - ats.float_timestamp
-                logger.debug('[+] first packet time is {} '.format(ats) +
-                             '({})'.format(ats.float_timestamp))
-                logger.debug('[+] time delta is {}'.format(self.time_delta))
+                logger.debug(f'[+] first packet time is {ats} '
+                             f'({ats.float_timestamp})')
+                logger.debug(f'[+] time delta is {self.time_delta}')
                 newats = arrow.get(ts + self.time_delta)
-                logger.debug('[+] new first packet time is ' +
-                             '{} '.format(newats) +
-                             '({})'.format(newats.float_timestamp))
+                logger.debug('[+] new first packet time is '
+                             f'{newats} '
+                             f'({newats.float_timestamp})')
             newts = ts + self.time_delta
         return newts, buf
 
@@ -88,12 +88,11 @@ class PCAPShift(Command):
                 return func(ts, buf)
             else:
                 raise RuntimeError(
-                    f'[-] shifting "{ this }" is not implemented')
+                    f"[-] shifting '{this}' is not implemented")
 
     def take_action(self, parsed_args):
         this = self.cmd_name.split()[-1]
-        self.log.debug('[+] shifting {} '.format(this) +
-                       'in PCAP file(s)')
+        self.log.debug(f'[+] shifting {this} in PCAP file(s)')
 
         self.start_time = None
         self.time_delta = None
@@ -103,18 +102,18 @@ class PCAPShift(Command):
             self.start_time = arrow.get(
                 parsed_args.start_time).float_timestamp
             logger.debug('[+] start_time is '
-                         '{} '.format(parsed_args.start_time) +
-                         '({})'.format(self.start_time))
+                         f'{parsed_args.start_time} '
+                         f'({self.start_time})')
 
         # Iterate over all file arguments, delegating to subfunction based on
         # the subcommand string using a 'case' like delegator.
         for fname in parsed_args.pcap:
-            logger.debug('[+] original pcap file: {}'.format(fname))
-            newfname = '{}-{}-shifted.pcap'.format(os.path.splitext(fname)[0],
-                                                   this)
-            logger.debug('[+] new pcap file: {}'.format(newfname))
+            logger.debug(f'[+] original pcap file: {fname}')
+            newfname = (f'{os.path.splitext(fname)[0]}-'
+                        f'{this}-shifted.pcap')
+            logger.debug(f'[+] new pcap file: {newfname}')
             if not os.path.exists(fname):
-                raise RuntimeError(f'[-] PCAP file { fname } does not exist')
+                raise RuntimeError(f'[-] PCAP file {fname} does not exist')
             with open(fname, 'rb') as f_in, open(newfname, 'wb') as f_out:
                 reader = dpkt.pcap.Reader(f_in)
                 writer = dpkt.pcap.Writer(f_out)

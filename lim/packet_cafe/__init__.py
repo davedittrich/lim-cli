@@ -628,11 +628,10 @@ class Packet_Cafe(object):
                     timer.lap(lap='now')
                     if not wait_only:
                         status_line = (
-                            "[+] {0:{1}}".format(worker + ':',
-                                                 max_worker_len + 2) +
-                            f"{ worker_state.lower() } " +
-                            f"{ status[worker]['timestamp'] }" +
-                            (f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
+                            f"[+] {(worker + ':'):{(max_worker_len + 2)}}"
+                            f"{worker_state.lower()} "
+                            f"{status[worker]['timestamp']}"
+                            f" ({timer.elapsed(end='now')})" if elapsed else ""  # noqa
                         )
                         try:
                             print(status_line)
