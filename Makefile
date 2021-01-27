@@ -12,7 +12,7 @@ PROJECT:=$(shell basename $(CWD))
 CURRENT_ID=root:root
 
 .PHONY: all
-all: help
+all: install-active
 
 .PHONY: help
 help:
@@ -67,7 +67,7 @@ test-bats: bats-libraries
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
 	@# Containers must be running
-	@lim cafe containers show >/dev/null || exit 1
+	@if ! lim cafe containers show >/dev/null; then echo '[-] no containers are running'; exit 1; fi
 	@# No sessions can be present
 	@[[ $(shell lim cafe admin sessions -f value 2>/dev/null | wc -l) -eq 0 ]] || exit 1
 	@echo "[+] Running bats runtime tests: $(shell cd tests && echo runtime_[0-9][0-9]*.bats)"; \
@@ -202,14 +202,15 @@ install:
 	else \
 		echo "Installing into $(REQUIRED_VENV) virtual environment"; \
 		$(VENV_DIR)/bin/pip uninstall -y $(PROJECT); \
-		$(VENV_DIR)/bin/python setup.py install; \
+		$(VENV_DIR)/bin/python setup.py install | grep -v 'already satisfied'; \
 	fi
 
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
 .PHONY: install
 i install-active: bdist_wheel
-	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
+	python -m pip uninstall -y $(PROJECT)
+	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)" | grep -v 'already satisfied'
 	git checkout ChangeLog
 
 #HELP docs-tests - generate bats test output for documentation
