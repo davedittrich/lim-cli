@@ -207,7 +207,7 @@ install:
 
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
-.PHONY: install
+.PHONY: install-active
 i install-active: bdist_wheel
 	python -m pip uninstall -y $(PROJECT)
 	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)" | grep -v 'already satisfied'
