@@ -27,14 +27,14 @@ class CTUOverview(Command):
             default=cache_file,
             help=('Cache file path for CTU metadata '
                   '(Env: ``LIM_CTU_CACHE``; '
-                  f'default: { cache_file })')
+                  f'default: ``{cache_file}``)')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)"
+            help="Ignore any cached results (default: ``False``)"
         )
         parser.add_argument(
             'scenario',

@@ -24,26 +24,45 @@ class CTUShow(ShowOne):
             default=cache_file,
             help=('Cache file path for CTU metadata '
                   '(Env: ``LIM_CTU_CACHE``; '
-                  f'default: { cache_file })')
+                  f'default: ``{cache_file}``)')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)"
+            help="Ignore any cached results (default: ``False``)"
         )
         parser.add_argument(
             'scenario',
             nargs='?',
             default=None)
         parser.epilog = textwrap.dedent("""\
-           Shows details about a scenario.
+            Shows details about an individual scenario in tabular form.
 
-           Argument is the scenario name using either the full name
-           form (e.g., ``CTU-Malware-Capture-Botnet-123-1``) or an
-           abbreviated form (e.g., ``Botnet-123-1``).
-           """)
+            See ``lim ctu list --help`` for more on the ``scenario`` argument.
+
+            ::
+
+                $ lim ctu show IoT-34-1
+                +----------------+-----------------------------------------------------------------------------------+
+                | Field          | Value                                                                             |
+                +----------------+-----------------------------------------------------------------------------------+
+                | Infection_Date | 2018-12-21                                                                        |
+                | Capture_Name   | CTU-IoT-Malware-Capture-34-1                                                      |
+                | Malware        | Mirai                                                                             |
+                | MD5            | 82062b666f09fc5c0fe4f68d1ea90916                                                  |
+                | SHA256         | 49fd1cb22e0325c1f9038160da534fc23672e5509e903a94ce5bcddc893eb2c0                  |
+                | Capture_URL    | https://mcfp.felk.cvut.cz/publicDatasets/IoTDatasets/CTU-IoT-Malware-Capture-34-1 |
+                | ZIP            | 49fd1cb22e0325c1f9038160da534fc23672e5509e903a94ce5bcddc893eb2c0.zip              |
+                | LABELED        | None                                                                              |
+                | BINETFLOW      | None                                                                              |
+                | PCAP           | 2018-12-21-15-50-14-192.168.1.195.pcap                                            |
+                | WEBLOGNG       | None                                                                              |
+                +----------------+-----------------------------------------------------------------------------------+
+
+
+           """)  # noqa
         return parser
 
     def take_action(self, parsed_args):

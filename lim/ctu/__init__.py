@@ -233,7 +233,7 @@ class CTU_Dataset(object):
        When using this data, make sure to respect the Disclaimer at the bottom
        of the scenario ``Readme.*`` files:
 
-       .. code-block:: console
+       ::
 
           These files were generated in the Stratosphere Lab as part of the
           Malware Capture Facility Project in the CVUT University, Prague,
@@ -249,7 +249,6 @@ class CTU_Dataset(object):
           Garcia, Sebastian. Malware Capture Facility Project. Retrieved
           from https://stratosphereips.org
 
-       ..
 
        To cite the [CTU13] dataset please cite the paper "An empirical
        comparison of botnet detection methods" Sebastian Garcia, Martin Grill,

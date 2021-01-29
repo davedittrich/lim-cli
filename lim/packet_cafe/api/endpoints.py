@@ -20,7 +20,7 @@ class Endpoints(Lister):
         parser.epilog = textwrap.dedent("""
             List the available API endpoints for this packet-cafe server.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe endpoints
                 +---------------------------------------------------------------------+
@@ -38,7 +38,6 @@ class Endpoints(Lister):
                 | /api/v1/upload                                                      |
                 +---------------------------------------------------------------------+
 
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v1
             """)  # noqa
