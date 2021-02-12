@@ -5,10 +5,10 @@ load test_helper
 # See definition of LIM in test_helpers.bash for why "main" is used
 # in tests.
 
-export CONTAINERS=$($LIM cafe docker ps >/dev/null && echo "UP" || echo "DOWN")
-export SESSIONS=$($LIM cafe admin sessions -f value 2>/dev/null | wc -l)
-
 setup_file() {
+    export CONTAINERS=$($LIM cafe docker ps >/dev/null && echo "UP" || echo "DOWN")
+    export SESSIONS=$($LIM cafe admin sessions -f value 2>/dev/null | wc -l)
+
 	if [[ "$CONTAINERS" == "UP" && $SESSIONS -eq 0 ]]; then
         echo 'No Packet Cafe sessions can be present' >&2
         return 1
