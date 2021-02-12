@@ -6,7 +6,10 @@ import sys
 import textwrap
 
 from cliff.show import ShowOne
-from lim.ctu import CTU_Dataset
+from lim.ctu import (
+    normalize_ctu_name,
+    CTU_Dataset
+)
 
 
 class CTUShow(ShowOne):
@@ -37,6 +40,7 @@ class CTUShow(ShowOne):
         parser.add_argument(
             'scenario',
             nargs='?',
+            type=normalize_ctu_name,
             default=None)
         parser.epilog = textwrap.dedent("""\
             Shows details about an individual scenario in tabular form.

@@ -123,6 +123,11 @@ def get_if_newer(url=None, timestamp=None):
     return response.text
 
 
+def normalize_ctu_name(name):
+    """Ensure name is in the normal CTU form."""
+    return name.title().replace('Ctu', 'CTU').replace('Iot', 'IoT')
+
+
 def unhex(x):
     """Ensure hexidecimal strings are converted to decimal form."""
     if x == '':
@@ -451,8 +456,8 @@ class CTU_Dataset(object):
         Capture_Name.
 
         Examples:
-            Full name: CTU-Malware-Capture-Botnet-1
-            Short names: Malware-Botnet-1, Botnet-1, 1
+            Full name: CTU-Malware-Capture-Botnet-116-1
+            Short names: Malware-Botnet-116-1, Botnet-116-1, 116-1
         Args:
             name (str): Name string or substring
 
@@ -462,7 +467,6 @@ class CTU_Dataset(object):
         Raises:
             RuntimeError with suggestions for fixing problem
         """
-
         if name is None:
             raise RuntimeError('[-] no name specified')
         if self.full_names is None:
@@ -480,36 +484,31 @@ class CTU_Dataset(object):
             return name
         if name in self.short_map:
             return self.short_map[name]
-        # A short name looks like this: Malware-Botnet-116-1
-        if name.find('-') == -1:
-            sys.exit(f"[-] short scenario names required a '-': "
-                     f"use '--name-includes \"{name}\"'' instead")
         # Get numeric suffix first (full name must end with this)
-        m = re.search(r'-{0,1}([0-9][0-9\-]*)$', name)
+        m = re.search(r'([0-9]+[-]{0,1}[0-9][0-9]*)$', name)
         if m is None:
+            if name.find('-') == -1:
+                sys.exit(f"[-] short scenario names required a '-': "
+                         f"use '--name-includes \"{name}\"'' instead")
             return None
         number = m.group(0).lstrip('-')
+        # A short name looks like this: Malware-Botnet-116-1
+
         # Split the rest of the name on dashes
         # Result looks like this: ['Malware', 'Botnet']
-        parts = name[:-len(number) - 1].split('-')
-        for n in self.short_map:
-            # start_match = n.startswith(f"{parts[0]}-")
-            end_match = n.endswith(f"-{number}")
+        parts = name.rstrip(number).split('-')
+        # parts = name[:-len(number) - 1].split('-')
+        # Symbolic value for .find() not finding something
+        MISSING = -1
+        for n in self.full_names:
+            if not n.endswith(f"-{number}"):
+                continue
             found_part = [
                 n.find(f"{part}-")
                 for part in parts
             ]
-            # if len(parts) == 1 and end_match:
-            #     return self.short_map[n]
-            # elif (
-            #     len(parts) == 2
-            #     and start_match
-            #     and end_match
-            # ):
-            #     return self.short_map[n]
-            # else:
-            if -1 not in found_part and end_match:
-                return self.short_map[n]
+            if MISSING not in found_part:
+                return n
         return None
 
     def get_shortname(self, name):

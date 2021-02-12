@@ -8,7 +8,10 @@ import subprocess  # nosec
 import sys
 
 from cliff.command import Command
-from lim.ctu import CTU_Dataset
+from lim.ctu import (
+    normalize_ctu_name,
+    CTU_Dataset
+)
 from lim import DEFAULT_PROTOCOLS
 
 
@@ -72,6 +75,7 @@ class CTUGet(Command):
         parser.add_argument(
             'scenario',
             nargs=1,
+            type=normalize_ctu_name,
             default=None)
         data_types = str(", ".join(
             [

@@ -7,7 +7,10 @@ import sys
 import textwrap
 
 from cliff.lister import Lister
-from lim.ctu import CTU_Dataset
+from lim.ctu import (
+    normalize_ctu_name,
+    CTU_Dataset
+)
 
 
 class CTUList(Lister):
@@ -103,6 +106,7 @@ class CTUList(Lister):
         parser.add_argument(
             'scenario',
             nargs='*',
+            type=normalize_ctu_name,
             default=None)
         all_columns = ", ".join(
             [f'{i.lower()}' for i in CTU_Dataset.get_all_columns()])

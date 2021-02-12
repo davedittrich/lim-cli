@@ -39,6 +39,17 @@ teardown() {
 +----------------+-------------------------------+---------+'
 }
 
+@test "\"lim -q ctu list Malware-Botnet-90 Botnet-137-1 IoT-49-1\" works" {
+    run bash -c "$LIM ctu list Malware-Botnet-90 Botnet-137-1 IoT-49-1"
+    assert_output "+----------------+----------------------------------+-----------+
+| Infection_Date | Capture_Name                     | Malware   |
++----------------+----------------------------------+-----------+
+| 2009-09-07     | CTU-Malware-Capture-Botnet-90    | Conficker |
+| 2015-10-04     | CTU-Malware-Capture-Botnet-137-1 | bab0      |
+| 2019-02-28     | CTU-IoT-Malware-Capture-49-1     | Mirai     |
++----------------+----------------------------------+-----------+"
+}
+
 @test "\"lim -q ctu list 34-1\" works" {
     run bash -c "$LIM -q ctu list 34-1"
     assert_output --partial 'CTU-IoT-Malware-Capture-34-1'

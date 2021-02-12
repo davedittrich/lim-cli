@@ -14,6 +14,7 @@ import unittest
 
 from lim.ctu import (
     get_file_last_mtime,
+    normalize_ctu_name,
     CTU_Dataset,
 )
 
@@ -137,20 +138,71 @@ class Test_CTU_Dataset(unittest.TestCase):
         self.assertEqual(filename, '2015-07-28_mixed.pcap',
                          msg='filename={}'.format(filename))
 
-    def test_get_fullname_short(self):
-        shortname = 'Malware-Botnet-1'
-        fullname = self.ctu_dataset.get_fullname(name=shortname)
-        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-1')
+    def test_get_fullname_short_5parts(self):
+        fullname = self.ctu_dataset.get_fullname(name='CTU-Malware-Capture-Botnet-116-1')
+        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-116-1')
+
+    def test_get_fullname_short_4parts(self):
+        fullname = self.ctu_dataset.get_fullname('Malware-Capture-Botnet-116-1')
+        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-116-1')
+
+    def test_get_fullname_short_3parts1(self):
+        fullname = self.ctu_dataset.get_fullname(name='Malware-Botnet-116-1')
+        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-116-1')
+
+    def test_get_fullname_short_3parts2(self):
+        fullname = self.ctu_dataset.get_fullname(name='Malware-Capture-42')
+        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-42')
+
+    def test_get_fullname_short_2parts1(self):
+        fullname = self.ctu_dataset.get_fullname(name='Malware-42')
+        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-42')
+
+    def test_get_fullname_short_2parts2(self):
+        fullname = self.ctu_dataset.get_fullname(name='Capture-42')
+        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-42')
+
+    def test_get_fullname_short_1part_number(self):
+        fullname = self.ctu_dataset.get_fullname(name='42')
+        self.assertEqual(fullname, 'CTU-Malware-Capture-Botnet-42')
+
+    def test_get_fullname_short_1part_name(self):
+        self.assertRaises(SystemExit,
+                          self.ctu_dataset.get_fullname,
+                          name='IoT')
+
+    def test_get_fullname_short_fail(self):
+        fullname = self.ctu_dataset.get_fullname(name='Botnet-1')
+        self.assertEqual(fullname, None)
 
     def test_get_fullname_typo(self):
-        typoname = 'CTU_Malware_Capture-Botnet-1'
-        fullname = self.ctu_dataset.get_fullname(name=typoname)
+        fullname = self.ctu_dataset.get_fullname(name='CTU_Malware_Capture-Botnet-42')
         self.assertEqual(fullname, None)
 
     def test_get_shortname_match(self):
-        fullname = 'CTU-Malware-Capture-Botnet-1'
-        shortname = self.ctu_dataset.get_shortname(name=fullname)
-        self.assertEqual(shortname, 'Malware-Botnet-1')
+        shortname = self.ctu_dataset.get_shortname(name='CTU-Malware-Capture-Botnet-42')
+        self.assertEqual(shortname, 'Malware-Botnet-42')
+
+    def test_normalize_ctu_name_lower(self):
+        self.assertEqual(normalize_ctu_name('ctu-malware-botnet-42'),
+                        'CTU-Malware-Botnet-42')
+        self.assertEqual(normalize_ctu_name('iot-malware-33-1'),
+                        'IoT-Malware-33-1')
+    def test_normalize_ctu_name_upper(self):
+        self.assertEqual(normalize_ctu_name('CTU-MALWARE-BOTNET-42'),
+                        'CTU-Malware-Botnet-42')
+        self.assertEqual(normalize_ctu_name('IOT-MALWARE-33-1'),
+                        'IoT-Malware-33-1')
+    def test_normalize_ctu_name_mixed(self):
+        self.assertEqual(normalize_ctu_name('Ctu-Malware-Botnet-42'),
+                        'CTU-Malware-Botnet-42')
+        self.assertEqual(normalize_ctu_name('Iot-Malware-33-1'),
+                        'IoT-Malware-33-1')
+    def test_normalize_ctu_name_random(self):
+        self.assertEqual(normalize_ctu_name('CTU-MALWARE-BOTNET-42'),
+                        'CTU-Malware-Botnet-42')
+        self.assertEqual(normalize_ctu_name('IoT-MaLwArE-33-1'),
+                        'IoT-Malware-33-1')
 
 if __name__ == '__main__':
     import sys

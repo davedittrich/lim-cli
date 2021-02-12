@@ -7,7 +7,10 @@ import textwrap
 from cliff.command import Command
 from lim import add_browser_options
 from lim import open_browser
-from lim.ctu import CTU_Dataset
+from lim.ctu import (
+    normalize_ctu_name,
+    CTU_Dataset
+)
 
 
 class CTUOverview(Command):
@@ -39,6 +42,7 @@ class CTUOverview(Command):
         parser.add_argument(
             'scenario',
             nargs='*',
+            type=normalize_ctu_name,
             default=None)
         parser.epilog = textwrap.dedent("""\
             Opens a browser for the web page containing the scenario
