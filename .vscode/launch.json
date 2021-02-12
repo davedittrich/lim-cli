@@ -120,7 +120,7 @@
             }
         },
         {
-            "name": "lim ctu stats PROBABLE_NAME",
+            "name": "lim ctu stats malware",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -130,7 +130,7 @@
                 "--debug",
                 "ctu",
                 "stats",
-                "PROBABLE_NAME"
+                "malware"
             ],
             "stopOnEntry": false,
             "env": {
@@ -169,6 +169,7 @@
                 "-vv",
                 "ctu",
                 "list",
+                "34-1",
                 "--limit",
                 "10",
                 "--fit-width"
@@ -180,7 +181,7 @@
             }
         },
         {
-            "name": "lim ctu list Botnet-113-1 Botnet-137-1",
+            "name": "lim ctu list Malware-Botnet-90 Botnet-137-1 IoT-49-1",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -190,8 +191,9 @@
                 "--debug",
                 "ctu",
                 "list",
-                "Botnet-113-1",
-                "Botnet-137-1"
+                "Malware-Botnet-90",
+                "Botnet-137-1",
+                "IoT-49-1"
             ],
             "stopOnEntry": false,
             "env": {
@@ -200,51 +202,7 @@
             }
         },
         {
-            "name": "lim ctu list --group iot",
-            "type": "python",
-            "request": "launch",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "module": "lim",
-            "args": [
-                "--debug",
-                "-vv",
-                "ctu",
-                "list",
-                "--group",
-                "iot",
-                "--fit-width"
-            ],
-            "stopOnEntry": false,
-            "env": {
-                "PYTHONUNBUFFERED": "1",
-                "PYTHONPATH": "${workspaceFolder}"
-            }
-        },
-        {
-            "name": "lim ctu list --group iot",
-            "type": "python",
-            "request": "launch",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "module": "lim",
-            "args": [
-                "--debug",
-                "-vv",
-                "ctu",
-                "list",
-                "--group",
-                "iot",
-                "--fit-width"
-            ],
-            "stopOnEntry": false,
-            "env": {
-                "PYTHONUNBUFFERED": "1",
-                "PYTHONPATH": "${workspaceFolder}"
-            }
-        },
-        {
-            "name": "lim ctu list --name-includes rbot",
+            "name": "lim ctu list --name-includes iot",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -256,6 +214,28 @@
                 "ctu",
                 "list",
                 "--name-includes",
+                "iot",
+                "--fit-width"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim ctu list --malware-includes rbot",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "-vv",
+                "ctu",
+                "list",
+                "--malware-includes",
                 "rbot",
                 "--fit-width"
             ],
@@ -288,7 +268,7 @@
             }
         },
         {
-            "name": "lim ctu list --name-includes rbot --group all",
+            "name": "lim ctu list --malware-includes rbot --group all",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -300,7 +280,7 @@
                 "ctu",
                 "list",
                 "--ignore-cache",
-                "--name-includes",
+                "--malware-includes",
                 "rbot",
                 "--group",
                 "all",
@@ -326,50 +306,6 @@
                 "list",
                 "--hash",
                 "6daff56b1c5429b7460dcf836803bea3"
-            ],
-            "stopOnEntry": false,
-            "env": {
-                "PYTHONUNBUFFERED": "1",
-                "PYTHONPATH": "${workspaceFolder}"
-            }
-        },
-        {
-            "name": "lim pcap shift time tests/botnet-capture-20110816-sogou.pcap --start-time 2019-01-01T12:00:01.0+0100",
-            "type": "python",
-            "request": "launch",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "module": "lim",
-            "args": [
-                "--debug",
-                "-vv",
-                "pcap",
-                "shift",
-                "time",
-                "tests/botnet-capture-20110816-sogou.pcap",
-                "--start-time",
-                "2019-01-01T12:00:01.0+0100"
-            ],
-            "stopOnEntry": false,
-            "env": {
-                "PYTHONUNBUFFERED": "1",
-                "PYTHONPATH": "${workspaceFolder}"
-            }
-        },
-        {
-            "name": "lim pcap extract ips tests/botnet-capture-20110816-sogou.pcap",
-            "type": "python",
-            "request": "launch",
-            "console": "integratedTerminal",
-            "cwd": "${workspaceFolder}",
-            "module": "lim",
-            "args": [
-                "--debug",
-                "-vv",
-                "pcap",
-                "extract",
-                "ips",
-                "tests/botnet-capture-20110816-sogou.pcap"
             ],
             "stopOnEntry": false,
             "env": {
@@ -452,6 +388,51 @@
                 "Botnet-261-1",
                 "all",
                 "--force"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim pcap shift time 2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "-vv",
+                "pcap",
+                "shift",
+                "time",
+                "2015-04-09_capture-win2.pcap",
+                "--start-time",
+                "2019-01-01T12:00:01.0+0100"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}",
+                "TZ": "UTC"
+            }
+        },
+        {
+            "name": "lim pcap extract ips tests/botnet-capture-20110816-sogou.pcap",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "-vv",
+                "pcap",
+                "extract",
+                "ips",
+                "tests/botnet-capture-20110816-sogou.pcap"
             ],
             "stopOnEntry": false,
             "env": {

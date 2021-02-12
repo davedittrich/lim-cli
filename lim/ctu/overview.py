@@ -61,7 +61,7 @@ class CTUOverview(Command):
         # TODO(dittrich): Getting really not DRY: Move this into class.
         pages = []
         # Expand scenario names if abbreviated
-        scenarios = [CTU_Dataset.get_fullname(s)
+        scenarios = [CTU_Dataset.get_fullname(name=s)
                      for s in parsed_args.scenario]
         if 'ctu_metadata' not in dir(self):
             self.ctu_metadata = CTU_Dataset(
@@ -74,8 +74,8 @@ class CTUOverview(Command):
             pages.append(CTU_Dataset.get_ctu_datasets_overview_url())
         else:
             for scenario in scenarios:
-                page = self.ctu_metadata.get_scenario_attribute(scenario,
-                                                                'URL')
+                page = self.ctu_metadata.get_scenario_data(scenario,
+                                                           'Capture_URL')
                 if page is not None:
                     pages.append(page)
         for page in pages:

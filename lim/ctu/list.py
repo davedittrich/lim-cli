@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import argparse
+import arrow
 import logging
 import sys
 import textwrap
@@ -35,6 +36,23 @@ class CTUList(Lister):
             help="Ignore any cached results (default: ``False``)"
         )
         parser.add_argument(
+            '--date-starting',
+            dest='date_starting',
+            metavar='<YYYY-MM-DD>',
+            default='1970-01-01',
+            help=('List scenarios starting from this date '
+                  "(default: '1970-01-01')")
+        )
+        TODAY_DATE = arrow.now().format('YYYY-MM-DD')
+        parser.add_argument(
+            '--date-ending',
+            dest='date_ending',
+            metavar='<YYYY-MM-DD>',
+            default=TODAY_DATE,
+            help=('List scenarios up to this date '
+                  f"(default: '{TODAY_DATE}')")
+        )
+        parser.add_argument(
             '--fullnames',
             action='store_true',
             dest='fullnames',
@@ -42,7 +60,7 @@ class CTUList(Lister):
             help=("Show full names")
         )
         parser.add_argument(
-            '--everything',
+            '-a', '--everything',
             action='store_true',
             dest='everything',
             default=False,
@@ -57,6 +75,14 @@ class CTUList(Lister):
             default=None,
             help=('Only list scenarios that involve a '
                   'specific hash (default: ``None``)')
+        )
+        find.add_argument(
+            '--malware-includes',
+            dest='malware_includes',
+            metavar='<string>',
+            default=None,
+            help=('Only list scenarios including this string'
+                  "in the 'Malware' column (default: ``None``)")
         )
         find.add_argument(
             '--name-includes',
@@ -78,6 +104,11 @@ class CTUList(Lister):
             'scenario',
             nargs='*',
             default=None)
+        all_columns = ", ".join(
+            [f'{i.lower()}' for i in CTU_Dataset.get_all_columns()])
+        default_columns = ", ".join(
+            [f"{i.lower()}" for i in CTU_Dataset.get_index_columns()]
+        )
         parser.epilog = textwrap.dedent(f"""\
             List scenarios (a.k.a., "captures") and related metadata.
 
@@ -129,7 +160,8 @@ class CTUList(Lister):
 
             There are also a number of filters that can be applied, including MD5
             and SHA256 hash, substrings in the ``Capture_Name`` or ``Malware``
-            fields, or description of the scenario in its web page.
+            fields, start and end dates, or description of the scenario in its
+            web page.
 
             The ``--hash`` option makes an exact match on any of the stored hash
             values.  This is the hash of the executable binary referenced in the
@@ -170,33 +202,38 @@ class CTUList(Lister):
 
     def take_action(self, parsed_args):
         self.log.debug('[+] listing CTU data')
-        # Expand scenario names if abbreviated
-        scenarios = [CTU_Dataset.get_fullname(s)
-                     for s in parsed_args.scenario]
-        # Defaulting doesn't work right with append, so set
-        # default here.
         if 'ctu_metadata' not in dir(self):
             self.ctu_metadata = CTU_Dataset(
                 cache_file=parsed_args.cache_file,
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
-
-        # if parsed_args.everything:
-        #     columns = self.ctu_metadata.columns
-        # else:
-        #     columns = self.ctu_metadata.columns[:self.ctu_metadata.__MIN_COLUMNS__]  # noqa
-        columns = self.ctu_metadata.columns
+        # Expand capture names if abbreviated
+        scenarios = []
+        for scenario in parsed_args.scenario:
+            full_name = self.ctu_metadata.get_fullname(name=scenario)
+            if full_name is None:
+                sys.exit(f"[-] '{scenario}' does not match any scenario names")
+            scenarios.append(full_name)
+        columns = (
+            self.ctu_metadata.get_index_columns()
+            if not parsed_args.everything
+            else self.ctu_metadata.get_all_columns()
+        )
         results = self.ctu_metadata.get_metadata(
             columns=columns,
+            malware_includes=parsed_args.malware_includes,
             name_includes=parsed_args.name_includes,
             fullnames=parsed_args.fullnames,
             description_includes=parsed_args.description_includes,
+            date_starting=parsed_args.date_starting,
+            date_ending=parsed_args.date_ending,
             has_hash=parsed_args.hash)
         data = []
         if len(scenarios) > 0:
-            data = [r for r in results
-                    if CTU_Dataset.get_fullname(r[0]) in scenarios]
+            for row in results:
+                if row[1] in scenarios:
+                    data.append(row)
         else:
             if self.app_args.limit > 0:
                 data = results[0:min(self.app_args.limit, len(results))]

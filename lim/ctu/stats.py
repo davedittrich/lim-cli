@@ -80,7 +80,10 @@ class CTUStats(Lister):
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
-        columns = (parsed_args.attribute, 'COUNT')
+        columns = (
+            self.ctu_metadata.get_column_string(parsed_args.attribute),
+            'Count'
+        )
         count = {}
         results = [
             item[0] for item in self.ctu_metadata.get_metadata(

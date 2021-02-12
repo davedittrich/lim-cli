@@ -142,8 +142,10 @@ class LiminalApp(App):
             elapsed = self.timer.elapsed()
             if result != 0:
                 self.LOG.debug('[!] elapsed time: %s', elapsed)
-            elif self.options.verbose_level > 0 \
-                    and cmd.__class__.__name__ != "CompleteCommand":
+            elif (
+                self.options.verbose_level >= 0
+                and cmd.__class__.__name__ != "CompleteCommand"
+            ):
                 self.stdout.write('[+] Elapsed time {}\n'.format(elapsed))
                 if sys.stdout.isatty():
                     sys.stdout.write('\a')

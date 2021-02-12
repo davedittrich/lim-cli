@@ -39,6 +39,16 @@ teardown() {
 +----------------+-------------------------------+---------+'
 }
 
+@test "\"lim -q ctu list 34-1\" works" {
+    run bash -c "$LIM -q ctu list 34-1"
+    assert_output --partial 'CTU-IoT-Malware-Capture-34-1'
+}
+
+@test "\"lim -q ctu list IoT-34-1\" works" {
+    run bash -c "$LIM -q ctu list IoT-34-1"
+    assert_output --partial 'CTU-IoT-Malware-Capture-34-1'
+}
+
 @test "\"lim -q ctu list Botnet-488888\" fails" {
     run bash -c "$LIM -q ctu list Botnet-48888"
     assert_failure
@@ -84,6 +94,17 @@ teardown() {
     assert_failure
 }
 
+@test "\"lim -q ctu list --name-includes iot --date-starting 2018-10-01 --date-ending 2018-10-30\" works" {
+    run bash -c "$LIM -q ctu list --name-includes iot --date-starting 2018-10-01 --date-ending 2018-10-30"
+    assert_success
+    assert_output "+----------------+------------------------------+---------+
+| Infection_Date | Capture_Name                 | Malware |
++----------------+------------------------------+---------+
+| 2018-10-02     | CTU-IoT-Malware-Capture-20-1 | Torii   |
+| 2018-10-03     | CTU-IoT-Malware-Capture-21-1 | Torii   |
++----------------+------------------------------+---------+"
+}
+
 ####  ctu get  ####
 
 @test "\"lim -q ctu get Botnet-114-1 pcap\" gets PCAP file in subdir" {
@@ -125,8 +146,8 @@ teardown() {
     assert_output --partial 'Infection_Date'
 }
 
-@test "\"lim -q ctu stats SHA256\" works" {
-    run bash -c "$LIM -q ctu stats SHA256 2>/dev/null | head -n 3"
+@test "\"lim -q ctu stats sha256\" works" {
+    run bash -c "$LIM -q ctu stats sha256 2>/dev/null | head -n 3"
     assert_output '+------------------------------------------------------------------+-------+
 | SHA256                                                           | Count |
 +------------------------------------------------------------------+-------+'

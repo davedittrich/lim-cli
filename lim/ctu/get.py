@@ -25,7 +25,7 @@ class CTUGet(Command):
             action='store_true',
             dest='force',
             default=False,
-            help="Force over-writing files if they exist (default: False)"
+            help="Force over-writing files if they exist (default: ``False``)"
         )
         parser.add_argument(
             '--no-subdir',
@@ -70,14 +70,23 @@ class CTUGet(Command):
             help="Ignore any cached results (default: ``False``)"
         )
         parser.add_argument(
-            'name',
+            'scenario',
             nargs=1,
             default=None)
+        data_types = str(", ".join(
+            [
+                f'{i.lower()}'
+                for i in CTU_Dataset.get_data_columns()
+            ]
+        ))
         parser.add_argument(
             'data',
             nargs='+',
-            type=str.upper,
-            choices=CTU_Dataset.get_attributes() + ['ALL'],
+            type=str.lower,
+            choices=[
+                c.lower()
+                for c in CTU_Dataset.get_data_columns() + ['all']
+            ],
             default=None)
         parser.epilog = textwrap.dedent(f"""\
             Get one or more data components from a scenario. These
@@ -109,22 +118,23 @@ class CTUGet(Command):
             # TODO(dittrich): Work this back into init() method.
         self.ctu_metadata.load_ctu_metadata()
 
-        name = CTU_Dataset.get_fullname(parsed_args.name[0])
-        if not self.ctu_metadata.is_valid_scenario(name):
-            raise RuntimeError(f'[-] scenario "{ name }" does not exist')
+        scenario = self.ctu_metadata.get_fullname(
+            name=parsed_args.scenario[0])
+        if not self.ctu_metadata.is_valid_scenario(scenario):
+            raise RuntimeError(f"[-] scenario '{scenario}' does not exist")
         if parsed_args.no_subdir is False:
-            data_dir = name
+            data_dir = scenario
         else:
             data_dir = self.app_args.data_dir
-        if 'ALL' in parsed_args.data:
-            self.recursive_get_all(name)
+        if 'all' in parsed_args.data:
+            self.recursive_get_all(scenario)
         else:
             for attribute in parsed_args.data:
                 self.log.debug(
-                    f'[+] downloading { attribute } data '
-                    f'for scenario { name }')
+                    f'[+] downloading {attribute} data '
+                    f"for scenario '{scenario}'")
                 self.ctu_metadata.fetch_scenario_content_byattribute(
-                    data_dir=data_dir, name=name, attribute=attribute)
+                    data_dir=data_dir, name=scenario, attribute=attribute)
 
     def recursive_get_all(self,
                           name,
@@ -148,8 +158,8 @@ class CTUGet(Command):
         if len(result) > 1 and result[0].find(' Wget ') < 0:
             raise RuntimeError(message)
 
-        url = self.ctu_metadata.get_scenario_attribute(
-            name=name, attribute='URL')
+        url = self.ctu_metadata.get_scenario_data(
+            name=name, attribute='Capture_URL')
         cmd = ['wget',
                '-r',
                '--no-parent',
@@ -173,7 +183,7 @@ class CTUGet(Command):
             sys.exit(err.returncode)
 
         cmd = ['find',
-               CTU_Dataset.get_fullname(name),
+               CTU_Dataset.get_fullname(name=name),
                '-name',
                '*?C=*',
                '-delete']

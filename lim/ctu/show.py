@@ -2,6 +2,7 @@
 
 import argparse
 import logging
+import sys
 import textwrap
 
 from cliff.show import ShowOne
@@ -73,17 +74,12 @@ class CTUShow(ShowOne):
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
-        columns = self.ctu_metadata.columns
         fullname = self.ctu_metadata.get_fullname(
-            parsed_args.scenario)
-        scenario = self.ctu_metadata.get_scenario(fullname)
-        if scenario is None:
-            raise RuntimeError(
-                f'[-] scenario "{ parsed_args.scenario }" not found')
-        scenario['SCENARIO'] = fullname
-        scenario['SCENARIO_URL'] = self.ctu_metadata.get_scenario_attribute(
-            name=fullname, attribute='URL')
-        data = [scenario.get(i) for i in columns]
+            name=parsed_args.scenario)
+        if not self.ctu_metadata.is_valid_scenario(fullname):
+            sys.exit(1)
+        columns = self.ctu_metadata.get_extended_columns()
+        data = self.ctu_metadata.get_extended_data(fullname)
         return columns, data
 
 
