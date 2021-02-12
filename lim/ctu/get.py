@@ -13,6 +13,7 @@ from lim.ctu import (
     CTU_Dataset
 )
 from lim import DEFAULT_PROTOCOLS
+from urllib.parse import urlparse
 
 
 class CTUGet(Command):
@@ -164,33 +165,24 @@ class CTUGet(Command):
 
         url = self.ctu_metadata.get_scenario_data(
             name=name, attribute='Capture_URL')
+        url_path = urlparse(url).path.lstrip('/')
+        basedir = os.path.basename(url_path)
+        cut_dirs = len(url_path.split('/')) - 1
         cmd = ['wget',
-               '-r',
+               '--recursive',
+               '-l2',
                '--no-parent',
                '--no-host-directories',
-               '--cut-dirs=1',
+               f'--cut-dirs={cut_dirs}',
+               '--reject=index.html?*',
+            #    '-P',
+            #    basedir,
                '--no-check-certificate']
         cmd.append(url)
         """Use subprocess.check_ouput to run subcommand"""
+        self.log.debug('[+] cmd: {" ".join(cmd)}')
         self.log.info('[+] recursively getting all data '
-                      f'from { url } ')
-        try:
-            result = subprocess.check_output(  # nosec
-                cmd,
-                cwd=cwd,
-                stderr=stderr,
-                shell=shell
-            ).decode('UTF-8').splitlines()
-        except subprocess.CalledProcessError as err:
-            sys.stderr.write('\n'.join([line for line in result]) + '\n')
-            sys.stderr.write(str(err.output) + '\n')
-            sys.exit(err.returncode)
-
-        cmd = ['find',
-               CTU_Dataset.get_fullname(name=name),
-               '-name',
-               '*?C=*',
-               '-delete']
+                      f"from {url} to '{basedir}'")
         try:
             result = subprocess.check_output(  # nosec
                 cmd,
