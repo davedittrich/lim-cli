@@ -484,7 +484,8 @@ class CTU_Dataset(object):
             return name
         if name in self.short_map:
             return self.short_map[name]
-        # Get numeric suffix first (full name must end with this)
+        # A short name looks like this: Malware-Botnet-116-1
+        # Get numeric suffix first (full name must end with this).
         m = re.search(r'([0-9]+[-]{0,1}[0-9][0-9]*)$', name)
         if m is None:
             if name.find('-') == -1:
@@ -492,12 +493,9 @@ class CTU_Dataset(object):
                          f"use '--name-includes \"{name}\"'' instead")
             return None
         number = m.group(0).lstrip('-')
-        # A short name looks like this: Malware-Botnet-116-1
-
-        # Split the rest of the name on dashes
+        # Split the rest of the name on dashes.
         # Result looks like this: ['Malware', 'Botnet']
         parts = name.rstrip(number).split('-')
-        # parts = name[:-len(number) - 1].split('-')
         # Symbolic value for .find() not finding something
         MISSING = -1
         for n in self.full_names:
@@ -733,25 +731,6 @@ class CTU_Dataset(object):
                             _scenario['BINETFLOW'] = \
                                 self.__NETFLOW_DATA_DIR__ + item['href']
                             break
-                if ":" in line and line != ":":
-                    try:
-                        # Special case for IoT malware, which is annotated
-                        # differently.
-                        (_k, _v) = line.split(':')
-                        k = _k.upper().replace(' ', '_')
-                        # TODO(dittrich): See if more of this can be removed.
-                        # The special case noted above may be eliminated with
-                        # the new JSON index, but I don't have time to run that
-                        # down just now.
-                        # if k == "PROBABLE_MALWARE_NAME":
-                        #     k = "PROBABLE_NAME"
-                        v = _v.strip()
-                        if k in self.__DATA_COLUMNS__:
-                            _scenario[k] = v
-                    except (ValueError, TypeError) as err: # noqa
-                        pass
-                    except Exception as err:  # noqa
-                        pass
             for item in soup.findAll('a'):
                 try:
                     href = item['href']
