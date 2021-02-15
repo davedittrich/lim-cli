@@ -12,7 +12,7 @@ PROJECT:=$(shell basename $(CWD))
 CURRENT_ID=root:root
 
 .PHONY: all
-all: help
+all: install-active
 
 .PHONY: help
 help:
@@ -209,6 +209,7 @@ install:
 .PHONY: i
 .PHONY: install
 i install-active: bdist_wheel
+	python -m pip uninstall -y $(PROJECT)
 	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
 	git checkout ChangeLog
 
