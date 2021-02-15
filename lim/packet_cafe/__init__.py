@@ -1022,7 +1022,13 @@ def needs_update(
             f"updated {repo.working_dir}:")
         for i in list(fetched_new):
             logger.info(f"{i.name}")
-    current_branch = repo.git.branch('--show-current')
+    try:
+        current_branch = [
+            b[2:] for b in repo.git.branch('-a').splitlines()
+            if b.startswith('* ')
+        ].pop()
+    except IndexError:
+        raise RuntimeError('[-] failed to identify current branch')
     if (current_branch != branch) and not ignore_dirty:
         raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
     need_checkout, position, commit_delta = get_branch_status(repo,
