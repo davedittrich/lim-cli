@@ -356,6 +356,27 @@
             }
         },
         {
+            "name": "lim ctu get IoT-42-1 all",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "ctu",
+                "get",
+                "IoT-42-1",
+                "all",
+                "--force"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
             "name": "lim ctu show Botnet-42",
             "type": "python",
             "request": "launch",

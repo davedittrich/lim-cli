@@ -166,18 +166,22 @@ class CTUGet(Command):
         url = self.ctu_metadata.get_scenario_data(
             name=name, attribute='Capture_URL')
         url_path = urlparse(url).path.lstrip('/')
+        # TODO(dittrich): Could turn this into dest= kwarg
         basedir = os.path.basename(url_path)
-        cut_dirs = len(url_path.split('/')) - 1
+        cut_dirs = len(url_path.split('/'))
         cmd = ['wget',
-               '--recursive',
-               '-l2',
+               '--mirror',
+               '-l3',
                '--no-parent',
                '--no-host-directories',
                f'--cut-dirs={cut_dirs}',
                '--reject=index.html?*',
-            #    '-P',
-            #    basedir,
+               '-P',
+               basedir,
                '--no-check-certificate']
+        if not url.endswith('/'):
+            # Required by wget --no-parent to work right
+            url = f"{url}/"
         cmd.append(url)
         """Use subprocess.check_ouput to run subcommand"""
         self.log.debug('[+] cmd: {" ".join(cmd)}')
@@ -194,6 +198,7 @@ class CTUGet(Command):
             sys.stderr.write('\n'.join([line for line in result]) + '\n')
             sys.stderr.write(str(err.output) + '\n')
             sys.exit(err.returncode)
+        pass
 
 
 # vim: set ts=4 sw=4 tw=0 et :
