@@ -596,9 +596,16 @@ class ContainersUp(Command):
         # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
         #
         env['COMPOSE_HTTP_TIMEOUT'] = '200'
+        stdout_lines = []
+        stderr_lines = []
         if self.app_args.verbose_level > 0:
             logger.info(f"[+] running '{' '.join(cmd)}' in {repo_dir}")
-        result = execute(cmd=cmd, cwd=repo_dir, env=env)
+        result = execute(
+            cmd=cmd,
+            cwd=repo_dir,
+            stdout_cb=lambda x: stdout_lines.append(x.decode('utf-8').splitlines()),
+            stderr_cb=lambda x: stderr_lines.append(x.decode('utf-8').splitlines()),
+            env=env)
         if result != 0:
             raise RuntimeError(
                 '[-] docker-compose failed to bring containers up'
