@@ -28,12 +28,11 @@ class About(Command):
         parser.epilog = textwrap.dedent(f"""
             Opens up the packet-cafe documenation in a browser.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe about
                 [+] opening browser 'system default' for {Packet_Cafe.CAFE_DOCS_URL}
 
-            ..
 
             To see help information about how the browser option works and
             how you can configure it, see ``lim about --help``.

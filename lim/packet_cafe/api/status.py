@@ -26,7 +26,7 @@ class Status(Lister):
             By default, the last session ID and request ID (if available)
             are used.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe status
                 [+] implicitly reusing last session id bae5d69c-7180-445d-a8db-22a5ef0872e8
@@ -45,12 +45,11 @@ class Status(Lister):
                 | p0f           | Complete | 2020-05-15T01:26:48.456883+00:00 |
                 +---------------+----------+----------------------------------+
 
-            ..
 
             If no session ID is identified, you will be prompted to choose from
             those that are available:
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe status
 
@@ -63,7 +62,7 @@ class Status(Lister):
                     9a949fe6-6520-437f-89ec-e7af6925b1e0
                     7eedfd93-4f65-4422-8d70-a4edf47d7364
                     a42ee6ab-d60b-4d8e-a1df-cb3dc6985c81
-            ..
+
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-status-sess_id-req_id
             """)  # noqa
@@ -76,14 +75,16 @@ class Status(Lister):
         if len(ids) == 0:
             raise RuntimeError(NO_SESSIONS_MSG)
         sess_id = packet_cafe.get_session_id(
-                sess_id=parsed_args.sess_id,
-                choose=parsed_args.choose)
+            sess_id=parsed_args.sess_id,
+            choose=parsed_args.choose
+        )
         if sess_id not in ids:
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
         req_id = packet_cafe.get_request_id(
-                req_id=parsed_args.req_id,
-                choose=parsed_args.choose)
+            req_id=parsed_args.req_id,
+            choose=parsed_args.choose
+        )
         columns = ['Tool', 'State', 'Timestamp']
         data = []
         status = packet_cafe.get_status(sess_id=sess_id, req_id=req_id)

@@ -18,7 +18,7 @@ The ``lim ctu overview`` command attempts to load the URL for the main web
 page. If it can't do this, you will at least be shown the URL as seen
 here.
 
-.. code-block:: console
+::
 
     $ lim ctu overview
     For an overview of the CTU Datasets, open the following URL in a browser:
@@ -27,7 +27,7 @@ here.
     When using this data, make sure to respect the Disclaimer at the bottom of
     the scenario ``Readme.*`` files:
 
-    .. code-block:: console
+    ::
 
        These files were generated in the Stratosphere Lab as part of the Malware
        Capture Facility Project in the CVUT University, Prague, Czech Republic.
@@ -67,32 +67,26 @@ By default, the cache will be stored in your ``HOME`` directory in a file named
 caches, override this path by setting the environment variable ``LIM_CTU_CACHE``
 with the path, or use the ``--cache-file`` option.
 
-.. code-block:: console
+::
 
-    $ lim ctu list -c SCENARIO -c GROUP -c PROBABLE_NAME --limit 10 --elapsed
-    [+] identifying scenarios for group mixed from https://www.stratosphereips.org/datasets-mixed
-    [+] group "mixed" has 5 scenarios
-    [+] identifying scenarios for group normal from https://www.stratosphereips.org/datasets-normal
-    [+] group "normal" has 3 scenarios
-    [+] identifying scenarios for group malware from https://www.stratosphereips.org/datasets-malware
-    [+] group "malware" has 345 scenarios
-    [+] identifying scenarios for group iot from https://www.stratosphereips.org/datasets-iot
-    [+] group "iot" has 7 scenarios
-    [+] queued 360 pages for processing
-    +-------------------------------+---------+---------------+
-    | SCENARIO                      | GROUP   | PROBABLE_NAME |
-    +-------------------------------+---------+---------------+
-    | CTU-Malware-Capture-Botnet-1  | malware | None          |
-    | CTU-Malware-Capture-Botnet-2  | malware | None          |
-    | CTU-Malware-Capture-Botnet-3  | malware | None          |
-    | CTU-Malware-Capture-Botnet-4  | malware | PushDo        |
-    | CTU-Malware-Capture-Botnet-5  | malware | None          |
-    | CTU-Malware-Capture-Botnet-6  | malware | None          |
-    | CTU-Malware-Capture-Botnet-7  | malware | None          |
-    | CTU-Malware-Capture-Botnet-8  | malware | None          |
-    | CTU-Malware-Capture-Botnet-9  | malware | None          |
-    | CTU-Malware-Capture-Botnet-10 | malware | None          |
-    +-------------------------------+---------+---------------+
+    $ lim ctu list -c Capture_Name -c Malware --limit 10 --elapsed
+    [+] generating metadata cache '/Users/dittrich/.lim-ctu-cache.json'
+    [+] queued 400 pages for processing
+    +-------------------------------+-----------+
+    | Capture_Name                  | Malware   |
+    +-------------------------------+-----------+
+    | CTU-Malware-Capture-Botnet-90 | Conficker |
+    | CTU-Malware-Capture-Botnet-92 | Wootbot   |
+    | CTU-Malware-Capture-Botnet-91 | Conficker |
+    | CTU-Malware-Capture-Botnet-42 | Neeris    |
+    | CTU-Malware-Capture-Botnet-48 | Sogou     |
+    | CTU-Malware-Capture-Botnet-43 | Neeris    |
+    | CTU-Malware-Capture-Botnet-44 | RBot      |
+    | CTU-Malware-Capture-Botnet-45 | RBot      |
+    | CTU-Malware-Capture-Botnet-46 | Virut     |
+    | CTU-Malware-Capture-Botnet-54 | Virut     |
+    +-------------------------------+-----------+
+    [+] Elapsed time 00:00:19.36
 
 ..
 
@@ -116,7 +110,7 @@ For example, you may want to get the PCAP or Netflow file from a specific
 capture to extract IP addresses. Let's try to get both files for one of
 the scenarios, in this case ``CTU-Malware-Capture-Botnet-113-1``:
 
-.. code-block:: console
+::
 
     $ lim --debug ctu get CTU-Malware-Capture-Botnet-113-1 LABELED PCAP
     [-] scenario "CTU-Malware-Capture-Botnet-113-1" does not have "LABELED" data: skipping
@@ -142,7 +136,7 @@ for better organization and to avoid possible file namespace clashes.
 
 Alternatively, you can just specify ``ALL`` when getting data:
 
-.. code-block:: console
+::
 
     $ lim --debug -v ctu get CTU-Malware-Capture-Botnet-44 ALL --elapsed
     initialize_app
@@ -175,7 +169,7 @@ The directory for scenario ``CTU-Malware-Capture-Botnet-44`` now has PCAP,
 bidirectional netflow, bidirectional netflow with labels, and the malware
 artifact in ZIP format.
 
-.. code-block:: console
+::
 
     $ tree
     .

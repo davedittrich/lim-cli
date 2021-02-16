@@ -42,7 +42,7 @@ class AdminDelete(Command):
             available sessions with the ``--choose`` option, or
             delete all sessions at once with ``--all``:
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe admin delete --all
                 [+] deleted session 531f8bad-1f01-4b10-926b-a72aa27bcdba
@@ -51,7 +51,7 @@ class AdminDelete(Command):
                 [+] deleted session f44dc0e5-2ad0-4cbd-aac9-98a6c8233dff
                 [+] deleted session 5382b1b3-39f2-4563-9486-8efb99b56243
 
-            ..
+
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

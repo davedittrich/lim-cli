@@ -23,29 +23,52 @@ class CTUStats(Lister):
             dest='cache_file',
             default=cache_file,
             help=('Cache file path '
-                  f'(default: { cache_file })')
+                  f'(default: ``{cache_file}``)')
         )
         parser.add_argument(
             '--ignore-cache',
             action='store_true',
             dest='ignore_cache',
             default=False,
-            help="Ignore any cached results (default: False)"
+            help="Ignore any cached results (default: ``False``)"
+        )
+        attributes = ", ".join(
+            [c.lower() for c in CTU_Dataset.get_index_columns(min=False)]
         )
         parser.add_argument(
             'attribute',
             nargs='?',
-            default='GROUP',
-            choices=CTU_Dataset.get_columns(),
-            help='Attribute to quantify (default: "GROUP")'
+            default='infection_date',
+            choices=[
+                c.lower()
+                for c in CTU_Dataset.get_index_columns(min=False)
+            ],
+            help='Attribute to quantify (default: ``infection_date``)'
         )
         parser.epilog = textwrap.dedent(f"""\
             Shows the selected dataset attribute and a count of unique
-            instances.
+            instances in reverse order of occurance.
+
+            ::
+
+                $ lim ctu stats md5 | head
+                +----------------------------------+-------+
+                | MD5                              | Count |
+                +----------------------------------+-------+
+                | e515267ba19417974a63b51e4f7dd9e9 |    10 |
+                | -                                |     9 |
+                | e1090d7126dd88d0d1d39b68ea3aae11 |     6 |
+                | 05a00c320754934782ec5dec1d5c0476 |     6 |
+                | 48616dd47e12e369feef53a57830158a |     5 |
+                | 11bc606269a161555431bacf37f7c1e4 |     5 |
+                | bf08e6b02e00d2bc6dd493e93e69872f |     4 |
+
+
+            Possible attributes are those that come from the CTU index
+            file (``{attributes}``).
 
             To see more detailed descriptions of the CTU datasets as a whole,
-            or for specific groups, use ``lim ctu overview`` to view the
-            appropriate web page.
+            use ``lim ctu overview`` to view the appropriate web page.
            """)  # noqa
         return parser
 
@@ -57,11 +80,16 @@ class CTUStats(Lister):
                 ignore_cache=parsed_args.ignore_cache,
                 debug=self.app_args.debug)
         self.ctu_metadata.load_ctu_metadata()
-        columns = (parsed_args.attribute, 'COUNT')
+        columns = (
+            self.ctu_metadata.get_column_string(parsed_args.attribute),
+            'Count'
+        )
         count = {}
-        results = [item[0] for item in self.ctu_metadata.get_metadata(
-                      columns=[parsed_args.attribute],
-                      fullnames=True)]
+        results = [
+            item[0] for item in self.ctu_metadata.get_metadata(
+                columns=[parsed_args.attribute],
+                fullnames=True)
+        ]
         for item in results:
             # Handle null values vs. no key (either way, be consistent)
             if item == '':

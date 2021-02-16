@@ -76,7 +76,7 @@ class Upload(Command):
             and if the request was accepted, the progress of each worker is tracked
             in real time similar to the web UI.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe upload ~/git/packet_cafe/notebooks/smallFlows.pcap
                 [+] Upload smallFlows.pcap: success
@@ -92,7 +92,6 @@ class Upload(Command):
                 [+] p0f:           complete 2020-05-23T17:32:21.438466+00:00
                 [+] pcapplot:      complete 2020-05-23T17:33:05.999342+00:00
 
-            ..
 
             If ``-v`` (or more) is given, even more information is produced and
             tracking is performed as well.
@@ -100,7 +99,7 @@ class Upload(Command):
             Adding the ``--elapsed`` option includes elapsed lap time (per worker)
             and total time for all workers.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe upload CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap --elapsed
                 [+] Upload 2015-04-09_capture-win2.pcap: success
@@ -117,13 +116,12 @@ class Upload(Command):
                 [+] pcapplot:      complete 2020-05-27T03:27:10.634384+00:00 (00:00:19.27)
                 [+] Elapsed time 00:00:22.86
 
-            ..
 
             Adding the ``--no-track`` option will return the upload status and both
             session and request IDs.  You can then check on the status as needed
             using ``lim cafe status``:
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe upload test.pcap --no-track
                 [+] Upload test.pcap: success
@@ -154,7 +152,6 @@ class Upload(Command):
                 | p0f           | In progress | 2020-05-15T07:19:07.994061+00:00 |
                 +---------------+-------------+----------------------------------+
 
-            ..
 
             Using the ``-q`` flag will no produce any output and will also return
             immediately without tracking processing.  In circumstances where you are
@@ -179,10 +176,11 @@ class Upload(Command):
                         and parsed_args.no_track is not True)
         fpath = parsed_args.pcap[0]
         sess_id = packet_cafe.get_session_id(
-                sess_id=parsed_args.sess_id,
-                reuse_session=parsed_args.reuse_session,
-                choose=parsed_args.choose,
-                generate=True)
+            sess_id=parsed_args.sess_id,
+            reuse_session=parsed_args.reuse_session,
+            choose=parsed_args.choose,
+            generate=True
+        )
         if not os.path.exists(fpath):
             raise RuntimeError(f'[-] file { fpath } not found')
         result = packet_cafe.upload(fpath=fpath, sess_id=sess_id)

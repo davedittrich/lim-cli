@@ -40,6 +40,15 @@ Write Documentation
 official docs, in docstrings, or even on the web in blog posts,
 articles, and such.
 
+Documentation includes comments in source code. Sphinx is used to
+produce some of the documentation for `lim` from source code itself.
+Follow the `Google Python Style Guide`_, for example its guidance
+on use of `comments and docstrings`_.
+
+.. _Google Python Style Guide: https://google.github.io/styleguide/pyguide.html
+.. _comments and docstrings: https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings
+
+
 Submit Feedback
 ~~~~~~~~~~~~~~~
 
@@ -60,7 +69,7 @@ Ready to contribute? Here's how to set up `lim` for local development.
 1. Fork the `lim` repo on GitHub.
 2. Clone your fork locally::
 
-    $ git clone git@github.com:your_name_here/lim.git
+    $ git clone git@github.com:your_name_here/lim-cli.git
 
 3. Install your local copy into a virtualenv. Assuming you have virtualenvwrapper installed, this is how you set up your fork for local development::
 

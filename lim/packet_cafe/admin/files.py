@@ -38,7 +38,7 @@ class Files(Lister):
             readable, with the ``--tree`` option.
 
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe admin files  --tree
                 files
@@ -75,7 +75,6 @@ class Files(Lister):
                         ├── test.pcap
                         └── trace_dcfe1b4dd2a04d559f6600902847a11a_2020-06-21_21_44_45.pcap
 
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-id-files
             """)  # noqa
