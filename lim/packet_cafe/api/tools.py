@@ -5,8 +5,10 @@ import logging
 import textwrap
 
 from cliff.lister import Lister
+from lim.packet_cafe import add_docker_global_options
 from lim.packet_cafe import add_packet_cafe_global_options
 from lim.packet_cafe import get_packet_cafe
+from lim.packet_cafe import get_workers_definitions
 
 logger = logging.getLogger(__name__)
 
@@ -21,10 +23,19 @@ class Tools(Lister):
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
         parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        parser.add_argument(
+            '--definitions',
+            action='store_true',
+            dest='definitions',
+            default=False,
+            help=('Show definitions from workers.json file, not live '
+                  '(default: False)')
+        )
+
         parser.epilog = textwrap.dedent("""
             List tools used by workers in the packet-cafe server.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe tools --fit-width
                 +---------------+---------------------------+---------+--------+---------------+----------------+----------+---------------+
@@ -41,10 +52,24 @@ class Tools(Lister):
                 | p0f           | iqtlabs/p0f               | v0.11.8 |        | analysis      | True           | rabbitmq | pcap-splitter |
                 +---------------+---------------------------+---------+--------+---------------+----------------+----------+---------------+
 
-            ..
+
+            The ``--definitions`` option will show the definitions as found in
+            the ``workers.json`` file from the repository directory, rather
+            than from the running system via the API. The ``--packet-cafe-repo-dir``
+            option controls which directory is used.  This option is most useful
+            when developing and testing your own images to verify what images
+            will be used by workers after bringing up the stack.
+
+            ::
+
+                $ lim cafe tools --definitions
+                [+] definitions from workers.json file in '/Users/dittrich/packet_cafe' (branch 'master')
+                . . .
+
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-tools
             """)  # noqa
+        parser = add_docker_global_options(parser)
         return add_packet_cafe_global_options(parser)
 
     def take_action(self, parsed_args):
@@ -52,7 +77,17 @@ class Tools(Lister):
         packet_cafe = get_packet_cafe(self.app, parsed_args)
         columns = ['Name', 'Image', 'Version', 'Labels',
                    'Stage', 'ViewableOutput', 'Outputs', 'Inputs']
-        workers = packet_cafe.get_workers()
+        repo_dir = parsed_args.packet_cafe_repo_dir
+        branch = parsed_args.packet_cafe_repo_branch
+        if parsed_args.definitions:
+            logger.info("[+] definitions from workers.json file "
+                        f"in '{repo_dir}' (branch '{branch}')")
+            workers_definitions = get_workers_definitions(
+                repo_dir=repo_dir,
+                flatten=True)
+            workers = workers_definitions['workers']
+        else:
+            workers = packet_cafe.get_workers()
         data = []
         for worker in workers:
             data.append(

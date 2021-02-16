@@ -25,21 +25,22 @@ def convert_type(t, v):
     """Convert value 'v' to type 't'"""
     _valid_type = ['int', 'float', 'long', 'complex', 'str']
     if t not in _valid_type:
-        raise RuntimeError('[-] unsupported type: must be one of: ' +
-                           ",".join([i for i in _valid_type]))
+        raise RuntimeError(
+            '[-] unsupported type: '
+            f'must be one of: {",".join([i for i in _valid_type])}')
     try:
         return type(eval("{}()".format(t)))(v)   # nosec
     except ValueError:
-        raise ValueError('type={}, value="{}"'.format(t, v))
+        raise ValueError(f'type={t}, value="{v}"')
 
 
 def check_natural(value):
     try:
         i = int(value)
     except ValueError:
-        raise RuntimeError('[-] "{}" is not a base-10 integer'.format(value))
+        raise RuntimeError(f"[-] '{value}' is not a base-10 integer")
     if not i > 0:
-        raise RuntimeError('[-] {} is not a natural number (>0)'.format(value))
+        raise RuntimeError(f"[-] '{value}' is not a natural number (>0)")
     return i
 
 
@@ -47,9 +48,9 @@ def check_whole(value):
     try:
         i = int(value)
     except ValueError:
-        raise RuntimeError('[-] "{}" is not a base-10 integer'.format(value))
+        raise RuntimeError(f"[-] '{value}' is not a base-10 integer")
     if not i >= 0:
-        raise RuntimeError('[-] {} is not a whole number (>=0)'.format(value))
+        raise RuntimeError(f"[-] '{value}' is not a whole number (>=0)")
     return i
 
 
@@ -70,11 +71,11 @@ def get_output(cmd=['echo', 'NO COMMAND SPECIFIED'],
                shell=False):
     """Use subprocess.check_ouput to run subcommand"""
     output = subprocess.check_output(  # nosec
-            cmd,
-            cwd=cwd,
-            stderr=stderr,
-            shell=shell
-        ).decode('UTF-8').splitlines()
+        cmd,
+        cwd=cwd,
+        stderr=stderr,
+        shell=shell
+    ).decode('UTF-8').splitlines()
     return output
 
 
@@ -105,7 +106,7 @@ class Timer(object):
         """Record initial time."""
         self.start(lap="__enter__")
         if self.verbose:
-            sys.stdout.write('{}...'.format(self.task_description))
+            sys.stdout.write(f'{self.task_description}...')
             sys.stdout.flush()
         return self
 
@@ -172,8 +173,10 @@ def safe_to_open(filename, overwrite=False):
     if os.path.exists(filename):
         statinfo = os.stat(filename)
         if statinfo.st_size > 0 and not overwrite:
-            raise RuntimeError('[-] file "{}" exists; '.format(filename) +
-                               'use --force to overwrite.')
+            raise RuntimeError(
+                f"[-] file '{filename}' exists; "
+                'use --force to overwrite.'
+            )
     return True
 
 
@@ -183,7 +186,7 @@ class BZ2_LineReader(object):
     BZ2 compressed data hosted at a specific URL. Based on code example from:
     https://stackoverflow.com/questions/47778579/how-to-read-lines-from-arbitrary-bz2-streams-for-csv
     """
-    def __init__(self, url=None, buffer_size=6*1024, verify=True):
+    def __init__(self, url=None, buffer_size=(6 * 1024), verify=True):
         self.url = url
         self.buffer_size = buffer_size
         self.verify = verify
@@ -204,7 +207,7 @@ class BZ2_LineReader(object):
                           stream=True,
                           verify=self.verify) as file:
             if file.status_code in [404]:
-                raise RuntimeError('[-] file not found: {}'.format(self.url))
+                raise RuntimeError(f"[-] file not found: '{self.url}'")
             for row in self._line_reader(file, maxlines=maxlines):
                 yield row
 
@@ -239,7 +242,7 @@ class LineReader(object):
     uncompressed data hosted at a specific URL. Based on code example from:
     https://stackoverflow.com/questions/47778579/how-to-read-lines-from-arbitrary-bz2-streams-for-csv
     """
-    def __init__(self, url=None, buffer_size=6*1024, verify=True):
+    def __init__(self, url=None, buffer_size=(6 * 1024), verify=True):
         self.url = url
         self.buffer_size = buffer_size
         self.verify = verify
@@ -259,7 +262,7 @@ class LineReader(object):
                           stream=True,
                           verify=self.verify) as file:
             if file.status_code in [404]:
-                raise RuntimeError('[-] file not found: {}'.format(self.url))
+                raise RuntimeError(f"[-] file not found: '{self.url}'")
             for row in self._line_reader(file, maxlines=maxlines):
                 yield row
 

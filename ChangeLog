@@ -1,6 +1,35 @@
 CHANGES
 =======
 
+* Move general functions up one module level
+* Refine browser selection code and documentation
+* Add hack to open Windows browser from WSL
+* Handle Docker not running exception
+* Rename python file to match command renaming
+* Rename 'cafe containers' subcommands
+* Don't put out UI message on --debug
+* Allow proceeding with changes in repo (dirty)
+* Add missing directives
+* Add option to expose workers.json definitions
+* Improve branch status check
+* Finish fixing remote option handling
+* More sigh..
+* Sigh..
+* And \*now\* the quotes become a problem?!?
+* Now we're getting somewhere
+* And now they are missing?
+* Remove extraneous paren
+* How did the indentation get messed up?
+* Is this better?
+* Still broken
+* OK, is THAT better?
+* Fix yaml error
+* Fix logic related to publishing artifacts
+
+20.9.0
+------
+
+* Prepare for release
 * Resolve pep8 finding
 * Get containers list from workers.json file
 * Improve repo update checking

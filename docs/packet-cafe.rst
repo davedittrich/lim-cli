@@ -60,24 +60,27 @@ show the URL and also attempt to open a browser to the web page:
 Starting and Stopping Packet Café services
 ------------------------------------------
 
-`Packet Café`_ runs all of its service workers and user interfaces as Docker
-containers on the local host. Before doing this, the Docker images must be
-built locally and/or pulled from Docker Hub.  (The service containers are build
-from the ``packet_cafe`` repository directory, while the tools used by the
-workers come from another GitHub repository called `iqtlabs/network-tools`.
-Those containers are pulled from Docker Hub the stack is brought up using
-``docker-compose``.)
+`Packet Café`_ runs all of its service workers, user interface, API, related
+networks, etc., as a Docker container stack on the local host.
 
-The ``lim`` CLI has subcommands that simplify this process by cloning the
-Packet Café repository from GitHub as part of building and/or bringing the
-containers up.
+The service images are built from the ``packet_cafe`` repository directory,
+while the tools run by the workers come from other GitHub repositories (the
+primary one being `iqtlabs/network-tools`).  Those images are pulled from
+Docker Hub when you bring the stack up using ``docker-compose``.
 
-It also lets you know when the repo has been updated and provides an option to
-update the cloned repository by fetching and pulling new code.
+The Packet Café documentation describes using ``docker-compose up --build``
+to build the images when bringing up the container stack. You can manually pull
+the images if you wish before bringing up the stack, making the
+``--build`` option unecessary in some cases.
+
+The ``lim`` CLI simplifies the process by cloning the Packet Café repository
+from GitHub as part of building and/or bringing the containers up. It also
+fetches new content from the remote repository origin and will let you know
+that you need to update.
 
 .. code-block:: console
 
-    $ lim cafe containers up
+    $ lim cafe docker up
     [!] The branch "master" is not up to date
     [-] An update is available from remote "origin"
     [-] Use ``-update`` to pull before building
@@ -89,17 +92,17 @@ update the cloned repository by fetching and pulling new code.
     For advanced users who want to develop and test the Packet Café platform
     yourself, you can ``pull`` your own images by setting the namespace
     for the service and tool image repositories to reference your own
-    account.  See ``lim cafe containers pull --help``.
+    account.  See ``lim cafe docker pull --help``.
 
 The Packet Café `Deployment`_ section assumes you will be building building
-containers locally. Their instructions show how to clone the repository and use
+images locally. Their instructions show how to clone the repository and use
 ``docker-compose`` directly.  These steps are handled by ``lim`` in the
 background, so you only need to run one command to clone the repo and build the
 containers.
 
 .. code-block:: console
 
-    $ lim cafe containers build
+    $ lim cafe docker build
     [-] Directory "/Users/dittrich/packet_cafe" does not exist
     [+] Cloning from URL https://github.com/iqtlabs/packet_cafe.git
     [+] Cloning into '/Users/dittrich/packet_cafe'...
@@ -135,7 +138,7 @@ The containers are now running:
 
 .. code-block:: console
 
-    $ lim cafe containers show
+    $ lim cafe docker ps
     +-------------------------+------------+--------------------------------------+---------+
     | name                    | short_id   | image                                | status  |
     +-------------------------+------------+--------------------------------------+---------+
@@ -154,7 +157,7 @@ When you want to stop the Docker containers, just do the following:
 
 .. code-block:: console
 
-        $ lim cafe containers down
+        $ lim cafe docker down
         [+] Running "docker-compose down" in /Users/dittrich/packet_cafe
         Stopping packet_cafe_admin_1     ... done
         Stopping packet_cafe_web_1       ... done
@@ -211,7 +214,7 @@ When you want to stop the Docker containers, just do the following:
 
 You can use ``docker ps --filter 'name=packet_cafe'`` to see the Packet
 Café containers (and their status) by their name.  The command ``lim cafe
-containers show`` produces a table with just those containers having the label
+docker ps`` produces a table with just those containers having the label
 ``com.docker.compose.project`` set to ``packet_cafe`` and returns a standard
 Unix exit code of ``0`` (success).  If the Packet Café Docker containers are
 not running, a message to that effect is returend and an exit code of ``1``
@@ -223,7 +226,7 @@ Adding the ``-q`` flag will suppress the table or warning for use in scripts.
 
 .. code-block:: console
 
-    $ lim cafe containers show
+    $ lim cafe docker ps
     +-------------------------+------------+--------------------------------------+---------+
     | name                    | short_id   | image                                | status  |
     +-------------------------+------------+--------------------------------------+---------+
@@ -237,7 +240,7 @@ Adding the ``-q`` flag will suppress the table or warning for use in scripts.
     | packet_cafe_redis_1     | c893c408b5 | iqtlabs/packet_cafe_redis:latest     | running |
     | packet_cafe_lb_1        | 4530125e8e | iqtlabs/packet_cafe_lb:latest        | running |
     +-------------------------+------------+--------------------------------------+---------+
-    $ lim -q cafe containers show
+    $ lim -q cafe docker ps
     $ echo $?
     0
 
@@ -245,9 +248,9 @@ Adding the ``-q`` flag will suppress the table or warning for use in scripts.
 
 .. code-block:: console
 
-    $ lim cafe containers show
+    $ lim cafe docker ps
     [-] no packet-cafe containers are running
-    $ lim -q cafe containers show
+    $ lim -q cafe docker ps
     $ echo $?
     1
 

@@ -28,11 +28,11 @@ if 'lim-cli' in p.parts or 'lim' in p.parts:
     except Exception:
         pass
 else:
-    __version__ = '20.9.0'
+    __version__ = '21.2.1'
     __release__ = __version__
 
 BUFFER_SIZE = 128 * 1024
-BROWSER = os.getenv('LIM_BROWSER', None)
+BROWSER = os.getenv('BROWSER', None)
 DAY = os.environ.get('DAY', 5)
 DEFAULT_PROTOCOLS = ['icmp', 'tcp', 'udp']
 KEEPALIVE = 5.0
@@ -89,7 +89,7 @@ def open_browser(page=None, browser=None, force=False):
     if page is None:
         raise RuntimeError("[-] not page specified")
     which = "system default" if browser is None else browser
-    logger.info(f'[+] opening the {which} browser for {page}')
+    logger.info(f"[+] opening browser '{which}' for {page}")
     if browser is not None:
         webbrowser.get(browser).open_new_tab(page)
     else:

@@ -31,12 +31,11 @@ class About(Command):
         parser.epilog = textwrap.dedent(f"""\
             Shows information about the ``lim`` CLI.
 
-            .. code-block:: console
+            ::
 
                 $ lim about
                 lim version { __version__ }
 
-            ..
 
             It will also print out copyright and related information (which
             isn't easy to force ``autoprogram-cliff`` to parse correctly in
@@ -52,17 +51,24 @@ class About(Command):
 
                 https://docs.python.org/3/library/webbrowser.html
 
-            It supports a large set of browsers for various operating system
-            distributions. It will attempt to chose an appropriate browser
-            from operating system defaults.  If it is not possible to open
-            a graphical browser application, it may open the ``lynx`` text
+            This module supports a large set of browsers for various operating
+            system distributions. It will attempt to chose an appropriate
+            browser from operating system defaults.  If it is not possible to
+            open a graphical browser application, it may open the ``lynx`` text
             browser.
 
-            You can choose which browser will open using the identifier
-            from the set in the ``webbrowser`` documentation. Either specify
-            the browser using the ``--browser`` option on the command line,
-            or export the environment variable ``LIM_BROWSER`` set to the
-            identifier (e.g., ``export LIM_BROWSER=firefox``)
+            You can choose which browser ``webbrowser`` will open using the
+            identifier from the set in the ``webbrowser`` documentation.
+            Either specify the browser using the ``--browser`` option on the
+            command line, or export the environment variable ``BROWSER``
+            set to the identifier (e.g., ``export BROWSER=firefox``).
+
+            It is also possible to set the ``BROWSER`` environment variable
+            to a full path to an executable to run. On Windows 10 with Windows
+            Subsystem for Linux, you can use this feature to open a Windows
+            executable outside of WSL. (E.g., using
+            ``export BROWSER='/c/Program Files/Mozilla Firefox/firefox.exe'``
+            will open Firefox installed in that path).
 
             Also note that when this program attempts to open a browser,
             an exception may be thrown if the process has no TTY. If this
@@ -78,8 +84,8 @@ class About(Command):
                          force=parsed_args.force)
         else:
             if (
-                self.app_args.verbose_level == 0 or
-                self.cmd_name == "version"
+                self.app_args.verbose_level == 0
+                or self.cmd_name == "version"
             ):
                 print(f'{ __version__ }')
             else:

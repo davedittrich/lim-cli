@@ -4,9 +4,11 @@
 
 import argparse
 import docker
+import git
 import logging
 import json
 import os
+import re
 import requests
 # >> Issue: [B404:blacklist] Consider possible security implications associated
 #           with subprocess module.
@@ -78,7 +80,7 @@ def check_remind_defaulting(arg=None, thing="argument"):
     return arg
 
 
-def flatten(dict_item):
+def flatten_lists(dict_item):
     """Flatten lists in dictionary values for better formatting."""
     flat_dict = {}
     for k, v in dict_item.items():
@@ -107,12 +109,18 @@ def containers_are_running(service_namespace='iqtlabs',
                            workers_definitions=None):
     """Return boolean indicating running status of packet_cafe containers."""
     # Focus on just service images
-    service_images = [
-        i['Repository'] for i in
-        get_images(service_namespace=service_namespace,
-                   tool_namespace=None,
-                   workers_definitions=workers_definitions)
-    ]
+    try:
+        service_images = [
+            i['Repository'] for i in
+            get_images(
+                service_namespace=service_namespace,
+                tool_namespace=None,
+                workers_definitions=workers_definitions
+            )
+        ]
+    except subprocess.CalledProcessError:
+        service_images = []
+
     # get_containers(columns=['image', 'status'])[0]
     # ['iqtlabs/packet_cafe_...ger:latest', 'running']
     # get_containers(columns=['image', 'status'])[0][0].split(':')[0]
@@ -136,13 +144,14 @@ def get_containers(columns=['name', 'status']):
     containers = []
     for container_id in container_ids:
         container = client.containers.get(container_id)
-        if container.labels.get(
-            'com.docker.compose.project', ''
-        ) == 'packet_cafe':
-            containers.append([get_container_metadata(
-                                 getattr(container, attr, None)
-                               )
-                               for attr in columns])
+        label = container.labels.get('com.docker.compose.project', '')
+        if label == 'packet_cafe':
+            containers.append(
+                [
+                    get_container_metadata(getattr(container, attr, None))
+                    for attr in columns
+                ]
+            )
     return containers
 
 
@@ -259,7 +268,7 @@ class Packet_Cafe(object):
         if not containers_are_running():
             raise RuntimeError(
                 '[-] the packet-cafe Docker containers do not appear to '
-                'all be running\n[-] try "lim cafe containers show" command?'
+                'all be running\n[-] try "lim cafe docker show" command?'
             )
         self.sess_id = sess_id
         self.last_session_id = None
@@ -267,6 +276,7 @@ class Packet_Cafe(object):
         self.cafe_host_ip = cafe_host_ip
         self.cafe_admin_port = cafe_admin_port
         self.cafe_ui_port = cafe_ui_port
+        self.repo = None
 
     def get_host_ip(self):
         return self.cafe_host_ip
@@ -348,7 +358,7 @@ class Packet_Cafe(object):
         response = requests.request("GET", url)
         if response.status_code == 200:
             results = json.loads(response.text)
-            return [(flatten(i)) for i in results]
+            return [(flatten_lists(i)) for i in results]
         else:
             return None
 
@@ -442,7 +452,7 @@ class Packet_Cafe(object):
         """Get details about workers."""
         response = requests.request("GET", f'{ self.get_api_url() }/tools')
         if response.status_code == 200:
-            return [flatten(worker) for worker in
+            return [flatten_lists(worker) for worker in
                     json.loads(response.text)['workers']]
         else:
             raise RuntimeError(
@@ -618,11 +628,10 @@ class Packet_Cafe(object):
                     timer.lap(lap='now')
                     if not wait_only:
                         status_line = (
-                            "[+] {0:{1}}".format(worker + ':',
-                                                 max_worker_len + 2) +
-                            f"{ worker_state.lower() } " +
-                            f"{ status[worker]['timestamp'] }" +
-                            (f" ({ timer.elapsed(end='now') })" if elapsed else "")  # noqa
+                            f"[+] {(worker + ':'):{(max_worker_len + 2)}}"
+                            f"{worker_state.lower()} "
+                            f"{status[worker]['timestamp']}"
+                            f" ({timer.elapsed(end='now')})" if elapsed else ""  # noqa
                         )
                         try:
                             print(status_line)
@@ -632,8 +641,8 @@ class Packet_Cafe(object):
                 if worker_state == "Error":
                     errors = True
             if (
-                len(reported) == len(workers) or
-                (errors and not ignore_errors)
+                len(reported) == len(workers)
+                or (errors and not ignore_errors)
             ):
                 break
         return not errors
@@ -676,9 +685,10 @@ class Packet_Cafe(object):
         if _sess_id is None and generate:
             _sess_id = uuid.uuid4()
         if sess_id is None and _sess_id is None:
+            msg = "[-] session ID not provided"
+            if sys.stdout.isatty():
+                msg += " - use '--choose'?"
             raise RuntimeError(
-                "[-] session ID not provided" +
-                (" - use '--choose'?" if sys.stdout.isatty() else "")
             )
         return _sess_id
 
@@ -730,10 +740,10 @@ class Packet_Cafe(object):
                     cancel_throws_exception=True
                 )
         if req_id is None and _req_id is None:
-            raise RuntimeError(
-                "[-] request ID not provided" +
-                (" - use '--choose'?" if sys.stdout.isatty() else "")
-            )
+            msg = "[-] request ID not provided"
+            if sys.stdout.isatty():
+                msg += " - use '--choose'?"
+            raise RuntimeError(msg)
         return _req_id
 
     def get_last_request_id(self):
@@ -808,7 +818,7 @@ def add_docker_global_options(parser):
         metavar='<service_namespace>',
         dest='docker_service_namespace',
         default=Packet_Cafe.CAFE_SERVICE_NAMESPACE,
-        help=('Namespace for Packet Café service containers '
+        help=('Namespace for Packet Café service images '
               '(Env: ``LIM_CAFE_SERVICE_NAMESPACE``; '
               f'default: { Packet_Cafe.CAFE_SERVICE_NAMESPACE })')
     )
@@ -818,7 +828,7 @@ def add_docker_global_options(parser):
         metavar='<service_version>',
         dest='docker_service_version',
         default=Packet_Cafe.CAFE_SERVICE_VERSION,
-        help=('Version (tag) for Packet Café service containers '
+        help=('Version (tag) for Packet Café service images '
               '(Env: ``LIM_CAFE_SERVICE_VERSION``; '
               'default: "latest")')
     )
@@ -828,7 +838,7 @@ def add_docker_global_options(parser):
         metavar='<tool_namespace>',
         dest='docker_tool_namespace',
         default=Packet_Cafe.CAFE_TOOL_NAMESPACE,
-        help=('Namespace for Packet Café tool containers '
+        help=('Namespace for Packet Café tool images '
               '(Env: ``LIM_CAFE_TOOL_NAMESPACE``; '
               f'default: { Packet_Cafe.CAFE_TOOL_NAMESPACE })')
     )
@@ -838,7 +848,7 @@ def add_docker_global_options(parser):
         metavar='<tool_version>',
         dest='docker_tool_version',
         default=Packet_Cafe.CAFE_TOOL_VERSION,
-        help=('Version (tag) for Packet Café tool containers '
+        help=('Version (tag) for Packet Café tool images '
               '(Env: ``LIM_CAFE_TOOL_VERSION``; '
               'default: "latest")')
     )
@@ -885,7 +895,7 @@ def add_docker_global_options(parser):
     return parser
 
 
-def get_workers_definitions(repo_dir=None):
+def get_workers_definitions(repo_dir=None, flatten=False):
     """Get definitions of workers."""
     if repo_dir is None:
         raise RuntimeError('[-] must specify repo_dir')
@@ -894,8 +904,15 @@ def get_workers_definitions(repo_dir=None):
         raise RuntimeError(f"[-] file '{workers_json}' not found")
     else:
         logger.debug(f"[+] getting worker definitions from '{workers_json}'")
+    workers_definitions = dict()
     with open(workers_json, 'r') as f:
-        workers_definitions = json.loads(f.read())
+        if flatten:
+            workers_definitions['workers'] = [
+                flatten_lists(worker) for worker in
+                json.loads(f.read())['workers']
+            ]
+        else:
+            workers_definitions = json.loads(f.read())
     return workers_definitions
 
 
@@ -906,13 +923,13 @@ def get_output_realtime(cmd=['echo', 'NO COMMAND SPECIFIED'],
                         shell=False):
     """Use subprocess.Popen() to track process output in realtime"""
     p = subprocess.Popen(  # nosec
-            cmd,
-            cwd=cwd,
-            env=env,
-            stdout=subprocess.PIPE,
-            stderr=stderr,
-            shell=shell
-        )
+        cmd,
+        cwd=cwd,
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=stderr,
+        shell=shell
+    )
     for char in iter(p.stdout.readline, b''):
         sys.stdout.write(char.decode('utf-8'))
     p.stdout.close()
@@ -927,11 +944,156 @@ def get_output(
 ):
     """Use subprocess.check_ouput to run subcommand"""
     output = subprocess.check_output(  # nosec
-            cmd,
-            cwd=cwd,
-            stderr=stderr,
-            shell=shell
-        ).decode('UTF-8').splitlines()
+        cmd,
+        cwd=cwd,
+        stderr=stderr,
+        shell=shell
+    ).decode('UTF-8').splitlines()
     return output
+
+
+def is_git_repo(path):
+    try:
+        _ = git.Repo(path).git_dir
+        return True
+    except git.exc.InvalidGitRepositoryError:
+        return False
+
+
+def ensure_clone(url=None,
+                 repo_dir=None,
+                 remote='origin',
+                 branch='master'):
+    """Make sure that a clone of Packet Café exists in repo_dir."""
+    if url is None:
+        url = Packet_Cafe.CAFE_GITHUB_URL
+    repo = None
+    try:
+        repo = git.Repo(repo_dir)
+        if str(repo.active_branch) != branch:
+            logger.info(f"[+] checking out '{branch}' branch")
+            repo.git.checkout(branch)
+    except git.exc.NoSuchPathError:
+        logger.info(f'[+] cloning from URL {url}')
+        repo = git.Repo.clone_from(url,
+                                   repo_dir,
+                                   branch='master')
+    except git.exc.InvalidGitRepositoryError:
+        sys.exit(f'[-] Directory "{repo_dir}" exists but does not '
+                 'look like a Git repository clone')
+    except TypeError as err:
+        print("\n".join(err.args))
+    if repo is not None and remote not in repo.remotes:
+        raise RuntimeError(f"[-] repository '{repo_dir}' does not "
+                           f"have a remote '{remote}' defined")
+    return repo
+
+
+def require_files(
+    repo=None,
+    files=list()
+):
+    """Ensure required files exist in repository directory."""
+    if repo is None:
+        raise RuntimeError('[-] no repository specified')
+    for fname in files:
+        if not os.path.exists(os.path.join(repo.working_dir, fname)):
+            raise RuntimeError(
+                f"[-] Repository working directory '{repo.working_dir}' "
+                F"does not contain file {fname}")
+
+
+def needs_update(
+    repo=None,
+    branch='master',
+    ignore_dirty=True
+):
+    """Check to see if GitHub repo is up to date."""
+    remotes = repo.remotes
+    if len(remotes) > 1:
+        others = ','.join(remotes)
+        logger.info(f'[-] more than one remote found: {others}')
+    if repo.is_dirty() and not ignore_dirty:
+        raise RuntimeError(
+            f'[-] directory {repo.working_dir} is not clean \n'
+            "    (use '--ignore-dirty' if you are testing local changes)")
+    fetched_new = repo.git.fetch()
+    if len(fetched_new):
+        logger.info(
+            f"[+] fetch from remote '{repo.git.remote('get-url', 'origin')} "
+            f"updated {repo.working_dir}:")
+        for i in list(fetched_new):
+            logger.info(f"{i.name}")
+    try:
+        current_branch = [
+            b[2:] for b in repo.git.branch('-a').splitlines()
+            if b.startswith('* ')
+        ].pop()
+    except IndexError:
+        raise RuntimeError('[-] failed to identify current branch')
+    if (current_branch != branch) and not ignore_dirty:
+        raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
+    need_checkout, position, commit_delta = get_branch_status(repo,
+                                                              branch=branch)
+    up_to_date = not need_checkout
+    if commit_delta is not None:
+        direction = "away from" if position is None else position
+        logging.debug(f"[-] branch '{branch}' is {commit_delta} "
+                      f"commit{'s' if commit_delta != 1 else ''} "
+                      f"{direction} the remote HEAD")
+    if ignore_dirty:
+        logger.info("[+] --ignore-dirty skipping branch status check.")
+    elif need_checkout:
+        result = repo.git.checkout(branch)
+        up_to_date = result.find('is up to date') > 0
+        if not up_to_date:
+            logger.info(f"[!] branch '{branch}' is not up to date!")
+        else:
+            logger.info(f"[+] branch '{branch}' is up to date")
+        # results = pull(repo_dir, remote=remote, branch=branch)
+    return not up_to_date
+
+
+def get_branch(repo_dir):
+    """Return the name of the checked out branch."""
+    results = get_output(cmd=['git', 'branch'],
+                         cwd=repo_dir)
+    branches = [row[2:] for row in results if row.startswith('* ')]
+    if len(branches) != 1:
+        raise RuntimeError('[-] failed to identify checked out branch')
+    return branches[0]
+
+
+def get_branch_status(repo=None, branch='master'):
+    """Return branch status information."""
+    # $ git status -b
+    # On branch master
+    # Your branch is behind 'origin/master' by 7 commits, and can be fast-forwarded.  # noqa
+    #   (use "git pull" to update your local branch)
+    #
+    # nothing to commit, working tree clean
+    if repo is None:
+        raise RuntimeError('[-] no repository specified')
+    # cmd = ['git', 'status', '-b']
+    # logger.debug(f"[+] running '{' '.join(cmd)}'")
+    # results_str = '\n'.join(get_output(cmd=cmd,
+    #                                    cwd=repo_dir))
+    results_str = repo.git.status('-b')
+    need_checkout = False
+
+    # m = ON_BRANCH_REGEX.search(results_str, re.MULTILINE)
+    # m = re.search(r'On branch (\w+) ', results_str, re.MULTILINE)
+    m = re.search(r'^On branch (\w+)$', results_str, re.MULTILINE)
+    need_checkout = True if (m and (m.groups()[0] != branch)) else False
+    # m = HEAD_POSITION_REGEX.search(results_str, re.MULTILINE)
+    m = re.search(r'^Your branch is (\w+) [\w/\']+ by (\d+)',
+                  results_str,
+                  re.MULTILINE)
+    if m:
+        position, commit_delta = m.groups()
+    else:
+        position, commit_delta = None, None
+    return need_checkout, position, commit_delta
+
 
 # vim: set ts=4 sw=4 tw=0 et :

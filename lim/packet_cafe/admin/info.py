@@ -20,7 +20,7 @@ class AdminInfo(ShowOne):
         parser.epilog = textwrap.dedent("""
             Return basic information about the packet-cafe service.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe admin info
                 +--------------+-------------------------------+
@@ -31,7 +31,6 @@ class AdminInfo(ShowOne):
                 | hostname     | 5df1f9a14bff                  |
                 +--------------+-------------------------------+
 
-            ..
 
             Note that the last session ID and last request ID are found in the
             output of ``lim cafe info`` (not ``lim cafe admin info``).
