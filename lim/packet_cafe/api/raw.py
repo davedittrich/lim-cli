@@ -71,7 +71,7 @@ class Raw(Command):
             To select the tool from which you want output, use the ``--tool`` option.
             You must select a tool (from the list produced by ``lim cafe tools``.)
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe raw --tool networkml | head
                 [
@@ -85,7 +85,6 @@ class Raw(Command):
                       },
                       "classification": {
 
-            ..
 
             If there is more than one file, use ``--counter`` to select which one.
 
@@ -106,15 +105,17 @@ class Raw(Command):
         if not len(ids):
             raise RuntimeError(NO_SESSIONS_MSG)
         sess_id = packet_cafe.get_session_id(
-                sess_id=parsed_args.sess_id,
-                choose=parsed_args.choose)
+            sess_id=parsed_args.sess_id,
+            choose=parsed_args.choose
+        )
         if sess_id not in ids:
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
         req_id = packet_cafe.get_request_id(
-                sess_id=parsed_args.sess_id,
-                req_id=parsed_args.req_id,
-                choose=parsed_args.choose)
+            sess_id=parsed_args.sess_id,
+            req_id=parsed_args.req_id,
+            choose=parsed_args.choose
+        )
         tool = parsed_args.tool
         if tool is None:
             tools = packet_cafe.get_tools()

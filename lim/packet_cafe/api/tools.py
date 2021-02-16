@@ -35,7 +35,7 @@ class Tools(Lister):
         parser.epilog = textwrap.dedent("""
             List tools used by workers in the packet-cafe server.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe tools --fit-width
                 +---------------+---------------------------+---------+--------+---------------+----------------+----------+---------------+
@@ -52,7 +52,6 @@ class Tools(Lister):
                 | p0f           | iqtlabs/p0f               | v0.11.8 |        | analysis      | True           | rabbitmq | pcap-splitter |
                 +---------------+---------------------------+---------+--------+---------------+----------------+----------+---------------+
 
-            ..
 
             The ``--definitions`` option will show the definitions as found in
             the ``workers.json`` file from the repository directory, rather
@@ -61,13 +60,12 @@ class Tools(Lister):
             when developing and testing your own images to verify what images
             will be used by workers after bringing up the stack.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe tools --definitions
                 [+] definitions from workers.json file in '/Users/dittrich/packet_cafe' (branch 'master')
                 . . .
 
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-tools
             """)  # noqa

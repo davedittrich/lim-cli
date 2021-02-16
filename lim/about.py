@@ -31,12 +31,11 @@ class About(Command):
         parser.epilog = textwrap.dedent(f"""\
             Shows information about the ``lim`` CLI.
 
-            .. code-block:: console
+            ::
 
                 $ lim about
                 lim version { __version__ }
 
-            ..
 
             It will also print out copyright and related information (which
             isn't easy to force ``autoprogram-cliff`` to parse correctly in
@@ -85,8 +84,8 @@ class About(Command):
                          force=parsed_args.force)
         else:
             if (
-                self.app_args.verbose_level == 0 or
-                self.cmd_name == "version"
+                self.app_args.verbose_level == 0
+                or self.cmd_name == "version"
             ):
                 print(f'{ __version__ }')
             else:

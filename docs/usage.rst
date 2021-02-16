@@ -70,19 +70,19 @@ About
    :command: about
    :ignored: -f,-c,--quote,--noindent,--max-width,--fit-width,--print-empty,--sort-column
 
-CTU
----
-
-.. autoprogram-cliff:: lim
-   :command: ctu *
-   :ignored: -f,-c,--quote,--noindent,--max-width,--fit-width,--print-empty,--sort-column
-
-
 Packet Cafe
 -----------
 
 .. autoprogram-cliff:: lim
    :command: cafe *
+   :ignored: -f,-c,--quote,--noindent,--max-width,--fit-width,--print-empty,--sort-column
+
+
+CTU
+---
+
+.. autoprogram-cliff:: lim
+   :command: ctu *
    :ignored: -f,-c,--quote,--noindent,--max-width,--fit-width,--print-empty,--sort-column
 
 

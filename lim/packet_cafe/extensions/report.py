@@ -42,7 +42,7 @@ class Report(Lister):
             details from a given tool. To see the full details from a worker,
             use ``lim cafe raw --tool TOOL`` instead.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe report --tool p0f,networkml
                 [+] implicitly reusing last session id 46d4f9a9-d5db-487e-a261-91764c044b44
@@ -80,7 +80,7 @@ class Report(Lister):
                 | 10.0.2.102 | 08:00:27:5b:df:e1 | GPU laptop | 99.99999999539332 | normal   | no          |
                 +------------+-------------------+------------+-------------------+----------+-------------+
 
-            ..
+
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 
@@ -98,15 +98,17 @@ class Report(Lister):
                         f"[-] no reportable output for tool '{ tool }'\n"
                         f'[-] use one or more of: { ",".join(all_tools) }')
         sess_id = packet_cafe.get_session_id(
-                sess_id=parsed_args.sess_id,
-                choose=parsed_args.choose)
+            sess_id=parsed_args.sess_id,
+            choose=parsed_args.choose
+        )
         if sess_id not in ids:
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
         req_id = packet_cafe.get_request_id(
-                sess_id=sess_id,
-                req_id=parsed_args.req_id,
-                choose=parsed_args.choose)
+            sess_id=sess_id,
+            req_id=parsed_args.req_id,
+            choose=parsed_args.choose
+        )
         try:
             request = [r for r in packet_cafe.get_requests(sess_id=sess_id)
                        if r['id'] == req_id][0]

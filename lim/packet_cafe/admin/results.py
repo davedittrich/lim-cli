@@ -62,7 +62,7 @@ class Results(Lister):
             You can get a tree listing of files, which is much more compact and
             readable, with the ``--tree`` option.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe admin results  --tree
                 id
@@ -90,15 +90,14 @@ class Results(Lister):
                         └── snort
                             └── metadata.json
 
-            ..
-
+ 
             You can filter results by session, by request, or by tool.
             Filtering matches lines that contain all of the specified values.
             To show results for a specific session or a specific request,
             provide them as arguments to the command.  To show only results
             for a given tool, specify it with the ``-tool`` option.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe admin results --tool networkml
                 +---------------------------------------------------------------------------------------------------+
@@ -111,7 +110,6 @@ class Results(Lister):
                 | /id/bd976556-fbc3-4e2e-a808-7024c0c0f69b/9e74cc6f818c47ea9cd8c8ab94ce93db/networkml/metadata.json |
                 +---------------------------------------------------------------------------------------------------+
 
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-id-results
             """)  # noqa
@@ -161,7 +159,7 @@ class Results(Lister):
             data = [
                 [row] for row in results
                 if match(line=row, contains=contains)
-             ]
+            ]
             return (columns, data)
 
 

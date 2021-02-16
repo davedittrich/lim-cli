@@ -27,7 +27,7 @@ class Sessions(Lister):
             Use the ``-q`` option to suppress the output table or error
             message.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe admin sessions
                 +--------------------------------------+
@@ -42,7 +42,6 @@ class Sessions(Lister):
                 | a42ee6ab-d60b-4d8e-a1df-cb3dc6985c81 |
                 +--------------------------------------+
 
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#v-1-ids
             """)

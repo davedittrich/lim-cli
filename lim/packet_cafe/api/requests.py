@@ -24,7 +24,7 @@ class Requests(Lister):
             the last used session ID will be the default. Otherwise, specify the session ID
             as an argument
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe requests --fit-width
                 [+] implicitly reusing last session id bae5d69c-7180-445d-a8db-22a5ef0872e8
@@ -37,8 +37,6 @@ class Requests(Lister):
                 +--------------------------+--------------------------+-------------------+--------------------------+
 
 
-            ..
-
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-ids-sess_id
             """)  # noqa
         return add_packet_cafe_global_options(parser)
@@ -50,8 +48,9 @@ class Requests(Lister):
         if len(ids) == 0:
             raise RuntimeError(NO_SESSIONS_MSG)
         sess_id = packet_cafe.get_session_id(
-                sess_id=parsed_args.sess_id,
-                choose=parsed_args.choose)
+            sess_id=parsed_args.sess_id,
+            choose=parsed_args.choose
+        )
         if sess_id not in ids:
             raise RuntimeError(
                 f'[-] session ID { sess_id } not found')
