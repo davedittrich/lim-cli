@@ -42,7 +42,7 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update --yes conda  # Update CONDA without command line prompt
-  - conda install --yes pip tox
+  - conda install --yes tox
   # Useful for debugging any issues with conda
   - conda info -a
 
