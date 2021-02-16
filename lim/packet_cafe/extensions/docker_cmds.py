@@ -186,8 +186,6 @@ class ContainersDown(Command):
                 Removing network preprocessing
                 [+] you can use 'lim cafe docker up' to restart the stack
 
-            ..
-
             After bringing the containers down, you can generally bring them
             back up without having to rebuild them.
 
@@ -256,7 +254,7 @@ class ImagesList(Lister):
         parser.epilog = textwrap.dedent("""
             List the images associated with Packet Café services and workers.
 
-            .. code-block:: console
+            ::
 
                 [+] listing images for service namespace "iqtlabs", tool namespace "iqtlabs"
                 +--------------+-------------------------------+--------+
@@ -279,7 +277,6 @@ class ImagesList(Lister):
                 | b56a25f62851 | iqtlabs/pcapplot              | v0.1.7 |
                 +--------------+-------------------------------+--------+
 
-            ..
 
             By default, only three columns are shown. If you wish to see all
             available columns, use the ``-a`` option.
@@ -415,7 +412,7 @@ class ContainersList(Lister):
             Packet Café (by virtue of the ``com.docker.compose.project``
             label being set to ``packet_cafe``).
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe docker ps
                 +-------------------------+------------+--------------------------------------+---------+
@@ -432,17 +429,17 @@ class ContainersList(Lister):
                 | packet_cafe_lb_1        | 4530125e8e | iqtlabs/packet_cafe_lb:latest        | running |
                 +-------------------------+------------+--------------------------------------+---------+
 
-            ..
 
             To just get a return value (``0`` for "all running" and ``1`` if not),
             use the ``-q`` option.
 
-            .. code-block:: console
+            ::
 
                 $ lim -q cafe docker ps
                 $ echo $?
                 0
-            ..
+
+
             """)  # noqa
         parser = add_packet_cafe_global_options(parser)
         return add_docker_global_options(parser)
@@ -500,7 +497,7 @@ class ContainersUp(Command):
             be created (if it does not yet exist) or a ``git fetch`` will be
             attempted to check for updates.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe docker up
                 [+] branch 'master' is up to date
@@ -529,7 +526,6 @@ class ContainersUp(Command):
                 Creating packet_cafe_pcapplot_1      ... done
                 [+] you can now use 'lim cafe ui' to start the UI
 
-            ..
 
             With either ``-q`` or normal verbosity, the containers will be run in
             deamon mode (i.e., run in the background) and the command will immediately
@@ -596,9 +592,16 @@ class ContainersUp(Command):
         # ERROR: for messenger  Get https://registry-1.docker.io/v2/davedittrich/packet_cafe_messenger/manifests/sha256:...: proxyconnect tcp: dial tcp 192.168.65.1:3129: i/o timeout  # noqa
         #
         env['COMPOSE_HTTP_TIMEOUT'] = '200'
+        stdout_lines = []
+        stderr_lines = []
         if self.app_args.verbose_level > 0:
             logger.info(f"[+] running '{' '.join(cmd)}' in {repo_dir}")
-        result = execute(cmd=cmd, cwd=repo_dir, env=env)
+        result = execute(
+            cmd=cmd,
+            cwd=repo_dir,
+            stdout_cb=lambda x: stdout_lines.append(x.decode('utf-8').splitlines()),  # noqa
+            stderr_cb=lambda x: stderr_lines.append(x.decode('utf-8').splitlines()),  # noqa
+            env=env)
         if result != 0:
             raise RuntimeError(
                 '[-] docker-compose failed to bring containers up'

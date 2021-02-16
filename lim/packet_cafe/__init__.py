@@ -628,11 +628,10 @@ class Packet_Cafe(object):
                     timer.lap(lap='now')
                     if not wait_only:
                         status_line = (
-                            "[+] {0:{1}}".format(worker + ':',
-                                                 max_worker_len + 2)
-                            + f"{worker_state.lower()} "
-                            + f"{status[worker]['timestamp']}"
-                            + (f" ({timer.elapsed(end='now')})" if elapsed else "")  # noqa
+                            f"[+] {(worker + ':'):{(max_worker_len + 2)}}"
+                            f"{worker_state.lower()} "
+                            f"{status[worker]['timestamp']}"
+                            f" ({timer.elapsed(end='now')})" if elapsed else ""  # noqa
                         )
                         try:
                             print(status_line)
@@ -1025,7 +1024,13 @@ def needs_update(
             f"updated {repo.working_dir}:")
         for i in list(fetched_new):
             logger.info(f"{i.name}")
-    current_branch = repo.git.branch('--show-current')
+    try:
+        current_branch = [
+            b[2:] for b in repo.git.branch('-a').splitlines()
+            if b.startswith('* ')
+        ].pop()
+    except IndexError:
+        raise RuntimeError('[-] failed to identify current branch')
     if (current_branch != branch) and not ignore_dirty:
         raise RuntimeError(f"[-] branch '{current_branch}' is checked out")
     need_checkout, position, commit_delta = get_branch_status(repo,

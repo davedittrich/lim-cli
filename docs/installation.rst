@@ -54,7 +54,7 @@ common runtime directory that you add to your ``$PATH`` to run them.
 On a Mac running Darwin, Homebrew is the easiest way to install
 ``pipx``:
 
-.. code-block:: console
+::
 
     $ brew info pipx
     pipx: stable 0.15.4.0 (bottled), HEAD
@@ -73,8 +73,6 @@ On a Mac running Darwin, Homebrew is the easiest way to install
     install-on-request: 2,093 (30 days), 4,963 (90 days), 8,553 (365 days)
     build-error: 0 (30 days)
 
-..
-
 Install ``pipx`` as follows:
 
 .. code-block:: console
@@ -87,8 +85,6 @@ Install ``pipx`` as follows:
     ==> Pouring pipx-0.15.4.0.mojave.bottle.tar.gz
     🍺  /usr/local/Cellar/pipx/0.15.4.0: 92 files, 530.9KB
 
-..
-
 Now install ``lim`` as an app using the package name ``lim-cli``.
 
 .. code-block:: console
@@ -98,8 +94,6 @@ Now install ``lim`` as an app using the package name ``lim-cli``.
       These apps are now globally available
         - lim
     done! ✨ 🌟 ✨
-
-..
 
 You can get information about the path where apps are located,
 the parent package name and current release version,
@@ -139,8 +133,6 @@ installed from the parent package name, etc.
         - sphinx-quickstart
        package twine 3.1.1, Python 3.8.2
         - twine
-
-..
 
 For more information on capabilities of ``pipx``, see
 the project web site: https://github.com/pipxproject/pipx

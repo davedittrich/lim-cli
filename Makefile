@@ -51,7 +51,8 @@ test: test-tox
 .PHONY: test-tox
 test-tox:
 	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
-	tox
+	@# See comment in tox.ini file.
+	tox -e pep8,bandit,docs && tox -e py36,py37,py38,bats,pypi
 	@-git checkout ChangeLog
 
 .PHONY: test-bats
@@ -67,10 +68,6 @@ test-bats: bats-libraries
 
 .PHONY: test-bats-runtime
 test-bats-runtime: bats-libraries
-	@# Containers must be running
-	@lim cafe containers show >/dev/null || exit 1
-	@# No sessions can be present
-	@[[ $(shell lim cafe admin sessions -f value 2>/dev/null | wc -l) -eq 0 ]] || exit 1
 	@echo "[+] Running bats runtime tests: $(shell cd tests && echo runtime_[0-9][0-9]*.bats)"; \
 	PYTHONWARNINGS="ignore" bats --tap tests/runtime_[0-9][0-9]*.bats
 
@@ -204,14 +201,15 @@ install:
 	else \
 		echo "Installing into $(REQUIRED_VENV) virtual environment"; \
 		$(VENV_DIR)/bin/pip uninstall -y $(PROJECT); \
-		$(VENV_DIR)/bin/python setup.py install; \
+		$(VENV_DIR)/bin/python setup.py install | grep -v 'already satisfied'; \
 	fi
 
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
-.PHONY: install
+.PHONY: install-active
 i install-active: bdist_wheel
-	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)"
+	python -m pip uninstall -y $(PROJECT)
+	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)" | grep -v 'already satisfied'
 	git checkout ChangeLog
 
 #HELP docs-tests - generate bats test output for documentation

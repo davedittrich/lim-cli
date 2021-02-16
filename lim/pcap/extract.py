@@ -50,11 +50,10 @@ class PCAPExtract(Command):
             if parsed_args.stdout:
                 f_out = sys.stdout
             else:
-                flist = f'{os.path.splitext(fname)[0]}.ips'
+                flist = os.path.splitext(fname)[0] + '.ips'
                 f_out = open(flist, 'w')
                 logger.debug(
-                    f'[+] writing IP addresses to file: {flist}'
-                )
+                    f'[+] writing IP addresses to file: {flist}')
             with open(fname, 'rb') as f_in:
                 reader = dpkt.pcap.Reader(f_in)
                 ips = dict()
@@ -68,7 +67,7 @@ class PCAPExtract(Command):
                         ips[dst] = True
                 for ip in sorted(ips.keys(),
                                  key=lambda item: socket.inet_aton(item)):
-                    f_out.write('{}\n'.format(ip))
+                    f_out.write(f'{ip}\n')
             if not parsed_args.stdout:
                 f_out.close()
 

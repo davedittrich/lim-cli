@@ -71,7 +71,7 @@ class Raw(Command):
             To select the tool from which you want output, use the ``--tool`` option.
             You must select a tool (from the list produced by ``lim cafe tools``.)
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe raw --tool networkml | head
                 [
@@ -85,7 +85,6 @@ class Raw(Command):
                       },
                       "classification": {
 
-            ..
 
             If there is more than one file, use ``--counter`` to select which one.
 

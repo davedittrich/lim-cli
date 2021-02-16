@@ -20,7 +20,7 @@ class Endpoints(Lister):
         parser.epilog = textwrap.dedent("""
             List the available admin endpoints for this packet-cafe server.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe admin endpoints
                 +-------------------+
@@ -34,7 +34,6 @@ class Endpoints(Lister):
                 | /v1/logs/{req_id} |
                 +-------------------+
 
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#v1
             """)

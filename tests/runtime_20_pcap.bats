@@ -97,11 +97,11 @@ teardown() {
 @test "\"lim pcap shift time 2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100\" works" {
     run bash -c "$LIM pcap shift time 2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100"
     [ -f 2015-04-09_capture-win2-time-shifted.pcap ]
-    run bash -c "tcpdump -c3 -nntttt -r 2015-04-09_capture-win2-time-shifted.pcap"
+    run bash -c "TZ=UTC tcpdump -c3 -nntttt -r 2015-04-09_capture-win2-time-shifted.pcap"
     assert_output "reading from file 2015-04-09_capture-win2-time-shifted.pcap, link-type EN10MB (Ethernet)
-2019-01-01 04:00:01.000000 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28
-2019-01-01 04:00:01.928579 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28
-2019-01-01 04:00:03.948389 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28"
+2019-01-01 11:00:01.000000 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28
+2019-01-01 11:00:01.928579 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28
+2019-01-01 11:00:03.948389 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28"
 }
 
 # vim: set ts=4 sw=4 tw=0 et :

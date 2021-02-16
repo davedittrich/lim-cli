@@ -42,7 +42,7 @@ class Report(Lister):
             details from a given tool. To see the full details from a worker,
             use ``lim cafe raw --tool TOOL`` instead.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe report --tool p0f,networkml
                 [+] implicitly reusing last session id 46d4f9a9-d5db-487e-a261-91764c044b44
@@ -80,7 +80,7 @@ class Report(Lister):
                 | 10.0.2.102 | 08:00:27:5b:df:e1 | GPU laptop | 99.99999999539332 | normal   | no          |
                 +------------+-------------------+------------+-------------------+----------+-------------+
 
-            ..
+
             """)  # noqa
         return add_packet_cafe_global_options(parser)
 

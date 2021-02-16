@@ -23,7 +23,7 @@ class ApiInfo(ShowOne):
             Use this command to determine the last session ID and last
             request ID, if available.
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe info
                 +--------------+--------------------------------------+
@@ -36,18 +36,16 @@ class ApiInfo(ShowOne):
                 | hostname     | bf1456253115                         |
                 +--------------+--------------------------------------+
 
-            ..
 
             To programmatically obtain the last session ID for use in other
             scripts, do the following:
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe info -f shell | grep last_
                 last_session="9a949fe6-6520-437f-89ec-e7af6925b1e0"
                 last_request="81778bb8a9b946ba82659732baacdb44"
 
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-info
             """)  # noqa

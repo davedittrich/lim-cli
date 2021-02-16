@@ -24,7 +24,7 @@ class Requests(Lister):
             the last used session ID will be the default. Otherwise, specify the session ID
             as an argument
 
-            .. code-block:: console
+            ::
 
                 $ lim cafe requests --fit-width
                 [+] implicitly reusing last session id bae5d69c-7180-445d-a8db-22a5ef0872e8
@@ -36,8 +36,6 @@ class Requests(Lister):
                 |                          | 5_07_25_48.pcap          |                   |                          |
                 +--------------------------+--------------------------+-------------------+--------------------------+
 
-
-            ..
 
             See https://iqtlabs.gitbook.io/packet-cafe/design/api#api-v-1-ids-sess_id
             """)  # noqa
