@@ -599,8 +599,8 @@ class ContainersUp(Command):
         result = execute(
             cmd=cmd,
             cwd=repo_dir,
-            stdout_cb=lambda x: stdout_lines.append(x.decode('utf-8').splitlines()),
-            stderr_cb=lambda x: stderr_lines.append(x.decode('utf-8').splitlines()),
+            stdout_cb=lambda x: stdout_lines.append(x.decode('utf-8').splitlines()),  # noqa
+            stderr_cb=lambda x: stderr_lines.append(x.decode('utf-8').splitlines()),  # noqa
             env=env)
         if result != 0:
             raise RuntimeError(
