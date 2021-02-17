@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.9.0
+VERSION:=21.2.1
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -206,7 +206,6 @@ install:
 .PHONY: i
 .PHONY: install-active
 i install-active: bdist_wheel
-	python -m pip uninstall -y $(PROJECT)
 	python -m pip uninstall -y $(PROJECT)
 	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)" | grep -v 'already satisfied'
 	git checkout ChangeLog

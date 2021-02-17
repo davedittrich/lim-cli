@@ -1,6 +1,42 @@
 CHANGES
 =======
 
+* Fix missed bug with listing all metadata columns
+* Bump version
+* Optimize test runs a bit
+* Change order of tests
+* Switch channel
+* Only install tox in base env
+* Missing tox
+* Fix missing miniconda in Travis CI
+* Ignore pep8 findings
+* Fix recursive get
+* Preserve stdout/stderr to debug docker-compose
+* Work around removal of --show-current option
+* Change default to install package
+* Fix recursive download logic
+* Clean up unused code
+* Only run skip check once
+* Normalize scenario names to make case irrelevant
+* Major rewrite to use new CTU JSON index
+* Move container checks to bats test and use skip
+* Force timezone in test
+* Change default Makefile target
+* Improve --help text and documentation formatting
+* Update tox configuration
+* Extend test coverage for 'ctu' subcommands
+* Improve Makefile
+* Temporary commit of work to leave keyboard
+* Improve handling of no data
+* Convert more format() to f-strings
+* Limit output while debugging
+* Resolve pep8 findings
+* Improve comments
+* Initial code changes for new index
+* Switch to using gitpython module
+* Normalize some logger output
+* Improve README content
+* Resolve pep8 findings
 * Move general functions up one module level
 * Refine browser selection code and documentation
 * Add hack to open Windows browser from WSL
@@ -13,6 +49,16 @@ CHANGES
 * Add option to expose workers.json definitions
 * Improve branch status check
 * Finish fixing remote option handling
+* Prepare for release
+* Resolve pep8 finding
+* Get containers list from workers.json file
+* Improve repo update checking
+* Add option control of GitHub remote
+* Continue updating documentation
+* Handle default situation better
+* Refactor and DRY out web browser handling
+* Update help text file
+* Add asciicast for installing lim and packet\_cafe
 * More sigh..
 * Sigh..
 * And \*now\* the quotes become a problem?!?
