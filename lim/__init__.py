@@ -28,7 +28,7 @@ if 'lim-cli' in p.parts or 'lim' in p.parts:
     except Exception:
         pass
 else:
-    __version__ = '21.2.2'
+    __version__ = '21.2.3'
     __release__ = __version__
 
 BUFFER_SIZE = 128 * 1024
