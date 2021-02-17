@@ -1,6 +1,12 @@
 CHANGES
 =======
 
+* Fix bug in workflow publish logic
+
+21.2.1
+------
+
+* Update ChangeLog
 * Fix missed bug with listing all metadata columns
 * Bump version
 * Optimize test runs a bit
