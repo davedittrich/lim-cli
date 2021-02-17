@@ -254,11 +254,14 @@ examples:
 # Git submodules and subtrees are both a huge PITA. This is way simpler.
 
 .PHONY: bats-libraries
-bats-libraries: bats bats-support bats-assert
+bats-libraries: bats-core bats-support bats-assert
 
-bats:
-	@[ -d tests/libs/bats ] || \
-		(mkdir -p tests/libs/bats; git clone http://github.com/sstephenson/bats tests/libs/bats)
+bats-core:
+	@if [ ! -d tests/libs/bats-core ]; then \
+		mkdir -p tests/libs/bats-core; \
+		git clone http://github.com/bats-core/bats-core tests/libs/bats-core; \
+		sudo tests/libs/bats-core/install.sh /usr/local; \
+	 fi
 
 
 bats-support:
