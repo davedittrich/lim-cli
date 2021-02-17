@@ -70,8 +70,7 @@ class CTUList(Lister):
             help=("Show all metadata columns "
                   "(default : False)")
         )
-        find = parser.add_mutually_exclusive_group(required=False)
-        find.add_argument(
+        parser.add_argument(
             '--hash',
             dest='hash',
             metavar='<{md5_hash|sha256_hash}>',
@@ -79,7 +78,7 @@ class CTUList(Lister):
             help=('Only list scenarios that involve a '
                   'specific hash (default: ``None``)')
         )
-        find.add_argument(
+        parser.add_argument(
             '--malware-includes',
             dest='malware_includes',
             metavar='<string>',
@@ -87,7 +86,7 @@ class CTUList(Lister):
             help=('Only list scenarios including this string'
                   "in the 'Malware' column (default: ``None``)")
         )
-        find.add_argument(
+        parser.add_argument(
             '--name-includes',
             dest='name_includes',
             metavar='<string>',
@@ -95,7 +94,7 @@ class CTUList(Lister):
             help=('Only list scenario including this string'
                   "in the 'Capture_Name' column (default: ``None``)")
         )
-        find.add_argument(
+        parser.add_argument(
             '--description-includes',
             dest='description_includes',
             metavar='<string>',
@@ -117,8 +116,10 @@ class CTUList(Lister):
             List scenarios (a.k.a., "captures") and related metadata.
 
             By default, all scenarios are listed. You can limit the output
-            in several ways: by ``Capture_Name`` field; by one of a set
-            of attributes; by limiting the number of items shown.
+            by filtering on several attributes (e.g., by ``Capture_Name``
+            field, by date range, contents of the malware name or web page
+            description, etc.) You can also limit the number of items
+            shown if necessary when the number of results is large.
 
             The ``scenario`` argument equates to the field ``Capture_Name`` in
             the index. This can be the scenario's full name (e.g.,
@@ -150,16 +151,15 @@ class CTUList(Lister):
 
             ::
 
-                $ lim ctu list -a IoT-34-1 --fit-width
-                +----------------+-----------------+---------+-----------------+-----------------+---------------------+------+---------+-----------+------+----------+
-                | Infection_Date | Capture_Name    | Malware | MD5             | SHA256          | Capture_URL         | ZIP  | LABELED | BINETFLOW | PCAP | WEBLOGNG |
-                +----------------+-----------------+---------+-----------------+-----------------+---------------------+------+---------+-----------+------+----------+
-                | 2018-12-21     | CTU-IoT-        | Mirai   | 82062b666f09fc5 | 49fd1cb22e0325c | https://mcfp.felk.c | None | None    | None      | None | None     |
-                |                | Malware-        |         | c0fe4f68d1ea909 | 1f9038160da534f | vut.cz/publicDatase |      |         |           |      |          |
-                |                | Capture-34-1    |         | 16              | c23672e5509e903 | ts/IoTDatasets/CTU- |      |         |           |      |          |
-                |                |                 |         |                 | a94ce5bcddc893e | IoT-Malware-        |      |         |           |      |          |
-                |                |                 |         |                 | b2c0            | Capture-34-1        |      |         |           |      |          |
-                +----------------+-----------------+---------+-----------------+-----------------+---------------------+------+---------+-----------+------+----------+
+                $ lim ctu list --name-includes IoT --malware-includes muhstik --fit-width -a
+                +----------------+------------------------+---------+------------------------+------------------------+------------------------+------------------------+---------+------------------------+------------------------+-----------------------------+
+                | Infection_Date | Capture_Name           | Malware | MD5                    | SHA256                 | Capture_URL            | ZIP                    | LABELED | BINETFLOW              | PCAP                   | WEBLOGNG                    |
+                +----------------+------------------------+---------+------------------------+------------------------+------------------------+------------------------+---------+------------------------+------------------------+-----------------------------+
+                | 2018-05-19     | CTU-IoT-Malware-       | Muhstik | b8849fe97e39ae3afd6def | 5ce13670bc875e913e6f08 | https://mcfp.felk.cvut | fce7b8bbd1c1fba1d75b9d | None    | 2018-05-21_capture.bin | 2018-05-21_capture.pca | 2018-05-21_capture.weblogng |
+                |                | Capture-3-1            |         | 618568bb09             | 7a4ac0a9e343347d5babb3 | .cz/publicDatasets/IoT | c1a60b25f49f68c9ec16b3 |         | etflow                 | p                      |                             |
+                |                |                        |         |                        | b5c63e1d1b199371f69a   | Datasets/CTU-IoT-      | 656b52ed28290fc93c72.z |         |                        |                        |                             |
+                |                |                        |         |                        |                        | Malware-Capture-3-1    | ip                     |         |                        |                        |                             |
+                +----------------+------------------------+---------+------------------------+------------------------+------------------------+------------------------+---------+------------------------+------------------------+-----------------------------+
 
 
             There are also a number of filters that can be applied, including MD5

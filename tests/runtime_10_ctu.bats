@@ -116,6 +116,13 @@ teardown() {
 +----------------+------------------------------+---------+"
 }
 
+@test "\"lim -q ctu list --name-includes IoT -a --malware-includes muhstik -f csv\" works" {
+    run bash -c "$LIM -q ctu list --name-includes IoT -a --malware-includes muhstik -f csv"
+    assert_success
+    assert_output '"Infection_Date","Capture_Name","Malware","MD5","SHA256","Capture_URL","ZIP","LABELED","BINETFLOW","PCAP","WEBLOGNG"
+"2018-05-19","CTU-IoT-Malware-Capture-3-1","Muhstik","b8849fe97e39ae3afd6def618568bb09","5ce13670bc875e913e6f087a4ac0a9e343347d5babb3b5c63e1d1b199371f69a","https://mcfp.felk.cvut.cz/publicDatasets/IoTDatasets/CTU-IoT-Malware-Capture-3-1","fce7b8bbd1c1fba1d75b9dc1a60b25f49f68c9ec16b3656b52ed28290fc93c72.zip","","2018-05-21_capture.binetflow","2018-05-21_capture.pcap","2018-05-21_capture.weblogng"'
+}
+
 ####  ctu get  ####
 
 @test "\"lim -q ctu get Botnet-114-1 pcap\" gets PCAP file in subdir" {
