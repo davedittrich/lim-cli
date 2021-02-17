@@ -65,12 +65,12 @@ jobs:
     - name: Build artifacts
       run: make bdist_wheel sdist twine-check
       if: >-
-        contains(github.ref, '/release') == true ||
+        contains(github.ref, '/master') == true ||
         contains(github.ref, '.RC') == true
     - name: Display artifacts
       run: ls -lR dist
       if: >-
-        contains(github.ref, '/release') == true ||
+        contains(github.ref, '/master') == true ||
         contains(github.ref, '.RC') == true
     - name: Store artifacts
       uses: actions/upload-artifact@v2
@@ -78,7 +78,7 @@ jobs:
         name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
       if: >-
-        contains(github.ref, '/release') == true ||
+        contains(github.ref, '/master') == true ||
         contains(github.ref, '.RC') == true
 
   deploy:
@@ -129,7 +129,7 @@ jobs:
     - name: Publish artifacts to PyPI
       if: >-
         github.event_name == 'push' &&
-        contains(github.ref, '/release') == true
+        contains(github.ref, '/master') == true
       uses: pypa/gh-action-pypi-publish@master
       with:
         password: ${{ secrets.lim_pypi_token }}
