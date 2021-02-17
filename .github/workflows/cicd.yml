@@ -86,7 +86,7 @@ jobs:
     if: >-
       github.event_name == 'push' &&
       (
-        contains(github.ref, '/release') == true ||
+        contains(github.ref, '/master') == true ||
         contains(github.ref, '.RC') == true
       )
     needs:
