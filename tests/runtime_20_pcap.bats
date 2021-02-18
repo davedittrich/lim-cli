@@ -6,7 +6,7 @@ load test_helper
 setup_file() {
     # Make sure needed PCAP file is present (don't rely on earlier tests)
     if [[ ! -f $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap ]]; then
-        if $LIM -q ctu get Botnet-114-1 pcap -C $BATS_RUN_TMPDIR --no-subdir; then
+        if $LIM -q --data-dir $BATS_RUN_TMPDIR ctu get Botnet-114-1 pcap --no-subdir; then
             echo "Failed to get Botnet-114-1 PCAP file" >&2;
             exit 1
         fi
