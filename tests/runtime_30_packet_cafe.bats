@@ -241,7 +241,7 @@ teardown() {
     assert_output --partial "2017-05-14_win10.pcap: success"
 }
 
-@test "\"lim -q cafe requests\" includes \"2015-04-09_capture-win2.pcap\"" {
+@test "\"lim -q cafe requests\" includes \"2017-05-14_win10.pcap\"" {
     [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
     run bash -c "$LIM -q cafe requests -f value"
     assert_success
