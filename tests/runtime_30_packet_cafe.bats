@@ -31,7 +31,7 @@ setup_file() {
     fi
     # Make sure needed PCAP file is present (don't rely on earlier tests)
     if [[ ! -f $BATS_RUN_TMPDIR/2017-05-14_win10.pcap ]]; then
-        $LIM -q ctu get Botnet-252-1 pcap -C $BATS_RUN_TMPDIR --no-subdir
+        $LIM -q --data-dir $BATS_RUN_TMPDIR ctu get Botnet-252-1 --no-subdir pcap
     fi
     if [[ ! -f $BATS_RUN_TMPDIR/smallFlows_nopayloads.pcap ]]; then
         if [[ -f $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap ]]; then
