@@ -5,6 +5,9 @@ load test_helper
 # See definition of LIM in test_helpers.bash for why "main" is used
 # in tests.
 
+# See https://bats-core.readthedocs.io/en/latest/writing-tests.html?highlight=environment#special-variables
+# for information on BATS special variables.
+
 setup_file() {
     export CONTAINERS=$($LIM cafe docker ps >/dev/null && echo "UP" || echo "DOWN")
     export SESSIONS=$($LIM cafe admin sessions -f value 2>/dev/null | wc -l)
@@ -26,8 +29,16 @@ setup_file() {
         return 1
     fi
     # Make sure needed PCAP file is present (don't rely on earlier tests)
-    if [[ ! -f 2015-04-09_capture-win2.pcap ]]; then
-        $LIM -q ctu get Botnet-114-1 pcap --no-subdir
+    if [[ ! -f $BATS_RUN_TMPDIR/2017-05-14_win10.pcap ]]; then
+        $LIM -q ctu get Botnet-252-1 pcap -C $BATS_RUN_TMPDIR --no-subdir
+    fi
+    if [[ ! -f $BATS_RUN_TMPDIR/smallFlows_nopayloads.pcap ]]; then
+        if [[ -f $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap ]]; then
+            cp $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap $BATS_RUN_TMPDIR
+        else
+            wget https://raw.githubusercontent.com/IQTLabs/packet_cafe/master/notebooks/smallFlows_nopayloads.pcap \
+               -o $BATS_RUN_TMPDIR/smallFlows_nopayloads.pcap
+        fi
     fi
     eval "grep NO_SESSIONS_MSG lim/packet_cafe/__init__.py"
     export NO_SESSIONS_MSG
@@ -174,10 +185,10 @@ teardown() {
     assert_output ''
 }
 
-@test "\"lim cafe upload --wait ~/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap\" works" {
+@test "\"lim cafe upload --wait smallFlows_nopayloads.pcap\" works" {
     [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
-    [ -f $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap ] || skip "No packet-cafe smallFlows_nopayloads.pcap available"
-    run bash -c "$LIM cafe upload --wait $HOME/git/packet_cafe/notebooks/smallFlows_nopayloads.pcap 11111111-1111-1111-1111-111111111111"
+    [ -f $BATS_RUN_TMPDIR/smallFlows_nopayloads.pcap ] || skip "No packet-cafe smallFlows_nopayloads.pcap available"
+    run bash -c "$LIM cafe upload --wait $BATS_RUN_TMPDIR/smallFlows_nopayloads.pcap 11111111-1111-1111-1111-111111111111"
     assert_success
     assert_output --partial "[+] Upload smallFlows_nopayloads.pcap: success"
 }
@@ -222,18 +233,18 @@ teardown() {
     assert_output --partial "smallFlows_nopayloads.pcap"
 }
 
-@test "\"lim cafe upload --wait 2015-04-09_capture-win2.pcap\" works" {
+@test "\"lim cafe upload --wait 2017-05-14_win10.pcap\" works" {
     [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
-    run bash -c "$LIM cafe upload --wait 2015-04-09_capture-win2.pcap 22222222-2222-2222-2222-222222222222"
+    run bash -c "$LIM cafe upload --wait $BATS_RUN_TMPDIR/2017-05-14_win10.pcap 22222222-2222-2222-2222-222222222222"
     assert_success
-    assert_output --partial "[+] Upload 2015-04-09_capture-win2.pcap: success"
+    assert_output --partial "2017-05-14_win10.pcap: success"
 }
 
 @test "\"lim -q cafe requests\" includes \"2015-04-09_capture-win2.pcap\"" {
     [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
     run bash -c "$LIM -q cafe requests -f value"
     assert_success
-    assert_output --partial "2015-04-09_capture-win2.pcap"
+    assert_output --partial "2017-05-14_win10.pcap"
 }
 
 @test "\"lim -q cafe report --tool poof\" fails" {

@@ -5,8 +5,8 @@ load test_helper
 
 setup_file() {
     # Make sure needed PCAP file is present (don't rely on earlier tests)
-    if [[ ! -f 2015-04-09_capture-win2.pcap ]]; then
-        if $LIM -q ctu get Botnet-114-1 pcap --no-subdir; then
+    if [[ ! -f $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap ]]; then
+        if $LIM -q ctu get Botnet-114-1 pcap -C $BATS_RUN_TMPDIR --no-subdir; then
             echo "Failed to get Botnet-114-1 PCAP file" >&2;
             exit 1
         fi
@@ -14,8 +14,7 @@ setup_file() {
 }
 
 teardown_file() {
-    rm -f 2015-04-09_capture-win2.ips
-    rm -f 2015-04-09_capture-win2-time-shifted.pcap
+    true
 }
 
 setup() {
@@ -28,8 +27,8 @@ teardown() {
 
 @test "\"lim pcap extract ips 2015-04-09_capture-win2.pcap\" works" {
     run bash -c "$LIM pcap extract ips 2015-04-09_capture-win2.pcap"
-    [ -f 2015-04-09_capture-win2.ips ]
-    run bash -c "cat 2015-04-09_capture-win2.ips"
+    [ -f $BATS_RUN_TMPDIR/2015-04-09_capture-win2.ips ]
+    run bash -c "cat $BATS_RUN_TMPDIR/2015-04-09_capture-win2.ips"
     assert_output '4.4.4.4
 5.9.75.114
 8.8.8.8
@@ -62,7 +61,7 @@ teardown() {
 }
 
 @test "\"lim pcap extract ips --stdout 2015-04-09_capture-win2.pcap\" works" {
-    run bash -c "$LIM pcap extract ips --stdout 2015-04-09_capture-win2.pcap"
+    run bash -c "$LIM pcap extract ips --stdout $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap"
     assert_output '4.4.4.4
 5.9.75.114
 8.8.8.8
@@ -95,11 +94,10 @@ teardown() {
 }
 
 @test "\"lim pcap shift time 2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100\" works" {
-    run bash -c "$LIM pcap shift time 2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100"
-    [ -f 2015-04-09_capture-win2-time-shifted.pcap ]
-    run bash -c "TZ=UTC tcpdump -c3 -nntttt -r 2015-04-09_capture-win2-time-shifted.pcap"
-    assert_output "reading from file 2015-04-09_capture-win2-time-shifted.pcap, link-type EN10MB (Ethernet)
-2019-01-01 11:00:01.000000 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28
+    run bash -c "$LIM pcap shift time $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100"
+    [ -f $BATS_RUN_TMPDIR/2015-04-09_capture-win2-time-shifted.pcap ]
+    run bash -c "TZ=UTC tcpdump -c3 -nntttt -r $BATS_RUN_TMPDIR/2015-04-09_capture-win2-time-shifted.pcap | grep ARP"
+    assert_output "2019-01-01 11:00:01.000000 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28
 2019-01-01 11:00:01.928579 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28
 2019-01-01 11:00:03.948389 ARP, Reply 10.0.2.2 is-at 52:54:00:12:35:02, length 28"
 }

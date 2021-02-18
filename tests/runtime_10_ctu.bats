@@ -125,15 +125,20 @@ teardown() {
 
 ####  ctu get  ####
 
-@test "\"lim -q ctu get Botnet-114-1 pcap\" gets PCAP file in subdir" {
-    run bash -c "[ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114-1 pcap"
-    [ -d CTU-Malware-Capture-Botnet-114-1 ]
-    [ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ]
+@test "\"lim -q --data-dir $BATS_RUN_TMPDIR ctu get botnet-254-1 --no-subdir pcap\" works" {
+    run bash -c "$LIM -q --data-dir $BATS_RUN_TMPDIR ctu get botnet-254-1 --no-subdir pcap"
+    [ -f $BATS_RUN_TMPDIR/capture_win13.pcap ]
 }
 
-@test "\"lim -q ctu get Botnet-114-1 pcap --no-subdir \" gets PCAP file to cwd" {
-    run bash -c "[ -f 2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114-1 pcap --no-subdir"
-    [ -f 2015-04-09_capture-win2.pcap ]
+@test "\"lim -q ctu get Botnet-252-1 pcap --no-subdir \" gets PCAP file to cwd" {
+    run bash -c "(cd $BATS_RUN_TMPDIR && $LIM -q ctu get Botnet-252-1 pcap --no-subdir)"
+    [ -f $BATS_RUN_TMPDIR/2017-05-14_win10.pcap ]
+}
+
+@test "\"lim -q ctu get Botnet-252-1 pcap\" gets PCAP file in subdir" {
+    run bash -c "(cd $BATS_RUN_TMPDIR && $LIM -q ctu get Botnet-252-1 pcap)"
+    [ -d $BATS_RUN_TMPDIR/CTU-Malware-Capture-Botnet-252-1 ]
+    [ -f $BATS_RUN_TMPDIR/CTU-Malware-Capture-Botnet-252-1/2017-05-14_win10.pcap ]
 }
 
 ####  ctu show  ####
