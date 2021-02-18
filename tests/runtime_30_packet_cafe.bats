@@ -11,9 +11,9 @@ load test_helper
 setup_file() {
     export NETWORKING=$(ping -c 3 8.8.8.8 | grep -q ' 0% packet loss' && echo "UP" || echo "DOWN")
     export CONTAINERS=$($LIM cafe docker ps >/dev/null && echo "UP" || echo "DOWN")
-    export SESSIONS=$($LIM cafe admin sessions -f value 2>/dev/null | wc -l)
+    export SESSIONS=$($LIM cafe admin sessions 2>/dev/null && echo "YES" || echo "NO")
 
-	if [[ "$CONTAINERS" == "UP" && $SESSIONS -eq 0 ]]; then
+	if [[ "$CONTAINERS" == "UP" && "$SESSIONS" == "YES" ]]; then
         echo 'No Packet Cafe sessions can be present' >&2
         return 1
     fi
