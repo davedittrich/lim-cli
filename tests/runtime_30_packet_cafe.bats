@@ -9,6 +9,7 @@ load test_helper
 # for information on BATS special variables.
 
 setup_file() {
+    export NETWORKING=$(ping -c 3 8.8.8.8 | grep -q ' 0% packet loss' && echo "UP" || echo "DOWN")
     export CONTAINERS=$($LIM cafe docker ps >/dev/null && echo "UP" || echo "DOWN")
     export SESSIONS=$($LIM cafe admin sessions -f value 2>/dev/null | wc -l)
 
@@ -267,8 +268,27 @@ teardown() {
     assert_output --partial ' "decisions": {'
 }
 
+# Now do tests with second file from CTU dataset if network is up.
+
+@test "\"lim cafe upload --wait 2015-04-09_capture-win2.pcap\" works" {
+    [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
+    run bash -c "$LIM cafe upload --wait 2015-04-09_capture-win2.pcap 22222222-2222-2222-2222-222222222222"
+    assert_success
+    assert_output --partial "[+] Upload 2015-04-09_capture-win2.pcap: success"
+}
+
+@test "\"lim -q cafe requests\" includes \"2015-04-09_capture-win2.pcap\"" {
+    [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
+    run bash -c "$LIM -q cafe requests -f value"
+    assert_success
+    assert_output --partial "2015-04-09_capture-win2.pcap"
+}
+
 @test "\"lim cafe admin sessions -f value\" shows both sessions" {
     [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "$LIM cafe admin sessions -f value | sort"
     assert_output "11111111-1111-1111-1111-111111111111
 22222222-2222-2222-2222-222222222222"
@@ -276,6 +296,7 @@ teardown() {
 
 @test "\"lim cafe admin delete 22222222-2222-2222-2222-222222222222\" removes session/request state" {
     [[ "$CONTAINERS" == "UP" ]] || skip "Packet Cafe containers are not running"
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "$LIM cafe admin delete 22222222-2222-2222-2222-222222222222"
     [ ! -f ${VOL_PREFIX}/files/last_session_id ]
     [ ! -f ${VOL_PREFIX}/files/last_request_id ]

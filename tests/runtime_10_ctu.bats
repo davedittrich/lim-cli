@@ -4,11 +4,7 @@ load test_helper
 # in tests.
 
 setup_file() {
-    true
-}
-
-teardown_file() {
-    true
+    export NETWORKING=$(ping -c 3 8.8.8.8 | grep -q ' 0% packet loss' && echo "UP" || echo "DOWN")
 }
 
 setup() {
@@ -126,16 +122,19 @@ teardown() {
 ####  ctu get  ####
 
 @test "\"lim -q --data-dir $BATS_RUN_TMPDIR ctu get botnet-254-1 --no-subdir pcap\" works" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "$LIM -q --data-dir $BATS_RUN_TMPDIR ctu get botnet-254-1 --no-subdir pcap"
     [ -f $BATS_RUN_TMPDIR/capture_win13.pcap ]
 }
 
 @test "\"lim -q ctu get Botnet-252-1 pcap --no-subdir \" gets PCAP file to cwd" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "(cd $BATS_RUN_TMPDIR && $LIM -q ctu get Botnet-252-1 pcap --no-subdir)"
     [ -f $BATS_RUN_TMPDIR/2017-05-14_win10.pcap ]
 }
 
 @test "\"lim -q ctu get Botnet-252-1 pcap\" gets PCAP file in subdir" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "(cd $BATS_RUN_TMPDIR && $LIM -q ctu get Botnet-252-1 pcap)"
     [ -d $BATS_RUN_TMPDIR/CTU-Malware-Capture-Botnet-252-1 ]
     [ -f $BATS_RUN_TMPDIR/CTU-Malware-Capture-Botnet-252-1/2017-05-14_win10.pcap ]

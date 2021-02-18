@@ -4,6 +4,7 @@ load test_helper
 # in tests.
 
 setup_file() {
+    export NETWORKING=$(ping -c 3 8.8.8.8 | grep -q ' 0% packet loss' && echo "UP" || echo "DOWN")
     # Make sure needed PCAP file is present (don't rely on earlier tests)
     if [[ ! -f $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap ]]; then
         if ! $LIM -q --data-dir $BATS_RUN_TMPDIR ctu get Botnet-114-1 pcap --no-subdir; then
@@ -26,6 +27,7 @@ teardown() {
 }
 
 @test "\"lim pcap extract ips 2015-04-09_capture-win2.pcap\" works" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "$LIM pcap extract ips $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap"
     [ -f $BATS_RUN_TMPDIR/2015-04-09_capture-win2.ips ]
     run bash -c "cat $BATS_RUN_TMPDIR/2015-04-09_capture-win2.ips"
@@ -61,6 +63,7 @@ teardown() {
 }
 
 @test "\"lim pcap extract ips --stdout 2015-04-09_capture-win2.pcap\" works" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "$LIM pcap extract ips --stdout $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap"
     assert_output '4.4.4.4
 5.9.75.114
@@ -94,6 +97,7 @@ teardown() {
 }
 
 @test "\"lim pcap shift time 2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100\" works" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
     run bash -c "$LIM pcap shift time $BATS_RUN_TMPDIR/2015-04-09_capture-win2.pcap --start-time 2019-01-01T12:00:01.0+0100"
     [ -f $BATS_RUN_TMPDIR/2015-04-09_capture-win2-time-shifted.pcap ]
     run bash -c "TZ=UTC tcpdump -c3 -nntttt -r $BATS_RUN_TMPDIR/2015-04-09_capture-win2-time-shifted.pcap 2>/dev/null"
