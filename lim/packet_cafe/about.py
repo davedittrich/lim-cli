@@ -7,8 +7,10 @@ import logging
 import textwrap
 
 from cliff.command import Command
-from lim import add_browser_options
-from lim import open_browser
+from lim.utils import (
+    add_browser_options,
+    open_browser,
+)
 from lim.packet_cafe import Packet_Cafe
 
 # Initialize a logger for this module.
