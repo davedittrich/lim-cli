@@ -74,7 +74,7 @@ setup(
                  'lim'},
     include_package_data=True,
     # Make sure this matches tox.ini!
-    setup_requires=['pbr>=5.4.5', 'setuptools>=40.9.0'],
+    setup_requires=['pbr>=5.4.5', 'setuptools>=40.9.0', 'pip>=20.2.2'],
     python_requires=PYTHON_REQUIRES,
     install_requires=get_contents('requirements.txt'),
 
