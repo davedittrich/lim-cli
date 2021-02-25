@@ -723,7 +723,8 @@ class CTU_Dataset(object):
         self._metadata['scenarios'][name] = dict()
         _scenario = self._metadata['scenarios'][name]
         page = await self.fetch_page(semaphore, url, session)
-        # Use set for name components to allow abbreviation later
+        # Save name parts for later abbreviated name matching
+        # TODO(dittrich): This isn't used yet...
         _scenario['_NAME_PARTS'] = name.split('-')
         # Underscore on _page means ignore later (logic coupling)
         _scenario['_PAGE'] = page
