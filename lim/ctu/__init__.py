@@ -138,6 +138,16 @@ def unhex(x):
         return x
 
 
+def unique_iter(iterable):
+    """Return only the unique items from an iterable."""
+    seen = set()
+    for item in iterable:
+        if item in seen:
+            continue
+        seen.add(item)
+        yield item
+
+
 # TODO(dittrich): Add support for IPv6
 def IPv4ToID(x):
     """
@@ -677,10 +687,15 @@ class CTU_Dataset(object):
             loop.add_signal_handler(signal.SIGINT, loop.stop)
             future = asyncio.ensure_future(self.run_fetch())
             loop.run_until_complete(future)
-            # Populate columns
-            columns = set()
-            for d in self._metadata.get('index'):
-                columns.update([k for k in d.keys()])
+            # Somewhat painful attempt to validate index keys match
+            # what is defined in this class.
+            used = set()
+            columns = [
+                k
+                for i in self._metadata.get('index')
+                for k in i.keys()
+                if k not in used and (used.add(k) or True)
+            ]
             extra_keys = [
                 c for c in columns
                 if c not in self.__INDEX_COLUMNS__
@@ -708,8 +723,9 @@ class CTU_Dataset(object):
         self._metadata['scenarios'][name] = dict()
         _scenario = self._metadata['scenarios'][name]
         page = await self.fetch_page(semaphore, url, session)
-        # Use set for name components to allow abbreviation later
-        _scenario['_NAME_PARTS'] = set(name.split('-'))
+        # Save name parts for later abbreviated name matching
+        # TODO(dittrich): This isn't used yet...
+        _scenario['_NAME_PARTS'] = name.split('-')
         # Underscore on _page means ignore later (logic coupling)
         _scenario['_PAGE'] = page
         _scenario['_SUCCESS'] = (
