@@ -55,9 +55,9 @@ jobs:
         echo "TAG_VERSION=${TAG_VERSION}"
         echo ::set-output name=TAG_VERSION::${TAG_VERSION}
 
-        ARTIFACT="${REPO}-${VERSION}"
+        ARTIFACT="${REPO}-${TAG_VERSION}"
         echo "ARTIFACT=${ARTIFACT}"
-        echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
+        echo ::set-output name=ARTIFACT::${REPO}-${TAG_VERSION}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Run tests
@@ -65,30 +65,27 @@ jobs:
     - name: Build artifacts
       run: make bdist_wheel sdist twine-check
       if: >-
-        contains(github.ref, '/master') == true ||
-        contains(github.ref, '.RC') == true
+        github.event_name == 'push' &&
+        startsWith(github.ref, 'refs/tags')
     - name: Display artifacts
       run: ls -lR dist
       if: >-
-        contains(github.ref, '/master') == true ||
-        contains(github.ref, '.RC') == true
+        github.event_name == 'push' &&
+        startsWith(github.ref, 'refs/tags')
     - name: Store artifacts
       uses: actions/upload-artifact@v2
       with:
         name: ${{ steps.get_vars.outputs.ARTIFACT }}
         path: dist/*
       if: >-
-        contains(github.ref, '/master') == true ||
-        contains(github.ref, '.RC') == true
+        github.event_name == 'push' &&
+        startsWith(github.ref, 'refs/tags')
 
   deploy:
     name: Publish
     if: >-
       github.event_name == 'push' &&
-      (
-        contains(github.ref, '/master') == true ||
-        contains(github.ref, '.RC') == true
-      )
+      startsWith(github.ref, 'refs/tags')
     needs:
       - build-test
     runs-on: ubuntu-18.04
@@ -109,9 +106,9 @@ jobs:
         echo "REPO=${REPO}"
         echo ::set-output name=REPO::${REPO}
 
-        ARTIFACT=$(echo ${REPO}*)
-        echo "ARTIFACT:${ARTIFACT}"
-        echo ::set-output name=ARTIFACT::${ARTIFACT}
+        ARTIFACT="${REPO}-${BRANCH}"
+        echo "ARTIFACT=${ARTIFACT}"
+        echo ::set-output name=ARTIFACT::${REPO}-${BRANCH}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Display artifacts
