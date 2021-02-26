@@ -31,9 +31,9 @@ jobs:
         python-version: 3.8
     - name: Install dependencies
       run: |
-        sudo apt-get -y install make bats
+        sudo apt-get -y install make
         python3 -m pip install --upgrade pip
-        python3 -m pip install --upgrade setuptools wheel twine pbr
+        python3 -m pip install --upgrade setuptools setuptools_scm wheel twine pbr
         [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         make bats-libraries
     - name: Get variables
