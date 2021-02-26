@@ -55,9 +55,9 @@ jobs:
         echo "TAG_VERSION=${TAG_VERSION}"
         echo ::set-output name=TAG_VERSION::${TAG_VERSION}
 
-        ARTIFACT="${REPO}-${VERSION}"
+        ARTIFACT="${REPO}-${BRANCH}"
         echo "ARTIFACT=${ARTIFACT}"
-        echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
+        echo ::set-output name=ARTIFACT::${REPO}-${BRANCH}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Run tests
@@ -98,21 +98,17 @@ jobs:
     - name: Get variables
       id: get_vars
       run: |
-        BRANCH=${GITHUB_REF##*/}
-        echo "BRANCH=${BRANCH}"
-        echo ::set-output name=BRANCH::${BRANCH}
-
         REPO=$(basename ${{ github.repository }})
         echo "REPO=${REPO}"
         echo ::set-output name=REPO::${REPO}
 
-        VERSION=$(python3 setup.py --version)
-        echo "VERSION=${VERSION}"
-        echo ::set-output name=VERSION::${VERSION}
+        BRANCH=${GITHUB_REF##*/}
+        echo "BRANCH=${BRANCH}"
+        echo ::set-output name=BRANCH::${BRANCH}
 
-        ARTIFACT="${REPO}-${VERSION}"
+        ARTIFACT="${REPO}-${BRANCH}"
         echo "ARTIFACT=${ARTIFACT}"
-        echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
+        echo ::set-output name=ARTIFACT::${REPO}-${BRANCH}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Display artifacts
