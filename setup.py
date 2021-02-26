@@ -77,7 +77,6 @@ setup(
     setup_requires=[
         'pbr>=5.4.5',
         'setuptools>=40.9.0',
-        'setuptools_scm',
         'pip>=20.2.2'
     ],
     python_requires=PYTHON_REQUIRES,
