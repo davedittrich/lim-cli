@@ -36,7 +36,7 @@ jobs:
       run: |
         conda config --set always_yes yes --set changeps1 no
         conda install --yes tox setuptools>=42 setuptools_scm wheel twine
-        [ -f requirements.txt ] && conda install --file requirements.txt
+        [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         echo "VERSION=$(python3 setup.py --version)"
         make bats-libraries
         # Useful for debugging any issues with conda
