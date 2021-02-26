@@ -31,11 +31,10 @@ jobs:
         auto-activate-base: true
         python-version: 3.8
         auto-update-conda: true
-        channels: conda-forge
     - name: Install dependencies
       run: |
         conda config --set always_yes yes --set changeps1 no
-        conda install --yes tox setuptools>=42 setuptools_scm wheel twine
+        python3 -m pip install tox setuptools>=42 setuptools_scm wheel twine
         [ -f requirements.txt ] && python3 -m pip install -Ur requirements.txt
         echo "VERSION=$(python3 setup.py --version)"
         make bats-libraries
