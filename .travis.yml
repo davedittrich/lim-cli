@@ -43,7 +43,7 @@ install:
   - hash -r
   - conda config --set always_yes yes --set changeps1 no
   - conda update --yes conda  # Update CONDA without command line prompt
-  - python3 -m pip install tox setuptools>=42 setuptools_scm wheel twine
+  - python3 -m pip install tox wheel twine
   - python3 -m pip install -Ur requirements.txt
   # Useful for debugging any issues with conda
   - conda info -a
