@@ -6,11 +6,11 @@ import pathlib
 __version__, __release__ = None, None
 
 if __version__ is None:
-    from setuptools_scm import get_version
     try:
+        from setuptools_scm import get_version
         __version__ = get_version(root='..', relative_to=__file__)
         __release__ = __version__.split('+')[0]
-    except LookupError:
+    except (LookupError, ModuleNotFoundError):
         pass
 
 if __version__ is None:
