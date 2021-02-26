@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=21.2.5
+VERSION:=21.2.6
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
