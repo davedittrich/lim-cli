@@ -20,8 +20,8 @@ import warnings
 
 from bs4 import BeautifulSoup
 from datetime import datetime
-from lim import BUFFER_SIZE
 from lim.utils import (
+    BUFFER_SIZE,
     safe_to_open,
     LineReader,
 )

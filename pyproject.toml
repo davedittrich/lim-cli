@@ -1,0 +1,4 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=42", "wheel", "setuptools_scm[toml]>=3.4"]
+write_to = "lim/_version.py"

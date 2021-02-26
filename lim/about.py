@@ -6,9 +6,11 @@ import textwrap
 
 from cliff.command import Command
 from lim import __version__
-from lim import add_browser_options
-from lim import copyright
-from lim import open_browser
+from lim.utils import (
+    add_browser_options,
+    copyright,
+    open_browser,
+)
 
 
 class About(Command):
