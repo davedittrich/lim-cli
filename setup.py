@@ -24,7 +24,7 @@ DOWNLOAD_URL = 'https://github.com/davedittrich/lim-cli/tarball/master'
 EMAIL = 'dave.dittrich@gmail.com'
 AUTHOR = 'Dave Dittrich'
 PYTHON_REQUIRES = '>=3.6.0'
-VERSION = get_version(root='.', relative_to=__file__).split('+')[0]
+VERSION = str(get_version(root='.', relative_to=__file__)).split('+')[0]
 # VERSION = get_version().split('+')[0]
 
 try:
