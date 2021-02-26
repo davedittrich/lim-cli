@@ -56,6 +56,7 @@ def get_absolute_path(*args):
 setup(
     name=NAME,
     pbr=False,
+    use_scm_version=True,
     version=__release__,
     description=DESCRIPTION,
     long_description=long_description + "\n\n" + history,
