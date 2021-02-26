@@ -55,8 +55,6 @@ jobs:
         ARTIFACT="${REPO}-${BRANCH}"
         echo "ARTIFACT=${ARTIFACT}"
         echo ::set-output name=ARTIFACT::${REPO}-${BRANCH}
-      env:
-        SETUPTOOLS_SCM_DEBUG: 0
     - name: Run tests
       run: make test
     - name: Build artifacts
