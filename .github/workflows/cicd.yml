@@ -55,9 +55,9 @@ jobs:
         echo "TAG_VERSION=${TAG_VERSION}"
         echo ::set-output name=TAG_VERSION::${TAG_VERSION}
 
-        ARTIFACT="${REPO}-${TAG_VERSION}"
+        ARTIFACT="${REPO}-${VERSION}"
         echo "ARTIFACT=${ARTIFACT}"
-        echo ::set-output name=ARTIFACT::${REPO}-${TAG_VERSION}
+        echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Run tests
@@ -106,9 +106,13 @@ jobs:
         echo "REPO=${REPO}"
         echo ::set-output name=REPO::${REPO}
 
-        ARTIFACT="${REPO}-${BRANCH}"
+        VERSION=$(python3 setup.py --version)
+        echo "VERSION=${VERSION}"
+        echo ::set-output name=VERSION::${VERSION}
+
+        ARTIFACT="${REPO}-${VERSION}"
         echo "ARTIFACT=${ARTIFACT}"
-        echo ::set-output name=ARTIFACT::${REPO}-${BRANCH}
+        echo ::set-output name=ARTIFACT::${REPO}-${VERSION}
       env:
         SETUPTOOLS_SCM_DEBUG: 1
     - name: Display artifacts
