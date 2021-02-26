@@ -39,7 +39,7 @@ if __version__ is None:
             pass
 
 if __version__ is None:
-    __version__ = '21.2.4'
+    __version__ = '21.2.5'
     __release__ = __version__
 
 
