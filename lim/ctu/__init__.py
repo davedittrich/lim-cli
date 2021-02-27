@@ -20,8 +20,8 @@ import warnings
 
 from bs4 import BeautifulSoup
 from datetime import datetime
-from lim import BUFFER_SIZE
 from lim.utils import (
+    BUFFER_SIZE,
     safe_to_open,
     LineReader,
 )
@@ -136,6 +136,16 @@ def unhex(x):
         return str(int(x, base=16))
     else:
         return x
+
+
+def unique_iter(iterable):
+    """Return only the unique items from an iterable."""
+    seen = set()
+    for item in iterable:
+        if item in seen:
+            continue
+        seen.add(item)
+        yield item
 
 
 # TODO(dittrich): Add support for IPv6
@@ -677,10 +687,15 @@ class CTU_Dataset(object):
             loop.add_signal_handler(signal.SIGINT, loop.stop)
             future = asyncio.ensure_future(self.run_fetch())
             loop.run_until_complete(future)
-            # Populate columns
-            columns = set()
-            for d in self._metadata.get('index'):
-                columns.update([k for k in d.keys()])
+            # Somewhat painful attempt to validate index keys match
+            # what is defined in this class.
+            used = set()
+            columns = [
+                k
+                for i in self._metadata.get('index')
+                for k in i.keys()
+                if k not in used and (used.add(k) or True)
+            ]
             extra_keys = [
                 c for c in columns
                 if c not in self.__INDEX_COLUMNS__
@@ -708,8 +723,9 @@ class CTU_Dataset(object):
         self._metadata['scenarios'][name] = dict()
         _scenario = self._metadata['scenarios'][name]
         page = await self.fetch_page(semaphore, url, session)
-        # Use set for name components to allow abbreviation later
-        _scenario['_NAME_PARTS'] = set(name.split('-'))
+        # Save name parts for later abbreviated name matching
+        # TODO(dittrich): This isn't used yet...
+        _scenario['_NAME_PARTS'] = name.split('-')
         # Underscore on _page means ignore later (logic coupling)
         _scenario['_PAGE'] = page
         _scenario['_SUCCESS'] = (
@@ -946,50 +962,39 @@ class CTU_Dataset(object):
         # TODO(dittrich): Make this more DRY.
         for dataset in self._metadata.get('index'):
             name = dataset.get('Capture_Name')
+
+            metadata = self._metadata['scenarios'][name]
             match = True
             if name_includes is not None:
                 scenario = str(dataset.get('Capture_Name')).lower()
                 find = scenario.find(name_includes.lower())
                 match = match and (find != -1)
-            elif malware_includes is not None:
+            if malware_includes is not None:
                 # Can't look for something that doesn't exist.
                 if 'Malware' not in dataset:
                     continue
                 malware_name = str(dataset.get('Malware')).lower()
                 find = malware_name.find(malware_includes.lower())
                 match = match and (find != -1)
-            elif description_includes is not None:
+            if description_includes is not None:
                 # Can't look for something that doesn't exist.
-                page = self._metadata['scenarios'][name].get('_PAGE').lower()
+                page = metadata.get('_PAGE').lower()
                 find = page.find(description_includes.lower())
                 match = match and (find != -1)
-            match = match and (
-                date_ge(dataset.get('Infection_Date'), date_starting)
-                and date_le(dataset.get('Infection_Date'), date_ending)
-            )
             if has_hash is not None:
                 match = match and (
                     has_hash == dataset.get('MD5', '')
                     or has_hash == dataset.get('SHA256', '')
                 )
-            # if not match:
-            #     continue
-            # row = dict()
-            # Support short names for Malware scenarios.
-            # if fullnames:
-            #     row['SCENARIO'] = scenario
-            # else:
-            #     row['SCENARIO'] = CTU_Dataset.get_shortname(scenario)
-            # row['Capture_URL'] = dataset.get('Capture_URL')
-            # # Get remaining attributes
-            # for c in columns:
-            #     if c not in row:
-            #         row[c] = dataset.get(c)
-            # data.append([row.get(c) for c in columns])
+            match = match and (
+                date_ge(dataset.get('Infection_Date'), date_starting)
+                and date_le(dataset.get('Infection_Date'), date_ending)
+            )
             if match:
-                data.append(
-                    [dataset.get(c, None) for c in columns]
-                )
+                # Now create row list by combining dataset and
+                # metadata dict elements.
+                row = {**dataset, **metadata}
+                data.append([row.get(c) for c in columns])
         return data
 
 

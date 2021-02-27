@@ -12,7 +12,7 @@ from lim.ctu import (
     normalize_ctu_name,
     CTU_Dataset
 )
-from lim import DEFAULT_PROTOCOLS
+from lim.utils import DEFAULT_PROTOCOLS
 from urllib.parse import urlparse
 
 
@@ -127,32 +127,37 @@ class CTUGet(Command):
             name=parsed_args.scenario[0])
         if not self.ctu_metadata.is_valid_scenario(scenario):
             raise RuntimeError(f"[-] scenario '{scenario}' does not exist")
-        if parsed_args.no_subdir is False:
-            data_dir = scenario
-        else:
+        if parsed_args.no_subdir:
             data_dir = self.app_args.data_dir
+        else:
+            data_dir = os.path.join(self.app_args.data_dir, scenario)
         if 'all' in parsed_args.data:
-            self.recursive_get_all(scenario)
+            self.recursive_get_all(name=scenario,
+                                   data_dir=data_dir)
         else:
             for attribute in parsed_args.data:
                 self.log.debug(
                     f'[+] downloading {attribute} data '
-                    f"for scenario '{scenario}'")
+                    f"for scenario '{scenario}' to {data_dir}")
                 self.ctu_metadata.fetch_scenario_content_byattribute(
-                    data_dir=data_dir, name=scenario, attribute=attribute)
+                    data_dir=data_dir,
+                    name=scenario,
+                    attribute=attribute
+                )
 
     def recursive_get_all(self,
                           name,
-                          cwd=os.getcwd(),
+                          data_dir=os.getcwd(),
                           stderr=subprocess.STDOUT,
                           shell=False):
         """Use wget to recursively get all scenario data."""
+        # Ensure data directory exists
+        os.makedirs(os.path.abspath(data_dir), exist_ok=True)
         cmd = ['wget', '-h']
         result = ""
         try:
             result = subprocess.check_output(  # nosec
                 cmd,
-                cwd=cwd,
                 stderr=stderr,
                 shell=shell
             ).decode('UTF-8').splitlines()
@@ -164,10 +169,10 @@ class CTUGet(Command):
             raise RuntimeError(message)
 
         url = self.ctu_metadata.get_scenario_data(
-            name=name, attribute='Capture_URL')
+            name=name,
+            attribute='Capture_URL'
+        )
         url_path = urlparse(url).path.lstrip('/')
-        # TODO(dittrich): Could turn this into dest= kwarg
-        basedir = os.path.basename(url_path)
         cut_dirs = len(url_path.split('/'))
         cmd = ['wget',
                '--mirror',
@@ -177,7 +182,7 @@ class CTUGet(Command):
                f'--cut-dirs={cut_dirs}',
                '--reject=index.html?*',
                '-P',
-               basedir,
+               data_dir,
                '--no-check-certificate']
         if not url.endswith('/'):
             # Required by wget --no-parent to work right
@@ -186,11 +191,11 @@ class CTUGet(Command):
         """Use subprocess.check_ouput to run subcommand"""
         self.log.debug('[+] cmd: {" ".join(cmd)}')
         self.log.info('[+] recursively getting all data '
-                      f"from {url} to '{basedir}'")
+                      f"from {url} to '{data_dir}'")
         try:
             result = subprocess.check_output(  # nosec
                 cmd,
-                cwd=cwd,
+                cwd=data_dir,
                 stderr=stderr,
                 shell=shell
             ).decode('UTF-8').splitlines()

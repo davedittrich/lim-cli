@@ -10,17 +10,19 @@ import textwrap
 
 from cliff.command import Command
 from cliff.lister import Lister
-from lim import execute
-from lim.packet_cafe import add_docker_global_options
-from lim.packet_cafe import add_packet_cafe_global_options
-from lim.packet_cafe import containers_are_running
-from lim.packet_cafe import ensure_clone
-from lim.packet_cafe import get_containers
-from lim.packet_cafe import get_images
-from lim.packet_cafe import get_workers_definitions
-from lim.packet_cafe import needs_update
-from lim.packet_cafe import require_files
-from lim.packet_cafe import rm_images
+from lim.utils import execute
+from lim.packet_cafe import (
+    add_docker_global_options,
+    add_packet_cafe_global_options,
+    containers_are_running,
+    ensure_clone,
+    get_containers,
+    get_images,
+    get_workers_definitions,
+    needs_update,
+    require_files,
+    rm_images,
+)
 
 
 logger = logging.getLogger(__name__)

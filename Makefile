@@ -1,7 +1,7 @@
 # Makefile for lim
 
 SHELL:=bash
-VERSION:=20.9.0
+VERSION:=21.2.7
 CWD:=$(shell pwd)
 ifeq ($(VIRTUAL_ENV), '')
   ENVNAME:="env"
@@ -9,6 +9,9 @@ else
   ENVNAME:=$(shell basename $(VIRTUAL_ENV) 2>/dev/null || echo "")
 endif
 PROJECT:=$(shell basename $(CWD))
+# Explicitly use 'python3' for OSs that stopped installing 'python'
+# as Python 2.7.
+PYTHON=python3
 CURRENT_ID=root:root
 
 .PHONY: all
@@ -26,7 +29,7 @@ help:
 	@echo 'release - produce a pypi production release'
 	@echo 'release-test - produce a pypi test release'
 	@echo 'release-prep - final documentation preparations for release'
-	@echo 'sdist - run "python setup.py sdist"'
+	@echo 'sdist - run "$(PYTHON) setup.py sdist"'
 	@echo 'bdist_wheel - build a universal binary wheel'
 	@echo 'twine-check - run "twine check"'
 	@echo 'clean - remove build artifacts'
@@ -37,7 +40,7 @@ help:
 	@echo 'clean-packet-cafe - remove packet_cafe contents'
 	@echo 'spotless-packet-cafe - Remove all packet_cafe files and containers'
 	@echo 'install - install pip package'
-	@echo 'install-active - run "python -m pip install -U ."'
+	@echo 'install-active - run "$(PYTHON) -m pip install -U ."'
 	@echo 'docs-tests - generate bats test output for documentation'
 	@echo 'docs-help - generate "lim help" output for documentation'
 	@echo 'docs - build Sphinx docs'
@@ -96,7 +99,7 @@ release-test: clean docs sdist bdist_wheel twine-check
 .PHONY: sdist
 sdist: docs
 	rm -f dist/.LATEST_TARGZ
-	python setup.py sdist
+	$(PYTHON) setup.py sdist
 	(cd dist && ls -t *.tar.gz 2>/dev/null | head -n 1) > dist/.LATEST_TARGZ
 	ls -lt dist/*.tar.gz
 
@@ -104,7 +107,7 @@ sdist: docs
 .PHONY: bdist_wheel
 bdist_wheel:
 	rm -f dist/.LATEST_WHEEL
-	python setup.py bdist_wheel --universal
+	$(PYTHON) setup.py bdist_wheel --universal
 	(cd dist && ls -t *.whl 2>/dev/null | head -n 1) > dist/.LATEST_WHEEL
 	ls -lt dist/*.whl
 
@@ -121,9 +124,6 @@ clean:
 	rm -rf docs/_build/{html,doctrees}
 	rm -f ctu*-cache.json
 	rm -rf dist build *.egg-info
-	rm -rf CTU-Malware-Capture-Botnet-48
-	rm -f botnet-capture-20110816-sogou.pcap
-
 
 #HELP spotless - deep clean
 .PHONY: spotless
@@ -195,21 +195,21 @@ install:
 		echo "Required virtual environment '$(REQUIRED_VENV)' not found."; \
 		exit 1; \
 	fi
-	@if [ ! -e "$(VENV_DIR)/bin/python" ]; then \
-		echo "Cannot find $(VENV_DIR)/bin/python"; \
+	@if [ ! -e "$(VENV_DIR)/bin/python3" ]; then \
+		echo "Cannot find $(VENV_DIR)/bin/python3"; \
 		exit 1; \
 	else \
 		echo "Installing into $(REQUIRED_VENV) virtual environment"; \
-		$(VENV_DIR)/bin/pip uninstall -y $(PROJECT); \
-		$(VENV_DIR)/bin/python setup.py install | grep -v 'already satisfied'; \
+		$(VENV_DIR)/bin/python3 -m pip uninstall -y $(PROJECT); \
+		$(VENV_DIR)/bin/python3 setup.py install | grep -v 'already satisfied'; \
 	fi
 
 #HELP install-active - install in the active Python virtual environment
 .PHONY: i
 .PHONY: install-active
 i install-active: bdist_wheel
-	python -m pip uninstall -y $(PROJECT)
-	python -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)" | grep -v 'already satisfied'
+	$(PYTHON) -m pip uninstall -y $(PROJECT)
+	$(PYTHON) -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)" | grep -v 'already satisfied'
 	git checkout ChangeLog
 
 #HELP docs-tests - generate bats test output for documentation
@@ -237,7 +237,7 @@ docs-help:
 	(export LIM_DATA_DIR='/path/to/data'; \
 	 export LIM_CTU_CACHE='/home/user/.lim-ctu-cache.json'; \
 	 unset LIM_BROWSER; \
-	 python -m lim help) > docs/lim-help.txt
+	 $(PYTHON) -m lim help) > docs/lim-help.txt
 
 #HELP docs - build Sphinx docs (NOT INTEGRATED YET FROM OPENSTACK CODE BASE)
 .PHONY: docs
@@ -256,11 +256,14 @@ examples:
 # Git submodules and subtrees are both a huge PITA. This is way simpler.
 
 .PHONY: bats-libraries
-bats-libraries: bats bats-support bats-assert
+bats-libraries: bats-core bats-support bats-assert
 
-bats:
-	@[ -d tests/libs/bats ] || \
-		(mkdir -p tests/libs/bats; git clone http://github.com/sstephenson/bats tests/libs/bats)
+bats-core:
+	@if [ ! -d tests/libs/bats-core ]; then \
+		mkdir -p tests/libs/bats-core; \
+		git clone http://github.com/bats-core/bats-core tests/libs/bats-core; \
+		sudo tests/libs/bats-core/install.sh /usr/local; \
+	 fi
 
 
 bats-support:

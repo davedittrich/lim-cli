@@ -59,8 +59,11 @@ Listing Scenario Data
 ---------------------
 
 The first time you run a command that processes the CTU Dataset metadata, ``lim``
-will scrape their web pages to extract metadata and cache it for a period of time
-to minimize impact on their web site.
+will load the `JSON index file`_ and scrape the web pages to the capture
+scenarios to extract metadata. This index and metadata are cached for a period
+of time to minimize impacts on their web site.
+
+.. _JSON index file: https://www.stratosphereips.org/blog/2021/1/4/stratosphere-datasets-update-quickly-browse-and-search
 
 By default, the cache will be stored in your ``HOME`` directory in a file named
 ``.lim-ctu-cache.json`` to be shared across shells. If you need to maintain separate

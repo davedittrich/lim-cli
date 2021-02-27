@@ -5,11 +5,13 @@ import logging
 import textwrap
 
 from cliff.command import Command
-from lim import add_browser_options
-from lim import open_browser
 from lim.ctu import (
     normalize_ctu_name,
     CTU_Dataset
+)
+from lim.utils import (
+    add_browser_options,
+    open_browser,
 )
 
 

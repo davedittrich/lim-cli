@@ -9,9 +9,12 @@
 
 import codecs
 import os
-import re
+# import pkg_resources
+# import re
+from lim import __release__
 
 from setuptools import setup, find_packages
+from setuptools_scm import get_version
 
 # Package meta-data.
 NAME = 'lim-cli'
@@ -21,6 +24,8 @@ DOWNLOAD_URL = 'https://github.com/davedittrich/lim-cli/tarball/master'
 EMAIL = 'dave.dittrich@gmail.com'
 AUTHOR = 'Dave Dittrich'
 PYTHON_REQUIRES = '>=3.6.0'
+VERSION = str(get_version(root='.', relative_to=__file__)).split('+')[0]
+# VERSION = get_version().split('+')[0]
 
 try:
     with open('README.rst') as readme_file:
@@ -43,13 +48,6 @@ def get_contents(*args):
         return handle.read()
 
 
-def get_version(*args):
-    """Extract the version number from a Python module."""
-    contents = get_contents(*args)
-    metadata = dict(re.findall('__([a-z]+)__ = [\'"]([^\'"]+)', contents))
-    return metadata['version']
-
-
 def get_absolute_path(*args):
     """Transform relative pathnames into absolute pathnames."""
     return os.path.join(os.path.dirname(os.path.abspath(__file__)), *args)
@@ -57,7 +55,9 @@ def get_absolute_path(*args):
 
 setup(
     name=NAME,
-    pbr=True,
+    pbr=False,
+    use_scm_version=True,
+    version=__release__,
     description=DESCRIPTION,
     long_description=long_description + "\n\n" + history,
     long_description_content_type=long_description_content_type,
@@ -74,7 +74,11 @@ setup(
                  'lim'},
     include_package_data=True,
     # Make sure this matches tox.ini!
-    setup_requires=['pbr>=5.4.5', 'setuptools>=40.9.0'],
+    setup_requires=[
+        'pbr>=5.4.5',
+        'setuptools>=40.9.0',
+        'pip>=20.2.2'
+    ],
     python_requires=PYTHON_REQUIRES,
     install_requires=get_contents('requirements.txt'),
 

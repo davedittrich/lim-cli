@@ -11,5 +11,7 @@ pandas
 pony
 python_secrets
 pyreadline
+setuptools>=42
+setuptools_scm
 six
 requests>=2.17.0

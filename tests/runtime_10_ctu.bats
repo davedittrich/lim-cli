@@ -4,11 +4,7 @@ load test_helper
 # in tests.
 
 setup_file() {
-    true
-}
-
-teardown_file() {
-    true
+    export NETWORKING=$(ping -c 3 8.8.8.8 | grep -q ' 0% packet loss' && echo "UP" || echo "DOWN")
 }
 
 setup() {
@@ -116,17 +112,32 @@ teardown() {
 +----------------+------------------------------+---------+"
 }
 
-####  ctu get  ####
-
-@test "\"lim -q ctu get Botnet-114-1 pcap\" gets PCAP file in subdir" {
-    run bash -c "[ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114-1 pcap"
-    [ -d CTU-Malware-Capture-Botnet-114-1 ]
-    [ -f CTU-Malware-Capture-Botnet-114-1/2015-04-09_capture-win2.pcap ]
+@test "\"lim -q ctu list --name-includes IoT -a --malware-includes muhstik -f csv\" works" {
+    run bash -c "$LIM -q ctu list --name-includes IoT -a --malware-includes muhstik -f csv"
+    assert_success
+    assert_output '"Infection_Date","Capture_Name","Malware","MD5","SHA256","Capture_URL","ZIP","LABELED","BINETFLOW","PCAP","WEBLOGNG"
+"2018-05-19","CTU-IoT-Malware-Capture-3-1","Muhstik","b8849fe97e39ae3afd6def618568bb09","5ce13670bc875e913e6f087a4ac0a9e343347d5babb3b5c63e1d1b199371f69a","https://mcfp.felk.cvut.cz/publicDatasets/IoTDatasets/CTU-IoT-Malware-Capture-3-1","fce7b8bbd1c1fba1d75b9dc1a60b25f49f68c9ec16b3656b52ed28290fc93c72.zip","","2018-05-21_capture.binetflow","2018-05-21_capture.pcap","2018-05-21_capture.weblogng"'
 }
 
-@test "\"lim -q ctu get Botnet-114-1 pcap --no-subdir \" gets PCAP file to cwd" {
-    run bash -c "[ -f 2015-04-09_capture-win2.pcap ] || $LIM -q ctu get Botnet-114-1 pcap --no-subdir"
-    [ -f 2015-04-09_capture-win2.pcap ]
+####  ctu get  ####
+
+@test "\"lim -q --data-dir $BATS_RUN_TMPDIR ctu get botnet-254-1 --no-subdir pcap\" works" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
+    run bash -c "$LIM -q --data-dir $BATS_RUN_TMPDIR ctu get botnet-254-1 --no-subdir pcap"
+    [ -f $BATS_RUN_TMPDIR/capture_win13.pcap ]
+}
+
+@test "\"lim -q ctu get Botnet-252-1 pcap --no-subdir \" gets PCAP file to cwd" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
+    run bash -c "(cd $BATS_RUN_TMPDIR && $LIM -q ctu get Botnet-252-1 pcap --no-subdir)"
+    [ -f $BATS_RUN_TMPDIR/2017-05-14_win10.pcap ]
+}
+
+@test "\"lim -q ctu get Botnet-252-1 pcap\" gets PCAP file in subdir" {
+    [[ "$NETWORKING" == "UP" ]] || skip "Networking appears to be down"
+    run bash -c "(cd $BATS_RUN_TMPDIR && $LIM -q ctu get Botnet-252-1 pcap)"
+    [ -d $BATS_RUN_TMPDIR/CTU-Malware-Capture-Botnet-252-1 ]
+    [ -f $BATS_RUN_TMPDIR/CTU-Malware-Capture-Botnet-252-1/2017-05-14_win10.pcap ]
 }
 
 ####  ctu show  ####

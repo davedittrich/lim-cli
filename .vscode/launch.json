@@ -158,7 +158,7 @@
             }
         },
         {
-            "name": "lim ctu list --limit 10",
+            "name": "lim ctu list -a --fit-width --limit 10",
             "type": "python",
             "request": "launch",
             "console": "integratedTerminal",
@@ -166,13 +166,12 @@
             "module": "lim",
             "args": [
                 "--debug",
-                "-vv",
                 "ctu",
                 "list",
-                "34-1",
+                "-a",
+                "--fit-width",
                 "--limit",
-                "10",
-                "--fit-width"
+                "10"
             ],
             "stopOnEntry": false,
             "env": {
@@ -369,6 +368,29 @@
                 "IoT-42-1",
                 "all",
                 "--force"
+            ],
+            "stopOnEntry": false,
+            "env": {
+                "PYTHONUNBUFFERED": "1",
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        },
+        {
+            "name": "lim --data-dir /tmp/test ctu get --no-subdir IoT-42-1 all",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}",
+            "module": "lim",
+            "args": [
+                "--debug",
+                "--data-dir",
+                "/tmp/test",
+                "ctu",
+                "get",
+                "--no-subdir",
+                "IoT-42-1",
+                "all"
             ],
             "stopOnEntry": false,
             "env": {

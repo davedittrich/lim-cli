@@ -49,23 +49,22 @@ class CTUShow(ShowOne):
 
             ::
 
-                $ lim ctu show IoT-34-1
-                +----------------+-----------------------------------------------------------------------------------+
-                | Field          | Value                                                                             |
-                +----------------+-----------------------------------------------------------------------------------+
-                | Infection_Date | 2018-12-21                                                                        |
-                | Capture_Name   | CTU-IoT-Malware-Capture-34-1                                                      |
-                | Malware        | Mirai                                                                             |
-                | MD5            | 82062b666f09fc5c0fe4f68d1ea90916                                                  |
-                | SHA256         | 49fd1cb22e0325c1f9038160da534fc23672e5509e903a94ce5bcddc893eb2c0                  |
-                | Capture_URL    | https://mcfp.felk.cvut.cz/publicDatasets/IoTDatasets/CTU-IoT-Malware-Capture-34-1 |
-                | ZIP            | 49fd1cb22e0325c1f9038160da534fc23672e5509e903a94ce5bcddc893eb2c0.zip              |
-                | LABELED        | None                                                                              |
-                | BINETFLOW      | None                                                                              |
-                | PCAP           | 2018-12-21-15-50-14-192.168.1.195.pcap                                            |
-                | WEBLOGNG       | None                                                                              |
-                +----------------+-----------------------------------------------------------------------------------+
-
+                $ lim ctu show iot-3-1
+                +----------------+----------------------------------------------------------------------------------+
+                | Field          | Value                                                                            |
+                +----------------+----------------------------------------------------------------------------------+
+                | Infection_Date | 2018-05-19                                                                       |
+                | Capture_Name   | CTU-IoT-Malware-Capture-3-1                                                      |
+                | Malware        | Muhstik                                                                          |
+                | MD5            | b8849fe97e39ae3afd6def618568bb09                                                 |
+                | SHA256         | 5ce13670bc875e913e6f087a4ac0a9e343347d5babb3b5c63e1d1b199371f69a                 |
+                | Capture_URL    | https://mcfp.felk.cvut.cz/publicDatasets/IoTDatasets/CTU-IoT-Malware-Capture-3-1 |
+                | ZIP            | fce7b8bbd1c1fba1d75b9dc1a60b25f49f68c9ec16b3656b52ed28290fc93c72.zip             |
+                | LABELED        | None                                                                             |
+                | BINETFLOW      | 2018-05-21_capture.binetflow                                                     |
+                | PCAP           | 2018-05-21_capture.pcap                                                          |
+                | WEBLOGNG       | 2018-05-21_capture.weblogng                                                      |
+                +----------------+----------------------------------------------------------------------------------+
 
            """)  # noqa
         return parser
