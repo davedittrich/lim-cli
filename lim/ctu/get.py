@@ -12,7 +12,7 @@ from lim.ctu import (
     normalize_ctu_name,
     CTU_Dataset
 )
-from lim import DEFAULT_PROTOCOLS
+from lim.utils import DEFAULT_PROTOCOLS
 from urllib.parse import urlparse
 
 

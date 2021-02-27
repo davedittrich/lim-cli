@@ -14,9 +14,11 @@ import textwrap
 
 from lim import __version__
 from lim import __release__
-from lim import copyright
-from lim import LIM_DATA_DIR
-from lim.utils import Timer
+from lim.utils import (
+    copyright,
+    LIM_DATA_DIR,
+    Timer,
+)
 from lim.packet_cafe import Packet_Cafe
 
 # External dependencies.
