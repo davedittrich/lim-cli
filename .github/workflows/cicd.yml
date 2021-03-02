@@ -122,8 +122,10 @@ jobs:
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         repository_url: https://test.pypi.org/legacy/
+        user: __token__
         password: ${{ secrets.LIM_TEST_PYPI_TOKEN }}
         packages_dir: ${{ steps.get_vars.outputs.ARTIFACT }}
+        verify_metadata: false
     - name: Publish tagged artifacts to PyPI
       if: >-
         github.event_name == 'push' &&
@@ -131,6 +133,8 @@ jobs:
         contains(github.ref, '.RC') == false
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
+        user: __token__
         password: ${{ secrets.LIM_PYPI_TOKEN }}
         packages_dir: ${{ steps.get_vars.outputs.ARTIFACT }}
+        verify_metadata: false
 
