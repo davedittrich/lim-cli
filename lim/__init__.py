@@ -14,8 +14,8 @@ if __version__ is None:
         pass
 
 if __version__ is None:
-    from pkg_resources import get_distribution, DistributionNotFound
     try:
+        from pkg_resources import get_distribution, DistributionNotFound
         __version__ = get_distribution("lim-cli").version
         __release__ = __version__
     except (DistributionNotFound, ModuleNotFoundError):
@@ -45,5 +45,6 @@ if __version__ is None:
 __author__ = 'Dave Dittrich'
 __email__ = 'dave.dittrich@gmail.com'
 
+__all__ = ['__author__', '__email__', '__version__', '__release__']
 
-# vim: set ts=4 sw=4 tw=0 et :
+# vim: set fileencoding=utf-8 ts=4 sw=4 tw=0 et :
