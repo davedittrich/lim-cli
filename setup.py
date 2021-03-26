@@ -10,22 +10,11 @@
 import codecs
 import os
 # import pkg_resources
-# import re
-from lim import __release__
 
 from setuptools import setup, find_packages
 from setuptools_scm import get_version
 
-# Package meta-data.
-NAME = 'lim-cli'
-DESCRIPTION = 'LiminalInfo command line app.'
-URL = 'https://github.com/davedittrich/lim-cli'
-DOWNLOAD_URL = 'https://github.com/davedittrich/lim-cli/tarball/master'
-EMAIL = 'dave.dittrich@gmail.com'
-AUTHOR = 'Dave Dittrich'
-PYTHON_REQUIRES = '>=3.6.0'
 VERSION = str(get_version(root='.', relative_to=__file__)).split('+')[0]
-# VERSION = get_version().split('+')[0]
 
 try:
     with open('README.rst') as readme_file:
@@ -54,54 +43,17 @@ def get_absolute_path(*args):
 
 
 setup(
-    name=NAME,
-    pbr=False,
+    # Make sure this matches tox.ini!
+    setup_requires=['setuptools>=40.9.0', 'pip>=20.2.2'],
     use_scm_version=True,
-    version=__release__,
-    description=DESCRIPTION,
     long_description=long_description + "\n\n" + history,
     long_description_content_type=long_description_content_type,
-
-    author=AUTHOR,
-    author_email=EMAIL,
-
-    url=URL,
-    download_url=DOWNLOAD_URL,
-
     namespace_packages=[],
+    package_dir={'lim': 'lim'},
     packages=find_packages(exclude=['tests']),
-    package_dir={'lim':
-                 'lim'},
     include_package_data=True,
-    # Make sure this matches tox.ini!
-    setup_requires=[
-        'pbr>=5.4.5',
-        'setuptools>=40.9.0',
-        'pip>=20.2.2'
-    ],
-    python_requires=PYTHON_REQUIRES,
     install_requires=get_contents('requirements.txt'),
-
-    license="Apache Software License",
-    keywords='lim',
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'Intended Audience :: Information Technology',
-        'Intended Audience :: Science/Research',
-        'Intended Audience :: Other Audience',
-        'License :: OSI Approved :: Apache Software License',
-        'Natural Language :: English',
-        'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.6',
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
-        'Topic :: Security',
-        'Topic :: Utilities',
-    ],
-
     test_suite='tests',
-
     entry_points={
         'console_scripts': [
             'lim = lim.__main__:main',
