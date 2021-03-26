@@ -91,8 +91,7 @@ class About(Command):
             ):
                 print(f'{ __version__ }')
             else:
-                # Hacking formatting for `lim help` by adding a tab here.
-                print(f'lim version { __version__ }\n\t{ copyright() }')
+                print(f'lim version { __version__ }\n{ copyright() }')
 
 
 # EOF

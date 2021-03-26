@@ -312,8 +312,8 @@ class LineReader(object):
 def copyright():
     """Copyright string"""
     this_year = datetime.datetime.today().year
-    copyright = textwrap.dedent(
-        f"""Author:    Dave Dittrich <dave.dittrich@gmail.com>
+    copyright = textwrap.dedent(f"""\
+        Author:    Dave Dittrich <dave.dittrich@gmail.com>
         Copyright: 2018-{ this_year }, Dave Dittrich. 2019-{ this_year }, Liminal Information Corp.
         License:   Apache 2.0 License
         URL:       https://pypi.python.org/pypi/lim-cli""")  # noqa

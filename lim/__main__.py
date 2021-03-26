@@ -111,14 +111,14 @@ class LiminalApp(App):
             help=('Limit result to no more than this many items '
                   '(0 means no limit; default: 0)')
         )
-        parser.epilog = textwrap.dedent(f"""
-        For help information on individual commands, use ``lim <command> --help``.
+        parser.epilog = textwrap.dedent(f"""\
+            For help information on individual commands, use ``lim <command> --help``.
 
-        Several commands have features that will attempt to open a browser. See
-        ``lim about --help`` to see help information about this feature and how
-        to control which browser(s) will be used.
+            Several commands have features that will attempt to open a browser. See
+            ``lim about --help`` to see help information about this feature and how
+            to control which browser(s) will be used.
 
-        { copyright() }""")  # noqa
+            """) + copyright() # noqa
         return parser
 
     def initialize_app(self, argv):
