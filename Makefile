@@ -55,7 +55,6 @@ test-tox:
 	@if [ -f .python_secrets_environment ]; then (echo '[!] Remove .python_secrets_environment prior to testing'; exit 1); fi
 	@# See comment in tox.ini file.
 	tox -e pep8,bandit,docs && tox -e py36,py37,py38,bats,pypi
-	@-git checkout ChangeLog
 
 .PHONY: test-bats
 test-bats: bats-libraries
@@ -86,7 +85,7 @@ release: clean docs sdist bdist_wheel twine-check
 #HELP release-prep - final documentation preparations for release
 .PHONY: release-prep
 release-prep: install-active clean sdist docs-help docs-tests
-	@echo 'Check in help text docs and ChangeLog?'
+	@echo 'Check in help text docs and HISTORY.rst changes?'
 
 #HELP release-test - upload to "testpypi"
 .PHONY: release-test
@@ -208,7 +207,6 @@ install:
 i install-active: bdist_wheel
 	$(PYTHON) -m pip uninstall -y $(PROJECT)
 	$(PYTHON) -m pip install -U "dist/$(shell cat dist/.LATEST_WHEEL)" | grep -v 'already satisfied'
-	git checkout ChangeLog
 
 #HELP docs-tests - generate bats test output for documentation
 .PHONY: docs-tests
