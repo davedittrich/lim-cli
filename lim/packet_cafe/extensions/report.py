@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import arrow
 import logging
 import textwrap
@@ -19,7 +18,6 @@ class Report(Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '-t', '--tool',
             metavar='<tool>',

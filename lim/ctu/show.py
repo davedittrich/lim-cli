@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import logging
 import sys
 import textwrap
@@ -19,7 +18,6 @@ class CTUShow(ShowOne):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         cache_file = CTU_Dataset.get_cache_file()
         parser.add_argument(
             '--cache-file',

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import logging
 import textwrap
 
@@ -16,7 +15,6 @@ class Endpoints(Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.epilog = textwrap.dedent("""
             List the available API endpoints for this packet-cafe server.
 

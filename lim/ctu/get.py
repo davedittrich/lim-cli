@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import logging
 import os
 import textwrap
@@ -23,7 +22,6 @@ class CTUGet(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--force',
             action='store_true',

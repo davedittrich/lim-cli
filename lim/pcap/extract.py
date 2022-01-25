@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 
-import argparse
 import dpkt
 import logging
 import os
@@ -25,7 +24,6 @@ class PCAPExtract(Command):
 
     def get_parser(self, prog_name):
         parser = super(PCAPExtract, self).get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             'pcap',
             nargs='*',

@@ -6,25 +6,27 @@
 # in output of ``lim help``).
 
 # Standard library modules.
-import argparse
 import logging
 import os
 import sys
 import textwrap
 
-from lim import __version__
-from lim import __release__
+# External imports
+from cliff.app import App
+from cliff.commandmanager import CommandManager
+
+# Local imports
+from lim import (
+    __release__,
+    __version__,
+)
+from lim.packet_cafe import Packet_Cafe
 from lim.utils import (
     copyright,
     LIM_DATA_DIR,
     Timer,
 )
-from lim.packet_cafe import Packet_Cafe
 
-# External dependencies.
-
-from cliff.app import App
-from cliff.commandmanager import CommandManager
 
 if sys.version_info < (3, 6, 0):
     print(f"The { os.path.basename(sys.argv[0]) } program "
@@ -62,7 +64,19 @@ class LiminalApp(App):
             description,
             version
         )
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
+        # OCD hack: Make ``help`` output report main program name,
+        # even if run as ``python -m psec.main`` or such.
+        if parser.prog.endswith('.py'):
+            parser.prog = self.command_manager.namespace
+        # Replace the cliff SmartHelpFormatter class before first use
+        # by subcommand `--help`.
+        # pylint: disable=wrong-import-order
+        from lim.utils import CustomFormatter
+        from cliff import _argparse
+        _argparse.SmartHelpFormatter = CustomFormatter
+        # pylint: enable=wrong-import-order
+        # We also need to change app parser, which is separate.
+        parser.formatter_class = CustomFormatter
         # Global options
         parser.add_argument(
             '-D', '--data-dir',

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import json
 import logging
 import pprint
@@ -25,7 +24,6 @@ class Raw(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument('sess_id', nargs='?', default=None)
         parser.add_argument('req_id', nargs='?', default=None)
         parser.add_argument(

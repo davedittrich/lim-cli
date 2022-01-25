@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import argparse
 import asyncio
 import datetime
 import logging
@@ -31,6 +32,15 @@ SYSLOG = False
 
 
 logger = logging.getLogger(__name__)
+
+
+class CustomFormatter(
+    argparse.RawDescriptionHelpFormatter,
+    argparse.ArgumentDefaultsHelpFormatter,
+):
+    """
+    Custom class to control arparse help output formatting.
+    """
 
 
 def find(lst, key, value):

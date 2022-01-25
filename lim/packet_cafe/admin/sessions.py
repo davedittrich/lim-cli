@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import logging
 import sys
 import textwrap
@@ -18,7 +17,6 @@ class Sessions(Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.epilog = textwrap.dedent("""
             List the current session IDS in the packet-cafe service.
             Returns shell exit code ``0`` if one or more sessiona are

@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import git
 import logging
 import os
@@ -67,7 +66,6 @@ class ImagesBuild(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         update = parser.add_mutually_exclusive_group(required=False)
         update.add_argument(
             '-u', '--update',
@@ -148,7 +146,6 @@ class ContainersDown(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Bring down the container stack associated with Packet Café services.
@@ -235,7 +232,6 @@ class ImagesList(Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument(
             '--rm',
             action='store_true',
@@ -343,7 +339,6 @@ class ImagesPull(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         update = parser.add_mutually_exclusive_group(required=False)
         update.add_argument(
             '-u', '--update',
@@ -407,7 +402,6 @@ class ContainersList(Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         # Text here also copied to docs/packet_cafe.rst
         parser.epilog = textwrap.dedent("""
             Produces a table listing the Docker containers associated with
@@ -471,7 +465,6 @@ class ContainersUp(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         update = parser.add_mutually_exclusive_group(required=False)
         update.add_argument(
             '-u', '--update',

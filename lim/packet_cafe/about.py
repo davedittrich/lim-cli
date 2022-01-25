@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 
-import argparse
 import logging
 import textwrap
 
@@ -24,7 +23,6 @@ class About(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser = add_browser_options(parser)
         # NOTE(dittrich): Text here is coupled w/ lim/__init__.py
         parser.epilog = textwrap.dedent(f"""

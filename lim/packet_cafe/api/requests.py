@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import argparse
 import logging
 import textwrap
 
@@ -17,7 +16,6 @@ class Requests(Lister):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser.add_argument('sess_id', nargs='?', default=None)
         parser.epilog = textwrap.dedent("""
             List current request IDs for a specific packet-cafe session ID. By default,

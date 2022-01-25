@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 
-import argparse
 import logging
 import textwrap
 
@@ -27,7 +26,6 @@ class UI(Command):
 
     def get_parser(self, prog_name):
         parser = super().get_parser(prog_name)
-        parser.formatter_class = argparse.RawDescriptionHelpFormatter
         parser = add_browser_options(parser)
         parser.epilog = textwrap.dedent("""
             Opens up the packet-cafe UI in a browser.
